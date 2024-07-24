@@ -6,7 +6,7 @@
 /*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 14:23:05 by soutin            #+#    #+#             */
-/*   Updated: 2024/07/24 16:04:10 by soutin           ###   ########.fr       */
+/*   Updated: 2024/07/24 19:10:30 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,26 +27,52 @@ int	main()
 	
 	sockAddr.sin_family = AF_INET;
 	sockAddr.sin_port = htons(7777);
-	sockAddr.sin_addr.s_addr = INADDR_ANY;
+	sockAddr.sin_addr.s_addr = INADDR_ANY; //?
 
 	if (bind(sockFd, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0)
 	{
 		std::cerr << "bind error\n";
 		return 1;
 	}
-	if (listen(sockFd, 5) < 0)
+	if (listen(sockFd, SOMAXCONN) < 0)
 	{
-		std::cerr << "lsiten error\n";
+		std::cerr << "listen error\n";
 		return 1;
 	}
 	std::cout << "Listens ...\n";
-	addrLen = sizeof(sockAddr);
-	connection = accept(sockFd, (struct sockaddr*)&sockAddr, &addrLen);
-	if (connection < 0)
+	char buffer[256];
+	while (1)
 	{
-		std::cerr << "accept error\n";
-		return 1;
+		addrLen = sizeof(sockAddr);
+		connection = accept(sockFd, (struct sockaddr*)&sockAddr, &addrLen);
+		if (connection < 0)
+		{
+			std::cerr << "accept error\n";
+			continue;
+		}
+		std::cout << "Connection made with " << inet_ntoa(sockAddr.sin_addr) << "\n";
+		int n = recv(connection, buffer, 255, 0);
+		if (n < 0)
+		{
+			std::cerr << "Error receiving message from client\n";
+            close(connection);
+            continue;
+		}
+		else if (n == 0)
+		{
+			std::cout << "Client disconnected\n";
+			close(connection);
+			continue;
+		}
+		buffer[n] = '\0';
+		std::cout << buffer << "\n";
+		if (send(connection, ": 001 bilou : Welcome to the IRC server!\n", 42, 0) < 0)
+		{
+			std::cerr << "send error\n";
+			continue;
+		}
 	}
-	std::cout << "Connection made.\n";
+	close(sockFd);
+	close(connection);
 	return 0;
 }
