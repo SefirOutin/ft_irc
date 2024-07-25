@@ -53,3 +53,31 @@ int Server::startServer()
   }
   return 0;
 }
+
+int Server::listensMsg()
+{
+  char buffer[256];
+  while (1)
+  {
+    int n = recv(_connection, buffer, 255, 0);
+    if (n < 0)
+    {
+      std::cerr << "Error receiving message from client\n";
+      close(_connection);
+      return (1);
+    }
+    else if (n == 0)
+    {
+      std::cout << "Client disconnected\n";
+      close(_connection);
+      return (1);
+    }
+    buffer[n] = '\0';
+    std::cout << buffer << "\n";
+    if (send(_connection, ": 001 bilou : Welcome to the IRC server!\n", 42, 0) < 0)
+    {
+      std::cerr << "send error\n";
+      return (1);
+    }
+  }
+}
