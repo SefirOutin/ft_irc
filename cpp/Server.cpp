@@ -59,6 +59,8 @@ int Server::sendMsg(const char *buffer)
 {
   if (send(_connection, buffer, strlen(buffer), 0) < 0)
     std::cerr << "send error\n";
+  std::cout << "Msg send to client" << buffer;
+
   return (0);
 }
 
@@ -80,6 +82,6 @@ std::string Server::listensMsg()
     return (NULL);
   }
   buffer[n] = '\0';
-  std::cout << buffer;
+  std::cout << "Receive from client: " << buffer;
   return std::string(buffer);
 }
