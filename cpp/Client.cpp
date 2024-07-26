@@ -54,7 +54,7 @@ std::string Client::listensMsg()
     return NULL;
   }
   buffer[n] = '\0';
-  std::cout << "Received from server: " << buffer;
+  std::cout << "Received from server >>>> " << buffer;
 
   return std::string(buffer);
 }
@@ -66,6 +66,6 @@ int Client::sendMsg(const char *buffer)
     std::cerr << "Erreur lors de l'envoi du message" << std::endl;
     return EXIT_FAILURE;
   }
-  std::cout << "Msg send to server" << buffer;
+  std::cout << "Msg send to server >>>> " << buffer;
   return 0;
 }

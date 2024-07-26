@@ -6,7 +6,7 @@
 /*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 14:23:05 by soutin            #+#    #+#             */
-/*   Updated: 2024/07/26 20:40:24 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/07/26 20:45:01 by bmoudach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	server.connectToClient();
 	while (1)
 	{
-		 std::string msg = server.listensMsg();
+		std::string msg = server.listensMsg();
 		client.sendMsg(msg.c_str());
 		msg = client.listensMsg();
 		server.sendMsg(msg.c_str());
