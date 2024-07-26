@@ -66,6 +66,5 @@ int Client::sendMsg(const char *buffer)
     std::cerr << "Erreur lors de l'envoi du message" << std::endl;
     return EXIT_FAILURE;
   }
-  std::cout << "Msg send to server >>>> " << buffer;
   return 0;
 }

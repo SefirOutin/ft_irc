@@ -59,8 +59,6 @@ int Server::sendMsg(const char *buffer)
 {
   if (send(_connection, buffer, strlen(buffer), 0) < 0)
     std::cerr << "send error\n";
-  std::cout << "Msg send to client >>>> " << buffer;
-
   return (0);
 }
 
