@@ -4,7 +4,7 @@ SRCS_DIR	=	srcs
 OBJS_DIR	=	objs
 
 SRCS		=	cpp/main.cpp \
-					cpp/Server.cpp \
+				cpp/Proxy.cpp \
 					cpp/Client.cpp
 
 OBJS		=	$(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS))

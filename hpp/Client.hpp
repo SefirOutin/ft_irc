@@ -5,20 +5,20 @@
 #include <unistd.h>
 #include <irc.hpp>
 #include <string.h>
-class Client
-{
+// class Client
+// {
 
-public:
-  Client(const char *ip, int port);
+// public:
+//   Client(const char *ip, int port);
 
-  ~Client();
+//   ~Client();
 
-  int connectToServer();
-  std::string listensMsg();
-  int sendMsg(const char *buffer);
+//   int connectToServer();
+//   std::string listensMsg();
+//   int sendMsg(const char *buffer);
 
-private:
-  int _port, _sockFd, _connection;
-  const char *_ip;
-  sockaddr_in _sockAddr;
-};
+// private:
+//   int _port, _sockFd, _connection;
+//   const char *_ip;
+//   sockaddr_in _sockAddr;
+// };
