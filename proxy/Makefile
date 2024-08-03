@@ -1,11 +1,10 @@
-NAME		=	ircserv
+NAME		=	proxy
 
 SRCS_DIR	=	cpp
 OBJS_DIR	=	objs
 
 SRCS		=	cpp/main.cpp \
 				cpp/Proxy.cpp \
-					cpp/Client.cpp
 
 OBJS		=	$(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS))
 

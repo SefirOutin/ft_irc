@@ -3,12 +3,17 @@
 #include <iostream>
 #include <map>
 #include <unistd.h>
-#include <irc.hpp>
 #include <string.h>
 #include <vector>
 #include <poll.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <cstdlib>
+#include <ctime>
+#include <sys/time.h>
 
 class Proxy
 {
@@ -23,7 +28,7 @@ class Proxy
     void forwardData(size_t index);
     // void handleServerMessage(size_t index);
     // void removeConnection(int fd);
-    
+    int connectToServer();
     // int connectToClient();
     // std::string listensMsg();
     // int sendMsg(const char *buffer);
