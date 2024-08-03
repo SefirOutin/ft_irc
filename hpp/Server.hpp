@@ -4,6 +4,7 @@
 #include <map>
 #include <unistd.h>
 #include <string.h>
+#include <string>
 #include <vector>
 #include <poll.h>
 #include <errno.h>
@@ -15,22 +16,21 @@
 #include <ctime>
 #include <sys/time.h>
 
-class Proxy
+class Server
 {
   public:
-    Proxy(int port, const char *destIp, const int destPort);
+    Server(int port, const std::string &password);
 
-    ~Proxy();
+    ~Server();
 
-    int startProxy();
+    int startServer();
     int run();
     int acceptConnections();
-    void forwardData(size_t index);
-    int connectToServer();
+    // void forwardData(size_t index);
 
   private:
-    int _proxySockFd, _serverSockFd;
-    const char *_destIp;
-    sockaddr_in _proxySockAddr, _serverSockAddr;
-    std::vector<struct pollfd> _fds;
+    int 						_sockFd;
+    sockaddr_in 				_sockAddr;
+    std::vector<struct pollfd>	_fds;
+	std::string					_password;
 };

@@ -6,7 +6,7 @@
 /*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 16:10:24 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/03 17:16:41 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/03 19:45:29 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ Proxy::Proxy(int proxyPort, const char *destIp, const int destPort) :
 
 Proxy::~Proxy()
 {
-  for (size_t i = 0; i < connections.size(); i++)
-    close(connections[i].fd);
+  for (size_t i = 0; i < _fds.size(); i++)
+    close(_fds[i].fd);
 }
 
 int Proxy::startProxy()
@@ -66,7 +66,7 @@ int Proxy::startProxy()
 	std::cout << "Listens ...\n";
     proxyPollFd.fd = _proxySockFd;
     proxyPollFd.events = POLLIN;
-    connections.push_back(proxyPollFd);
+    _fds.push_back(proxyPollFd);
     connectToServer();
 	return (0);
 }
@@ -79,25 +79,19 @@ long getCurrentTimeInMilliseconds() {
 
 int Proxy::run()
 {
-    std::clock_t start, end;
-    
     while (1)
     {
-        start = getCurrentTimeInMilliseconds();
-        int poll_count = poll(connections.data(), connections.size(), -1);
+        int poll_count = poll(_fds.data(), _fds.size(), -1);
         if (poll_count < 0)
         {
             std::cerr << "poll error\n";
             return 1;
         }
-        end = getCurrentTimeInMilliseconds();
-        std::cout << "poll duration: " << end - start<< " ms\n";
-        for (size_t i = 0; i < connections.size(); ++i)
+        for (size_t i = 0; i < _fds.size(); ++i)
 		{
-            std::cout << "i: " << i << "revent: " << connections[i].revents << "\n";
-			if (connections[i].revents & POLLIN)
+			if (_fds[i].revents & POLLIN)
             {
-                if (connections[i].fd == _proxySockFd)
+                if (_fds[i].fd == _proxySockFd)
 					acceptConnections();
                 else
 					forwardData(i);
@@ -123,7 +117,7 @@ int Proxy::acceptConnections()
     }
     clientPollFd.fd = new_connection;
 	clientPollFd.events = POLLIN;
-	connections.push_back(clientPollFd);
+	_fds.push_back(clientPollFd);
     std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
     return (0);
 }
@@ -132,22 +126,22 @@ void Proxy::forwardData(size_t index)
 {
 	char	buffer[1024];
 
-    int nbytes = recv(connections[index].fd, buffer, 1024, 0);
+    int nbytes = recv(_fds[index].fd, buffer, 1024, 0);
     if (nbytes <= 0)
 	{
         if (nbytes == 0)
             std::cout << "Connection closed" << std::endl;
         else
             std::cerr << "recv failed" << "\n";
-        close(connections[index].fd);
-		connections.erase(connections.begin() + index);
+        close(_fds[index].fd);
+		_fds.erase(_fds.begin() + index);
         return ;
     }
     buffer[nbytes] = '\0';
     std::cout << "Received data: " << buffer << std::endl;
-    if (connections[index].fd == _serverSockFd)
-        for (size_t j = 2; j < connections.size(); j++)
-            send(connections[j].fd, buffer, nbytes, 0);
+    if (_fds[index].fd == _serverSockFd)
+        for (size_t j = 2; j < _fds.size(); j++)
+            send(_fds[j].fd, buffer, nbytes, 0);
     else
         send(_serverSockFd, buffer, nbytes, 0);
 }
@@ -177,6 +171,6 @@ int Proxy::connectToServer()
 	std::cout << "Connected to server\n";
 	serverPollFd.fd = _serverSockFd;
     serverPollFd.events = POLLIN;
-    connections.push_back(serverPollFd);
+    _fds.push_back(serverPollFd);
     return (0);
 }
