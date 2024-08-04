@@ -6,7 +6,7 @@
 /*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 16:10:24 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/03 19:45:29 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/04 19:00:30 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,12 +138,18 @@ void Proxy::forwardData(size_t index)
         return ;
     }
     buffer[nbytes] = '\0';
-    std::cout << "Received data: " << buffer << std::endl;
     if (_fds[index].fd == _serverSockFd)
+    {
         for (size_t j = 2; j < _fds.size(); j++)
             send(_fds[j].fd, buffer, nbytes, 0);
+        std::cout << "data to client: " << buffer << std::endl;
+        
+    }
     else
+    {
         send(_serverSockFd, buffer, nbytes, 0);
+        std::cout << "data to server: " << buffer << std::endl;
+    }
 }
 
 
