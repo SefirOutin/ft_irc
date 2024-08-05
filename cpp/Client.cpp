@@ -3,13 +3,26 @@
 
 std::string Client::parseValue(const std::string &buff, const std::string &command)
 {
-  std::istringstream stream(buff);
-  std::string line;
-  while (std::getline(stream, line))
-  {
-    std::cout << line << std::endl;
-  }
-  return "";
+	// std::istringstream stream(buff);
+	// std::string line;
+	// (void)command;
+	// while (std::getline(stream, line))
+	// {
+	// 	// std::cout << line << std::endl;
+	// }
+	// return ("");
+    std::size_t startPos = buff.find(command);
+    if (startPos != std::string::npos)
+    {
+      startPos += command.length() + 1;
+      std::size_t endPos = buff.find('\n', startPos) - 1;
+      if (endPos == std::string::npos)
+      {
+        endPos = buff.length();
+      }
+      return (buff.substr(startPos, endPos - startPos));
+    }
+    return ("");
 }
 
 Client::Client(std::string buff)

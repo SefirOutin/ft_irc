@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/05 14:16:38 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/08/05 19:34:57 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,30 +121,26 @@ std::string parseValue(const std::string &input, const std::string &prefix)
 		{
 			endPos = input.length();
 		}
-		return input.substr(startPos, endPos - startPos);
+		return (input.substr(startPos, endPos - startPos));
 	}
-	return "";
+	return ("");
 }
 int Server::registration(std::string buff, size_t index)
 {
-	std::ostringstream reSend;
-	if (index == _clients.size() + 1)
-	{
-		std::cout << (int)index << " " << (int)_clients.size() + 1 << std::endl;
-		Client client(buff);
-		_clients.push_back(client);
-	}
+	if (index < _clients.size() + 1)
+		return (0);
 
+	Client client(buff);
+	
+	std::cout << (int)index << " " << (int)_clients.size() + 1 << std::endl;
+	std::cout << "nick: " << client.getNick() << " username: " << client.getUserName() << " realname: " <<client.getRealName() << " ip: " << client.getIp() << "\n";
 	if (!_password.compare(parseValue(buff, "PASS")))
 	{
-		reSend << ": 001 " << parseValue(buff, "NICK") << " : Welcome to the IRC server!\n";
-		std::string message = reSend.str();
-		ssize_t nbytes = send(_fds[index].fd, message.c_str(), message.length(), 0);
-		if (nbytes == -1)
-		{
-			return -1;
-		}
+		std::string message = ": 001 " + parseValue(buff, "NICK") + " : Welcome to the IRC server!\n";
+		if (send(_fds[index].fd, message.c_str(), message.length(), 0) < 0)
+			return (-1);
 	}
+	_clients.push_back(client);
 	return 1;
 }
 
@@ -171,6 +167,9 @@ void Server::receivedData(size_t index)
 		return;
 	}
 	buffer[nbytes] = '\0';
+	if (nbytes > 510)
+		std::cerr << "too many char\n";
+	// std::cout <<buffer << "\n";
 	if (!handleData(buffer, index))
 		return;
 }
