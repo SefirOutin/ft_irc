@@ -6,13 +6,14 @@
 /*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/05 19:34:57 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/06 18:25:32 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(int port, const std::string &password) : _password(password)
+Server::Server(int port, const std::string &password)
+		: _password(password)
 {
 	_sockAddr.sin_family = AF_INET;
 	_sockAddr.sin_port = htons(port);
@@ -28,15 +29,17 @@ Server::~Server()
 int Server::startServer()
 {
 	struct pollfd pollFd;
-	int on = 1;
+	int on;
 
+	on = 1;
 	_sockFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_sockFd < 0)
 	{
 		std::cerr << "socket error\n";
 		return (1);
 	}
-	if (setsockopt(_sockFd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on)) < 0)
+	if (setsockopt(_sockFd, SOL_SOCKET, SO_REUSEADDR, (char *)&on,
+								 sizeof(on)) < 0)
 	{
 		std::cerr << "setsockopt() failed\n";
 		close(_sockFd);
@@ -51,12 +54,12 @@ int Server::startServer()
 	if (bind(_sockFd, (struct sockaddr *)&_sockAddr, sizeof(_sockAddr)) < 0)
 	{
 		std::cerr << "bind error\n";
-		return 1;
+		return (1);
 	}
 	if (listen(_sockFd, SOMAXCONN) < 0)
 	{
 		std::cerr << "listen error\n";
-		return 1;
+		return (1);
 	}
 	std::cout << "Listens ...\n";
 	pollFd.fd = _sockFd;
@@ -67,9 +70,11 @@ int Server::startServer()
 
 int Server::run()
 {
+	int poll_count;
+
 	while (1)
 	{
-		int poll_count = poll(_fds.data(), _fds.size(), -1);
+		poll_count = poll(_fds.data(), _fds.size(), -1);
 		if (poll_count < 0)
 		{
 			std::cerr << "poll error\n";
@@ -97,13 +102,16 @@ int Server::acceptConnections()
 	int new_connection;
 
 	addrLen = sizeof(clientSockAddr);
-	new_connection = accept(_sockFd, (struct sockaddr *)&clientSockAddr, &addrLen);
+	new_connection = accept(_sockFd, (struct sockaddr *)&clientSockAddr,
+													&addrLen);
 	if (new_connection < 0)
 	{
-		std::cerr << "accept failed" << "\n";
+		std::cerr << "accept failed"
+							<< "\n";
 		return (1);
 	}
 	clientPollFd.fd = new_connection;
+	std::cout << "fd: " << new_connection << "\n";
 	clientPollFd.events = POLLIN;
 	_fds.push_back(clientPollFd);
 	std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
@@ -127,21 +135,19 @@ std::string parseValue(const std::string &input, const std::string &prefix)
 }
 int Server::registration(std::string buff, size_t index)
 {
-	if (index < _clients.size() + 1)
+	if (index != _clients.size() + 1)
 		return (0);
-
-	Client client(buff);
-	
-	std::cout << (int)index << " " << (int)_clients.size() + 1 << std::endl;
-	std::cout << "nick: " << client.getNick() << " username: " << client.getUserName() << " realname: " <<client.getRealName() << " ip: " << client.getIp() << "\n";
 	if (!_password.compare(parseValue(buff, "PASS")))
 	{
 		std::string message = ": 001 " + parseValue(buff, "NICK") + " : Welcome to the IRC server!\n";
 		if (send(_fds[index].fd, message.c_str(), message.length(), 0) < 0)
 			return (-1);
+		Client client(buff);
+		std::cout << (int)index << " " << (int)_clients.size() + 1 << std::endl;
+		std::cout << "nick: " << client.getNick() << " username: " << client.getUserName() << " realname: " << client.getRealName() << " ip: " << client.getIp() << "\n";
+		_clients.push_back(client);
 	}
-	_clients.push_back(client);
-	return 1;
+	return (1);
 }
 
 int Server::handleData(std::string buff, size_t index)
@@ -154,14 +160,19 @@ int Server::handleData(std::string buff, size_t index)
 void Server::receivedData(size_t index)
 {
 	char buffer[1024];
+	int nbytes;
 
-	int nbytes = recv(_fds[index].fd, buffer, 1024, 0);
+	nbytes = recv(_fds[index].fd, buffer, 1024, 0);
 	if (nbytes <= 0)
 	{
 		if (nbytes == 0)
-			std::cout << "Connection closed" << std::endl;
+		{
+			std::cout << "Connection closed" << index << std::endl;
+			_clients.erase(_clients.begin() + index - 1);
+		}
 		else
-			std::cerr << "recv failed" << "\n";
+			std::cerr << "recv failed"
+								<< "\n";
 		close(_fds[index].fd);
 		_fds.erase(_fds.begin() + index);
 		return;

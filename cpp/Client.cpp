@@ -22,7 +22,8 @@ std::string Client::parseValue(const std::string &buff, const std::string &comma
       }
       return (buff.substr(startPos, endPos - startPos));
     }
-    return ("");
+    return ("bite");
+  
 }
 
 Client::Client(std::string buff)
