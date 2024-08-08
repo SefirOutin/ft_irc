@@ -19,20 +19,19 @@
 
 class Client
 {
-	public:
-		Client(std::string buff);
-		~Client();
-	
-		std::string getNick();
-		std::string getRealName();
-		std::string getUserName();
-		std::string	getIp();
-	
-	private:
-		std::string		_nick;
-		std::string		_realName;
-		std::string		_userName;
-		std::string		_ip;
+public:
+	Client();
+	~Client();
 
-		std::string parseValue(const std::string &buff, const std::string &command);
+	std::string getNick();
+	std::string getPass();
+	std::string getUser();
+	void setNick(std::string nick);
+	void setPass(std::string pass);
+	void setUser(std::string user);
+
+private:
+	std::string _nick;
+	std::string _pass;
+	std::string _user;
 };
