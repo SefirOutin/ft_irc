@@ -6,7 +6,7 @@
 /*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/08 19:02:00 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/08/08 19:06:58 by bmoudach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,7 @@ void Server::NICK(std::string arg, size_t index)
 		if (_clients[i].getNick() == arg)
 		{
 			std::cout << "----" << std::endl;
-			std::string buff = ": 433 bilel : Nickname is already in use\r\n";
+			std::string buff = ": 433 " + arg + " : Nickname is already in use\r\n";
 			send(_fds[index].fd, buff.c_str(), buff.size(), 0);
 			_clients.erase(_clients.begin() + i);
 			return;
