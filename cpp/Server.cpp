@@ -6,7 +6,7 @@
 /*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/09 14:56:27 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/08/09 15:36:57 by bmoudach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,7 @@ int Server::handleData(std::string cmd, std::string arg, size_t index)
 
 void Server::PASS(std::string arg, size_t index)
 {
+	std::cout << arg << std::endl;
 	if (!_clients[index - 1].getPass().empty())
 	{
 		std::string buff = ": 462  :You may not reregister !\r\n";
