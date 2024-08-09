@@ -33,11 +33,10 @@ public:
 	void receivedData(size_t index);
 	int getCmd(std::string buff, size_t index);
 	int handleData(std::string cmd, std::string arg, size_t index);
-	void PASS(std::string arg,size_t index);
-	void NICK(std::string arg,size_t index);
-	void USER(std::string arg,size_t index);
-
-
+	bool nickAlreadyInUse(std::string arg,size_t index);
+	void PASS(std::string arg, size_t index);
+	void NICK(std::string arg, size_t index);
+	void USER(std::string arg, size_t index);
 
 private:
 	int _sockFd;
@@ -45,5 +44,4 @@ private:
 	std::vector<struct pollfd> _fds;
 	std::vector<Client> _clients;
 	std::string _password;
-	
 };

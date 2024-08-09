@@ -1,0 +1,5 @@
+PB:
+  Identification du client 
+  Exemple :Connexion dun deuxieme client;
+    Test a faire avec same nick 
+  
