@@ -6,7 +6,7 @@
 /*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/09 15:52:47 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/09 15:54:29 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,12 @@ int Server::getCmd(std::string buff, size_t index)
 			size_t posFirstSpace = line.find(" ");
 			std::string cmd = line.substr(0, posFirstSpace);
 			if (posFirstSpace != arg.npos)
+			{
+				std::cout << posLastCr << std::endl;
+				std::cout << line << std::endl;
 				arg = line.substr(posFirstSpace + 1, posLastCr);
+				arg.erase(std::remove(arg.begin(), arg.end(), '\r'), arg.end());
+			}
 			handleData(cmd, arg, index);
 		}
 	}
