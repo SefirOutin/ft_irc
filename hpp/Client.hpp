@@ -23,15 +23,18 @@ public:
 	Client();
 	~Client();
 
-	std::string getNick();
-	std::string getPass();
-	std::string getUser();
-	void setNick(std::string nick);
-	void setPass(std::string pass);
-	void setUser(std::string user);
+	std::string	getNick();
+	std::string	getPass();
+	std::string	getUser();
+	int			getFd();
+	void		setNick(std::string nick);
+	void		setPass(std::string pass);
+	void		setUser(std::string user);
+	void		setFd(int fd);
 
 private:
 	std::string _nick;
 	std::string _pass;
 	std::string _user;
+	int			_fd;
 };

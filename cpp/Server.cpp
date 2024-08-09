@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/09 15:36:57 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/08/09 15:52:47 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,7 @@ int Server::acceptConnections()
 							<< "\n";
 		return (1);
 	}
+	std::cout << "accept fd: " << new_connection << "\n";
 	clientPollFd.fd = new_connection;
 	clientPollFd.events = POLLIN;
 	_fds.push_back(clientPollFd);
@@ -150,12 +151,14 @@ void Server::receivedData(size_t index)
 		if (nbytes == 0)
 		{
 			std::cout << "Connection closed" << index << std::endl;
-			if (_clients.size() == index)
-				_clients.erase(_clients.begin() + index - 1);
 		}
 		else
 			std::cerr << "recv failed"
 								<< "\n";
+		std::cout << "cli fd: " << _clients[index].getFd()<< " fds fd: " << _fds[index].fd <<"\n";
+		if (_clients[index].getFd() == _fds[index].fd)
+			_clients.erase(_clients.begin() + index - 1);
+		// if (_clients.size() == index)
 		close(_fds[index].fd);
 		_fds.erase(_fds.begin() + index);
 		return;
@@ -172,6 +175,8 @@ int Server::handleData(std::string cmd, std::string arg, size_t index)
 	if (_clients.size() < index)
 	{
 		Client cli;
+		cli.setFd(_fds[index].fd);
+		std::cout << "client fd: " << cli.getFd() << "\n";
 		_clients.push_back(cli);
 	}
 	if (!cmd.compare("PASS"))
