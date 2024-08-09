@@ -6,14 +6,14 @@
 /*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/08 19:06:58 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/08/09 14:56:27 by bmoudach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 Server::Server(int port, const std::string &password)
-		: _password(password + '\r')
+		: _password(password)
 {
 	_sockAddr.sin_family = AF_INET;
 	_sockAddr.sin_port = htons(port);
@@ -127,9 +127,12 @@ int Server::getCmd(std::string buff, size_t index)
 	{
 		if (std::getline(buffer, line))
 		{
+			std::string arg;
+			size_t posLastCr = line.find("\r");
 			size_t posFirstSpace = line.find(" ");
 			std::string cmd = line.substr(0, posFirstSpace);
-			std::string arg = line.substr(posFirstSpace + 1);
+			if (posFirstSpace != arg.npos)
+				arg = line.substr(posFirstSpace + 1, posLastCr);
 			handleData(cmd, arg, index);
 		}
 	}
@@ -147,7 +150,8 @@ void Server::receivedData(size_t index)
 		if (nbytes == 0)
 		{
 			std::cout << "Connection closed" << index << std::endl;
-			_clients.erase(_clients.begin() + index - 1);
+			if (_clients.size() == index)
+				_clients.erase(_clients.begin() + index - 1);
 		}
 		else
 			std::cerr << "recv failed"
@@ -176,12 +180,32 @@ int Server::handleData(std::string cmd, std::string arg, size_t index)
 		NICK(arg, index);
 	else if (!cmd.compare("USER"))
 		USER(arg, index);
+	// else if (!cmd.compare("JOIN"))
+	// JOIN(arg, index);
 	return (0);
 }
 
 void Server::PASS(std::string arg, size_t index)
 {
-	_clients[index - 1].setPass(arg);
+	if (!_clients[index - 1].getPass().empty())
+	{
+		std::string buff = ": 462  :You may not reregister !\r\n";
+		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
+	}
+	else if (arg.compare(_password) && !arg.empty())
+	{
+		std::string buff = ": 464 * : Password incorrect !\r\n";
+		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
+		_clients.erase(_clients.begin() + (index - 1));
+	}
+	else if (!arg.compare(_password))
+		_clients[index - 1].setPass(arg);
+	else if (arg.empty())
+	{
+		std::string buff = ": 461 * : Not enough parameters.\r\n";
+		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
+		_clients.erase(_clients.begin() + (index - 1));
+	}
 }
 void Server::NICK(std::string arg, size_t index)
 {
@@ -196,7 +220,12 @@ void Server::NICK(std::string arg, size_t index)
 			return;
 		}
 	}
-	if (_clients[index - 1].getPass().empty())
+	if (arg.empty())
+	{
+		std::string buff = ": 431 * : No nickname given.\r\n";
+		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
+	}
+	else if (_clients[index - 1].getPass().empty())
 	{
 		std::string buff = ": 451 " + arg + " : You have not registered!\r\n";
 		send(_fds[index].fd, buff.c_str(), buff.size(), 0);

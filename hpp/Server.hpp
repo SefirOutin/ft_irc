@@ -45,4 +45,5 @@ private:
 	std::vector<struct pollfd> _fds;
 	std::vector<Client> _clients;
 	std::string _password;
+	
 };
