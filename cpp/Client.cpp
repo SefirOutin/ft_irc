@@ -22,12 +22,6 @@ std::string Client::getUser()
   return _user;
 }
 
-
-int	Client::getFd()
-{
-	return _fd;
-}
-
 void Client::setNick(std::string nick)
 {
   _nick = nick;
@@ -39,9 +33,4 @@ void Client::setPass(std::string pass)
 void Client::setUser(std::string user)
 {
   _user = user;
-}
-
-void	Client::setFd(int fd)
-{
-	_fd = fd;
 }

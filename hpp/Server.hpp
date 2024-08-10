@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Client.hpp"
 #include <iostream>
 #include <map>
@@ -22,26 +23,26 @@ class Client;
 
 class Server
 {
-public:
-	Server(int port, const std::string &password);
+	public:
+		Server(int port, const std::string &password);
+		~Server();
 
-	~Server();
+		int startServer();
+		int run();
 
-	int startServer();
-	int run();
-	int acceptConnections();
-	void receivedData(size_t index);
-	int getCmd(std::string buff, size_t index);
-	int handleData(std::string cmd, std::string arg, size_t index);
-	bool nickAlreadyInUse(std::string arg,size_t index);
-	void PASS(std::string arg, size_t index);
-	void NICK(std::string arg, size_t index);
-	void USER(std::string arg, size_t index);
-
-private:
-	int _sockFd;
-	sockaddr_in _sockAddr;
-	std::vector<struct pollfd> _fds;
-	std::vector<Client> _clients;
-	std::string _password;
+	private:
+		int 						_sockFd;
+		sockaddr_in					_sockAddr;
+		std::vector<struct pollfd>	_fds;
+		std::map<int, Client>		_clients;
+		std::string					_password;
+		
+		int		acceptConnections();
+		void	receivedData(int clientFd, int index);
+		int		getCmd(std::string buff, int clientFd);
+		int		handleData(std::string cmd, std::string arg, int clientFd);
+		bool	nickAlreadyInUse(std::string arg,int clientFd);
+		void	PASS(std::string arg, int clientFd);
+		void	NICK(std::string arg, int clientFd);
+		void	USER(std::string arg, int clientFd);
 };

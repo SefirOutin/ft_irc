@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/09 21:23:22 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/08/10 15:42:45 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ int Server::run()
 				if (_fds[i].fd == _sockFd)
 					acceptConnections();
 				else
-					receivedData(i);
+					receivedData(_fds[i].fd, i);
 			}
 		}
 	}
@@ -102,12 +102,10 @@ int Server::acceptConnections()
 	int new_connection;
 
 	addrLen = sizeof(clientSockAddr);
-	new_connection = accept(_sockFd, (struct sockaddr *)&clientSockAddr,
-													&addrLen);
+	new_connection = accept(_sockFd, (struct sockaddr *)&clientSockAddr, &addrLen);
 	if (new_connection < 0)
 	{
-		std::cerr << "accept failed"
-							<< "\n";
+		std::cerr << "accept failed" << "\n";
 		return (1);
 	}
 	std::cout << "accept fd: " << new_connection << "\n";
@@ -118,25 +116,22 @@ int Server::acceptConnections()
 	return (0);
 }
 
-void Server::receivedData(size_t index)
+void Server::receivedData(int clientFd, int index)
 {
 	char buffer[1024];
 	int nbytes;
 
-	nbytes = recv(_fds[index].fd, buffer, 1024, 0);
+	nbytes = recv(clientFd, buffer, 1024, 0);
 	if (nbytes <= 0)
 	{
 		if (nbytes == 0)
-		{
-			std::cout << "Connection closed" << index << std::endl;
-		}
+			std::cout << "Connection closed" << std::endl;
 		else
-			std::cerr << "recv failed"
-								<< "\n";
-		if (_clients[index].getFd() == _fds[index].fd)
-			_clients.erase(_clients.begin() + index - 1);
-		// if (_clients.size() == index)
-		close(_fds[index].fd);
+			std::cerr << "recv failed" << "\n";
+		std::map<int, Client>::iterator	it = _clients.find(clientFd);
+		if (it != _clients.end())
+			_clients.erase(clientFd);
+		close(clientFd);
 		_fds.erase(_fds.begin() + index);
 		return;
 	}
@@ -144,10 +139,10 @@ void Server::receivedData(size_t index)
 	if (nbytes > 510)
 		std::cerr << "too many char\n";
 	// std::cout <<buffer << "\n";
-	if (!getCmd(buffer, index))
+	if (!getCmd(buffer, clientFd))
 		return;
 }
-int Server::getCmd(std::string buff, size_t index)
+int Server::getCmd(std::string buff, int clientFd)
 {
 	std::string line;
 	std::stringstream buffer(buff);
@@ -167,50 +162,50 @@ int Server::getCmd(std::string buff, size_t index)
 				arg.erase(std::remove(arg.begin(), arg.end(), '\r'), arg.end());
 			}
 			// std::cout << cmd << " " << arg << std::endl;
-			handleData(cmd, arg, index);
+			handleData(cmd, arg, clientFd);
 		}
 	}
-	return 0;
+	return (0);
 }
-int Server::handleData(std::string cmd, std::string arg, size_t index)
+int Server::handleData(std::string cmd, std::string arg, int clientFd)
 {
-	if (_clients.size() < index)
+	if (_clients.find(clientFd) == _clients.end())
 	{
 		Client cli;
-		cli.setFd(_fds[index].fd);
-		_clients.push_back(cli);
+		_clients.insert(std::pair<int, Client>(clientFd, cli));
 	}
 	if (!cmd.compare("PASS"))
-		PASS(arg, index);
+		PASS(arg, clientFd);
 	else if (!cmd.compare("NICK"))
-		NICK(arg, index);
+		NICK(arg, clientFd);
 	else if (!cmd.compare("USER"))
-		USER(arg, index);
+		USER(arg, clientFd);
 	// else if (!cmd.compare("JOIN"))
 	// JOIN(arg, index);
 	return (0);
 }
 
-void Server::PASS(std::string arg, size_t index)
+void Server::PASS(std::string arg, int clientFd)
 {
-	if (!_clients[index - 1].getPass().empty())
+	if (!_clients[clientFd].getPass().empty())
 	{
 		std::string buff = ": 462  :You may not reregister !\r\n";
-		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
+		send(clientFd, buff.c_str(), buff.size(), 0);
 	}
 	else if (arg.compare(_password) && !arg.empty())
 	{
+		std::cout << "_password/arg: " << _password << " / " << arg << "\n";
 		std::string buff = ": 464 * :Password incorrect !\r\n";
-		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
-		_clients.erase(_clients.begin() + (index - 1));
+		send(clientFd, buff.c_str(), buff.size(), 0);
+		_clients.erase(clientFd);
 	}
 	else if (!arg.compare(_password))
-		_clients[index - 1].setPass(arg);
+		_clients[clientFd].setPass(arg);
 	else if (arg.empty())
 	{
 		std::string buff = ": 461 * :Not enough parameters.\r\n";
-		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
-		_clients.erase(_clients.begin() + (index - 1));
+		send(clientFd, buff.c_str(), buff.size(), 0);
+		_clients.erase(clientFd);
 	}
 }
 bool verify_string_format(const std::string &input_string)
@@ -218,74 +213,72 @@ bool verify_string_format(const std::string &input_string)
 	for (size_t i = 0; i < input_string.size(); i++)
 	{
 		char c = input_string[i];
-		if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-					(c >= '0' && c <= '9') ||
-					std::string("-[]\\`^{}").find(c) != std::string::npos))
-			return false;
+		if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+				|| (c >= '0' && c <= '9')
+				|| std::string("-[]\\`^{}").find(c) != std::string::npos))
+			return (false);
 	}
-	return true;
+	return (true);
 }
-bool Server::nickAlreadyInUse(std::string arg, size_t index)
+bool Server::nickAlreadyInUse(std::string arg, int clientFd)
 {
-	for (size_t i = 0; i < _clients.size(); i++)
+	std::map<int, Client>::iterator	it;
+	
+	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
-		if (!_clients[i].getNick().compare(arg) && i != index - 1)
+		if (!it->second.getNick().compare(arg) && it->first != clientFd)
 			return (true);
 	}
 	return (false);
 }
-void Server::NICK(std::string arg, size_t index)
+void Server::NICK(std::string arg, int clientFd)
 {
 
 	if (arg.empty())
 	{
 		std::string buff = ": 431 * :No nickname given.\r\n";
-		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
-		_clients.erase(_clients.begin() + (index - 1));
+		send(clientFd, buff.c_str(), buff.size(), 0);
+		_clients.erase(clientFd);
 	}
-	else if (nickAlreadyInUse(arg, index))
+	else if (nickAlreadyInUse(arg, clientFd))
 	{
 		std::cout << arg << std::endl;
-		std::cout << index << std::endl;
 
 		std::string buff = ": 433 " + arg + " :" + arg + " is already in use\r\n";
 		std::cout << buff;
-		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
-		_clients.erase(_clients.begin() + (index - 1));
+		send(clientFd, buff.c_str(), buff.size(), 0);
+		_clients.erase(clientFd);
 	}
-	else if (_clients[index - 1].getPass().empty())
+	else if (_clients[clientFd].getPass().empty())
 	{
-		std::cout << arg << std::endl;
-
-		std::cout << index << std::endl;
 		std::string buff = ": 451 * :You have not registered!\r\n";
-		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
-		_clients.erase(_clients.begin() + (index - 1));
+		send(clientFd, buff.c_str(), buff.size(), 0);
+		_clients.erase(clientFd);
 	}
 	else if (!verify_string_format(arg))
 	{
 		std::string buff = ": 432 * :Bad format on nickname\r\n";
-		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
-		_clients.erase(_clients.begin() + (index - 1));
+		send(clientFd, buff.c_str(), buff.size(), 0);
+		_clients.erase(clientFd);
 	}
-	else if (arg != _clients[index - 1].getNick())
+	else if (arg != _clients[clientFd].getNick())
 	{
-		if (!_clients[index - 1].getNick().empty())
+		if (!_clients[clientFd].getNick().empty())
 		{
-			std::string buff = ":" + _clients[index - 1].getNick() + " NICK " + arg + "\r\n";
-			send(_fds[index].fd, buff.c_str(), buff.size(), 0);
+			std::string buff = ":" + _clients[clientFd].getNick() + " NICK " + arg + "\r\n";
+			send(clientFd, buff.c_str(), buff.size(), 0);
 		}
-		_clients[index - 1].setNick(arg);
+		_clients[clientFd].setNick(arg);
 	}
 }
 
-void Server::USER(std::string arg, size_t index)
+void Server::USER(std::string arg, int clientFd)
 {
-	_clients[index - 1].setUser(arg);
-	if (!_clients[index - 1].getPass().compare(_password) && !_clients[index - 1].getNick().empty())
+	_clients[clientFd].setUser(arg);
+	if (!_clients[clientFd].getPass().compare(_password) && !_clients[clientFd].getNick().empty())
 	{
-		_clients[index - 1].setUser(arg);
-		std::string buff = ": 001 " + _clients[index - 1].getNick() + " :Welcome to the IRC server!\r\n";
-		send(_fds[index].fd, buff.c_str(), buff.size(), 0);
+		_clients[clientFd].setUser(arg);
+		std::string buff = ": 001 " + _clients[clientFd].getNick() + " :Welcome to the IRC server!\r\n";
+		send(clientFd, buff.c_str(), buff.size(), 0);
 	}
 }
