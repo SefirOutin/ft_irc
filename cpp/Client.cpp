@@ -3,6 +3,7 @@
 
 Client::Client()
 {
+  _pass = false;
 }
 
 Client::~Client() {}
@@ -12,7 +13,7 @@ std::string Client::getNick()
   return _nick;
 }
 
-std::string Client::getPass()
+bool Client::checkPass()
 {
   return _pass;
 }
@@ -26,7 +27,7 @@ void Client::setNick(std::string nick)
 {
   _nick = nick;
 }
-void Client::setPass(std::string pass)
+void Client::setPass(bool pass)
 {
   _pass = pass;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/10 15:42:45 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/13 14:23:40 by bmoudach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ void Server::receivedData(int clientFd, int index)
 			std::cout << "Connection closed" << std::endl;
 		else
 			std::cerr << "recv failed" << "\n";
-		std::map<int, Client>::iterator	it = _clients.find(clientFd);
+		std::map<int, Client>::iterator it = _clients.find(clientFd);
 		if (it != _clients.end())
 			_clients.erase(clientFd);
 		close(clientFd);
@@ -184,46 +184,46 @@ int Server::handleData(std::string cmd, std::string arg, int clientFd)
 	// JOIN(arg, index);
 	return (0);
 }
-
+// Check the password set by the client
+// if the password is correct save the connexion
+// else close the connexion
 void Server::PASS(std::string arg, int clientFd)
 {
-	if (!_clients[clientFd].getPass().empty())
+	std::cout << arg << std::endl;
+	if (_clients[clientFd].checkPass())
 	{
 		std::string buff = ": 462  :You may not reregister !\r\n";
 		send(clientFd, buff.c_str(), buff.size(), 0);
 	}
-	else if (arg.compare(_password) && !arg.empty())
-	{
-		std::cout << "_password/arg: " << _password << " / " << arg << "\n";
-		std::string buff = ": 464 * :Password incorrect !\r\n";
-		send(clientFd, buff.c_str(), buff.size(), 0);
-		_clients.erase(clientFd);
-	}
-	else if (!arg.compare(_password))
-		_clients[clientFd].setPass(arg);
 	else if (arg.empty())
 	{
 		std::string buff = ": 461 * :Not enough parameters.\r\n";
 		send(clientFd, buff.c_str(), buff.size(), 0);
+		
 		_clients.erase(clientFd);
 	}
+	else if (arg.compare(_password))
+	{
+		close(clientFd);
+		_clients.erase(clientFd);
+	}
+	else
+		_clients[clientFd].setPass(true);
 }
 bool verify_string_format(const std::string &input_string)
 {
 	for (size_t i = 0; i < input_string.size(); i++)
 	{
 		char c = input_string[i];
-		if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
-				|| (c >= '0' && c <= '9')
-				|| std::string("-[]\\`^{}").find(c) != std::string::npos))
+		if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || std::string("-[]\\`^{}").find(c) != std::string::npos))
 			return (false);
 	}
 	return (true);
 }
 bool Server::nickAlreadyInUse(std::string arg, int clientFd)
 {
-	std::map<int, Client>::iterator	it;
-	
+	std::map<int, Client>::iterator it;
+
 	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
 		if (!it->second.getNick().compare(arg) && it->first != clientFd)
@@ -249,7 +249,7 @@ void Server::NICK(std::string arg, int clientFd)
 		send(clientFd, buff.c_str(), buff.size(), 0);
 		_clients.erase(clientFd);
 	}
-	else if (_clients[clientFd].getPass().empty())
+	else if (!_clients[clientFd].checkPass())
 	{
 		std::string buff = ": 451 * :You have not registered!\r\n";
 		send(clientFd, buff.c_str(), buff.size(), 0);
@@ -269,13 +269,14 @@ void Server::NICK(std::string arg, int clientFd)
 			send(clientFd, buff.c_str(), buff.size(), 0);
 		}
 		_clients[clientFd].setNick(arg);
+		std::cout << "ok frere" << std::endl;
 	}
 }
 
 void Server::USER(std::string arg, int clientFd)
 {
 	_clients[clientFd].setUser(arg);
-	if (!_clients[clientFd].getPass().compare(_password) && !_clients[clientFd].getNick().empty())
+	if (_clients[clientFd].checkPass() && !_clients[clientFd].getNick().empty())
 	{
 		_clients[clientFd].setUser(arg);
 		std::string buff = ": 001 " + _clients[clientFd].getNick() + " :Welcome to the IRC server!\r\n";
