@@ -1,7 +1,8 @@
-#pragma once
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
 
-#include <string>
-#include "Server.hpp"
+#include "Server.class.hpp"
+#include "ft_irc.hpp"
 
 class Client
 {
@@ -21,3 +22,5 @@ private:
 	std::string _user;
 	bool _pass;
 };
+
+#endif

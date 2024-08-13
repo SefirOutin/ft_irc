@@ -1,17 +1,19 @@
 NAME		=	ircserv
 
-SRCS_DIR	=	cpp
+SRCS_DIR	=	srcs
 OBJS_DIR	=	objs
 
-SRCS		=	cpp/main.cpp \
-					cpp/Server.cpp \
-					cpp/Client.cpp \
+SRCS		=	srcs/main.cpp \
+				srcs/Server.class.cpp \
+				srcs/Client.class.cpp \
+				srcs/commands.cpp \
+				srcs/utils.cpp
 
 OBJS		=	$(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS))
 
 RM			=	rm -rf
 CXX			=	c++
-FLAGS		=	-I./hpp -Wall -Wextra -Werror -std=c++98 -g3
+FLAGS		=	-I./inc -Wall -Wextra -Werror -std=c++98 -g3
 
 $(NAME):	$(OBJS)
 	$(CXX) $(FLAGS) $^ -o $@
