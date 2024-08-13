@@ -2,16 +2,12 @@
 #define IRCCOMMANDHANDLER
 
 #include <iostream>
-class IRCClientHandler; // Forward declaration
+class IRCClientHandler;
 class IRCCommandHandler
 {
 public:
   virtual ~IRCCommandHandler() = default;
-
-  // Méthode purement virtuelle à implémenter par les classes dérivées
   virtual void execute(const std::string &params, IRCClientHandler &client) = 0;
-
-  // Optionnel : une méthode pour obtenir le nom de la commande
   virtual std::string getCommandName() const = 0;
 };
 
