@@ -1,4 +1,4 @@
-#include "Cmd.hpp"
+#include "IRCCmds.hpp"
 void NickCommand::execute(const std::string &params, IRCClientHandler &client)
 {
   
