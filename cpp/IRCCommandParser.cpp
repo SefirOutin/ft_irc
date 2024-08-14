@@ -1,5 +1,5 @@
 #include "IRCCommandParser.hpp"
-#include "Cmd.hpp"
+#include "IRCCmds.hpp"
 
 IRCCommandParser::IRCCommandParser()
 {
