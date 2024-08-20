@@ -1,16 +1,12 @@
 
 #include "IRCClientHandler.hpp"
 
-IRCClientHandler::IRCClientHandler(int socket, IRCCommandParser &parser) :
-  _clientSocket(socket),
-  _commandParser(parser),
-  _connected(true)
-{ }
-  // _commandParser(parser)
+IRCClientHandler::IRCClientHandler(int socket, IRCCommandParser &parser) : _clientSocket(socket), _connected(true), _commandParser(parser) {}
 
 void IRCClientHandler::start()
 {
   std::cout << "Client connected" << std::endl;
+  _pass = false;
   receiveMessages();
 }
 
@@ -58,4 +54,14 @@ void IRCClientHandler::receiveMessages()
       stop();
     }
   }
+}
+
+void IRCClientHandler::setPass(bool pass)
+{
+  _pass = pass;
+}
+
+bool IRCClientHandler::checkPass()
+{
+  return _pass;
 }

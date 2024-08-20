@@ -19,21 +19,35 @@ IRCCommandParser::~IRCCommandParser()
 
 void IRCCommandParser::parseCommand(const std::string &command, IRCClientHandler &client)
 {
-  std::istringstream iss(command);
-  std::string commandName;
-  iss >> commandName;
 
-  std::string params;
-  std::getline(iss, params);
+  std::string line;
+  std::stringstream buffer(command);
 
-  std::map<std::string, IRCCommandHandler *>::iterator it = commandHandlers.find(commandName);
-  if (it != commandHandlers.end())
+  int nLine = std::count(command.begin(), command.end(), '\n');
+  while (nLine--)
   {
-    it->second->execute(params, client);
-  }
-  else
-  {
-    client.sendMessage("421 " + commandName + " :Unknown command");
+    if (std::getline(buffer, line))
+    {
+      std::string arg;
+      size_t posLastCr = line.find("\r");
+      size_t posFirstSpace = line.find(" ");
+      std::string cmd = line.substr(0, posFirstSpace);
+      if (posFirstSpace != arg.npos)
+      {
+        arg = line.substr(posFirstSpace + 1, posLastCr);
+        arg.erase(std::remove(arg.begin(), arg.end(), '\r'), arg.end());
+      }
+      std::map<std::string, IRCCommandHandler *>::iterator it = commandHandlers.find(cmd);
+      if (it != commandHandlers.end())
+      {
+        it->second->execute(arg, client);
+      }
+      else
+      {
+        client.sendMessage("421 " + cmd + " :Unknown command");
+      }
+      // std::cout << cmd << " " << arg << std::endl;
+    }
   }
 }
 

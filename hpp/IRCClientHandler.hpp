@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 class IRCCommandParser;
-
 class IRCClientHandler
 {
 public:
@@ -20,10 +19,13 @@ public:
   void setNick(const std::string &nick);
   std::string getNick() const;
   void setUser(const std::string &userInfo);
+  void setPass(bool status);
+  bool checkPass();
 
 private:
   int _clientSocket;
   bool _connected;
+  bool _pass;
   IRCCommandParser &_commandParser;
   std::string _nick;
   std::string _user;
