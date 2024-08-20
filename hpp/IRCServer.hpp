@@ -17,13 +17,16 @@
 class IRCClientHandler;
 
 class IRCServer
-class IRCServer
 {
 public:
-	IRCServer(int port,const std::string &pass);
+	IRCServer(int port, const std::string &pass);
 	~IRCServer();
 	void start();
 	void stop();
+
+protected:
+	std::string _password;
+	void closeClientConnection(pollfd &pfd, std::vector<pollfd> &pollfds, size_t index);
 
 private:
 	int serverSocket;
@@ -31,13 +34,11 @@ private:
 	bool running;
 	sockaddr_in _sockAddr;
 	std::vector<struct pollfd> _fds;
-	std::string _password;
 	IRCCommandParser commandParser;
 	std::map<int, IRCClientHandler *> clients;
 	int createServerSocket();
 	void acceptNewClient(std::vector<pollfd> &pollfds);
 	void handleClientMessage(pollfd &pfd, std::vector<pollfd> &pollfds, size_t index);
-	void closeClientConnection(pollfd &pfd, std::vector<pollfd> &pollfds, size_t index);
 };
 
 #endif

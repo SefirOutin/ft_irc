@@ -8,8 +8,6 @@ void NickCommand::execute(const std::string &params, IRCClientHandler &client)
 	else if (params.empty())
 	{
 		client.sendMessage(": 461 * :Not enough parameters.\r\n");
-		client.stop();
-		client.
 	}
 	else if (params.compare())
 	{

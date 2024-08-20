@@ -1,5 +1,6 @@
 #include "IRCCommandHandler.hpp"
 #include "IRCClientHandler.hpp"
+
 class NickCommand : public IRCCommandHandler
 {
 public:

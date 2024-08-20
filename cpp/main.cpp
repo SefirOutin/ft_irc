@@ -6,11 +6,10 @@
 /*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 16:09:02 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/20 16:38:32 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/08/20 14:18:16 by bmoudach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "IRCServer.hpp"
 #include "IRCServer.hpp"
 
 int	main(int ac, char **av)

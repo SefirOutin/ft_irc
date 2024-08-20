@@ -2,6 +2,7 @@
 #define IRCCLIENTHANDLER
 
 #include "IRCCommandParser.hpp"
+#include "IRCServer.hpp"
 
 #include <iostream>
 #include <sys/types.h>
@@ -9,7 +10,7 @@
 #include <unistd.h>
 
 class IRCCommandParser;
-class IRCClientHandler
+class IRCClientHandler : public IRCServer
 {
 public:
   IRCClientHandler(int socket, IRCCommandParser &parser);

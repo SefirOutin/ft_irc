@@ -5,7 +5,6 @@ IRCServer::IRCServer(int port, const std::string &pass) : port(port),  running(f
 }
 
 IRCServer::~IRCServer()
-IRCServer::~IRCServer()
 {
 	close(serverSocket);
 }

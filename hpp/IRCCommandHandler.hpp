@@ -2,8 +2,9 @@
 #define IRCCOMMANDHANDLER
 
 #include <iostream>
+
 class IRCClientHandler;
-class IRCCommandHandler
+class IRCCommandHandler 
 {
 public:
   virtual ~IRCCommandHandler(){};
