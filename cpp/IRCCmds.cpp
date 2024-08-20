@@ -13,6 +13,7 @@ void NickCommand::execute(const std::string &params, IRCClientHandler &client)
 	{
 		close(clientFd);
 		clients->erase(clientFd);
+		client.
 	}
 	else
 		(*clients)[clientFd].setPass(true);
