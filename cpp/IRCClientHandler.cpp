@@ -1,7 +1,11 @@
 
 #include "IRCClientHandler.hpp"
 
-IRCClientHandler::IRCClientHandler(int socket, IRCCommandParser &parser) : _clientSocket(socket), _commandParser(parser), _connected(true) {}
+IRCClientHandler::IRCClientHandler(int socket, IRCCommandParser &parser) :
+  _clientSocket(socket),
+  _connected(true)
+{ }
+  // _commandParser(parser)
 
 void IRCClientHandler::start()
 {

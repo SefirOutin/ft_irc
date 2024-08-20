@@ -8,6 +8,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+class IRCCommandParser;
+
 class IRCClientHandler
 {
 public:

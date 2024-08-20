@@ -6,11 +6,11 @@
 /*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 16:09:02 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/13 18:02:35 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/14 16:24:25 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_irc.hpp"
+#include "IRCServer.hpp"
 
 int	main(int ac, char **av)
 {
@@ -20,8 +20,8 @@ int	main(int ac, char **av)
 		return (1);
 	}
 	
-	Server	server(atoi(av[1]), av[2]);
-	server.startServer();
-	server.run();
+	IRCServer	server(atoi(av[1]), av[2]);
+	server.start();
+	// server.run();
 	return (0);
 }
