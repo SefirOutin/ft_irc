@@ -10,8 +10,9 @@ IRCCommandParser::IRCCommandParser()
 
 IRCCommandParser::~IRCCommandParser()
 {
-  for (std::map<std::string, IRCCommandHandler *>::iterator it = commandHandlers.begin();
-       it != commandHandlers.end(); ++it)
+  std::map<std::string, IRCCommandHandler *>::iterator it;
+
+  for (it = _commandHandlers.begin(); it != _commandHandlers.end(); ++it)
   {
     delete it->second;
   }
@@ -19,7 +20,6 @@ IRCCommandParser::~IRCCommandParser()
 
 void IRCCommandParser::parseCommand(const std::string &command, IRCClientHandler &client)
 {
-
   std::string line;
   std::stringstream buffer(command);
 
@@ -37,8 +37,8 @@ void IRCCommandParser::parseCommand(const std::string &command, IRCClientHandler
         arg = line.substr(posFirstSpace + 1, posLastCr);
         arg.erase(std::remove(arg.begin(), arg.end(), '\r'), arg.end());
       }
-      std::map<std::string, IRCCommandHandler *>::iterator it = commandHandlers.find(cmd);
-      if (it != commandHandlers.end())
+      std::map<std::string, IRCCommandHandler *>::iterator it = _commandHandlers.find(cmd);
+      if (it != _commandHandlers.end())
       {
         it->second->execute(arg, client);
       }
@@ -53,5 +53,5 @@ void IRCCommandParser::parseCommand(const std::string &command, IRCClientHandler
 
 void IRCCommandParser::registerCommand(IRCCommandHandler *handler)
 {
-  commandHandlers[handler->getCommandName()] = handler;
+  _commandHandlers[handler->getCommandName()] = handler;
 }

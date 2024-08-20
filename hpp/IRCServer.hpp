@@ -13,10 +13,10 @@
 #include <stdlib.h>
 
 #include "IRCCommandParser.hpp"
-#include "IRCCommandHandler.hpp"
 #include "IRCClientHandler.hpp"
 
-class IRCClientHandler;
+class	IRCClientHandler;
+class	IRCCommandParser;
 
 class IRCServer
 {
@@ -26,19 +26,19 @@ class IRCServer
 		void start();
 		void stop();
 
-	protected:
-		std::string _password;
-		void closeClientConnection(int clientFd);
+	// protected:
 
 	private:
 		int 								_serverSocket;
 		bool								_running;
 		std::vector<struct pollfd>			_fds;
-		IRCCommandParser					_commandParser;
+		IRCCommandParser					*_commandParser;
 		std::map<int, IRCClientHandler *>	_clients;
+		std::string _password;
 
 		void createServerSocket(int port);
 		void acceptNewClient();
+		void closeClientConnection(int clientFd);
 		void handleClientMessage(pollfd &pfd, std::vector<pollfd> &pollfds, size_t index);
 };
 

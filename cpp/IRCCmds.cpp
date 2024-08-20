@@ -9,14 +9,14 @@ void NickCommand::execute(const std::string &params, IRCClientHandler &client)
 	{
 		client.sendMessage(": 461 * :Not enough parameters.\r\n");
 	}
-	else if (params.compare())
-	{
-		close(clientFd);
-		clients->erase(clientFd);
-		client.
-	}
-	else
-		(*clients)[clientFd].setPass(true);
+	// else if (params.compare())
+	// {
+	// 	close(clientFd);
+	// 	clients->erase(clientFd);
+	// 	client.
+	// }
+	// else
+	// 	(*clients)[clientFd].setPass(true);
 }
 std::string NickCommand::getCommandName() const
 {

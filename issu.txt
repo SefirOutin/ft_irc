@@ -1,5 +1,5 @@
-PB:
-  Identification du client ==> probleme avec arg, il est rempli avec "pass" au lieu du mot de passe entré (seulement avec irssi quand toutes les infos sont envoyées en une fois)
-  Exemple :Connexion dun deuxieme client => OK;
-    Test a faire avec same nick => OK, mais supprime le client ensuite et on ne peut donc reessayer une deuxieme fois (message d'erreur: "You have not registred")
+
+Test a faire avec same nick => OK, mais supprime le client ensuite et on ne peut donc reessayer une deuxieme fois (message d'erreur: "You have not registred")
+
+on ne peut pas faire heriter IRCServer, sinon quand on appelle le constructeur de clienthandler il faut appeler le constru du serveur
   

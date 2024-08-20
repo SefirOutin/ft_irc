@@ -1,5 +1,5 @@
-#ifndef IRCCOMMANDHANDLER
-#define IRCCOMMANDHANDLER
+#ifndef IRCCOMMANDHANDLER_HPP
+#define IRCCOMMANDHANDLER_HPP
 
 #include <iostream>
 

@@ -1,16 +1,11 @@
-#ifndef IRCCLIENTHANDLER
-#define IRCCLIENTHANDLER
+#ifndef IRCCLIENTHANDLER_HPP
+#define IRCCLIENTHANDLER_HPP
 
-#include "IRCCommandParser.hpp"
 #include "IRCServer.hpp"
 
-#include <iostream>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
 class IRCCommandParser;
-class IRCClientHandler : public IRCServer
+
+class IRCClientHandler
 {
 	public:
 		IRCClientHandler(int socket, IRCCommandParser &parser);

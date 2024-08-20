@@ -104,7 +104,7 @@ void IRCServer::acceptNewClient()
 	clientPollfd.events = POLLIN;
 	_fds.push_back(clientPollfd);
 
-	IRCClientHandler *handler = new IRCClientHandler(newsockfd, _commandParser);
+	IRCClientHandler *handler = new IRCClientHandler(newsockfd, *_commandParser);
 	_clients[newsockfd] = handler;
 
 	std::cout << "New client connected: " << inet_ntoa(clientAddr.sin_addr) << std::endl;
