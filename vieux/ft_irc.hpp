@@ -19,7 +19,6 @@
 #include <sstream>
 #include <algorithm>
 #include "Server.class.hpp"
-#include "Client.class.hpp"
 
 class	Client;
 

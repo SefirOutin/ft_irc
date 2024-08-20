@@ -1,48 +1,40 @@
 #include "IRCServer.hpp"
-IRCServer::IRCServer(int port, const std::string &pass) : port(port),  running(false),_password(pass)
+
+IRCServer::IRCServer(int port, const std::string &pass) :
+	_running(false),
+	_password(pass)
 {
-	serverSocket = createServerSocket();
+	createServerSocket(port);
 }
 
 IRCServer::~IRCServer()
 {
-	close(serverSocket);
+	close(_serverSocket);
 }
 
 void IRCServer::start()
 {
-	running = true;
-	std::cout << "Server started on port " << port << std::endl;
+	int	pollCount;
 
-	std::vector<pollfd> pollfds;
-	pollfd serverPollfd;
-	serverPollfd.fd = serverSocket;
-	serverPollfd.events = POLLIN;
-	pollfds.push_back(serverPollfd);
-
-	while (running)
+	_running = true;
+	while (_running)
 	{
-		// Appel de poll pour surveiller les sockets
-		int pollCount = poll(&pollfds[0], pollfds.size(), -1);
-
+		pollCount = poll(_fds.data(), _fds.size(), -1);
 		if (pollCount < 0)
 		{
 			std::cerr << "Poll failed" << std::endl;
 			break;
 		}
-
-		// Vérification des événements sur chaque socket
-		for (size_t i = 0; i < pollfds.size(); ++i)
+		for (size_t i = 0; i < _fds.size(); ++i)
 		{
-			if (pollfds[i].revents & POLLIN)
+			if (_fds[i].revents & POLLIN)
 			{
-				if (pollfds[i].fd == serverSocket)
+				if (_fds[i].fd == _serverSocket)
 				{
-					// Nouveau client qui se connecte
-					acceptNewClient(pollfds);
+					acceptNewClient();
 				}
 				else
-					clients[pollfds[i].fd]->start();
+					_clients[_fds[i].fd]->start();
 			}
 		}
 	}
@@ -50,39 +42,56 @@ void IRCServer::start()
 
 void IRCServer::stop()
 {
-	running = false;
+	_running = false;
 }
 
-int IRCServer::createServerSocket()
+void IRCServer::createServerSocket(int port)
 {
-	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
+	struct pollfd		pollFd;
+	int 				on = 1;
+	struct sockaddr_in sockAddr;
+	
+	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (_serverSocket < 0)
 	{
-		std::cerr << "Error creating socket" << std::endl;
-		exit(EXIT_FAILURE);
+		std::cerr << "socket error\n";
+		exit(-1);
 	}
-
-	struct sockaddr_in serverAddr;
-	bzero((char *)&serverAddr, sizeof(serverAddr));
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_addr.s_addr = INADDR_ANY;
-	serverAddr.sin_port = htons(port);
-
-	if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+	pollFd.fd = _serverSocket;
+	pollFd.events = POLLIN;
+	_fds.push_back(pollFd);
+	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on,sizeof(on)) < 0)
 	{
-		std::cerr << "Error binding socket" << std::endl;
-		exit(EXIT_FAILURE);
+		std::cerr << "setsockopt() failed\n";
+		exit(-1);
 	}
-
-	listen(sockfd, 5);
-	return sockfd;
+	if (ioctl(_serverSocket, FIONBIO, (char *)&on) < 0)
+	{
+		std::cerr << "ioctl() failed\n";
+		exit(-1);
+	}
+	bzero(&sockAddr, sizeof(sockAddr));
+	sockAddr.sin_family = AF_INET;
+	sockAddr.sin_port = htons(port);
+	sockAddr.sin_addr.s_addr = INADDR_ANY;
+	if (bind(_serverSocket, (struct sockaddr *)&sockAddr, sizeof(sockAddr)) < 0)
+	{
+		std::cerr << "bind error\n";
+		exit(-1);
+	}
+	if (listen(_serverSocket, SOMAXCONN) < 0)
+	{
+		std::cerr << "listen error\n";
+		exit(-1);
+	}
+	std::cout << "Server started on port " << port << std::endl;
 }
 
-void IRCServer::acceptNewClient(std::vector<pollfd> &pollfds)
+void IRCServer::acceptNewClient()
 {
 	struct sockaddr_in clientAddr;
 	socklen_t clientLen = sizeof(clientAddr);
-	int newsockfd = accept(serverSocket, (struct sockaddr *)&clientAddr, &clientLen);
+	int newsockfd = accept(_serverSocket, (struct sockaddr *)&clientAddr, &clientLen);
 
 	if (newsockfd < 0)
 	{
@@ -93,22 +102,23 @@ void IRCServer::acceptNewClient(std::vector<pollfd> &pollfds)
 	pollfd clientPollfd;
 	clientPollfd.fd = newsockfd;
 	clientPollfd.events = POLLIN;
-	pollfds.push_back(clientPollfd);
+	_fds.push_back(clientPollfd);
 
-	IRCClientHandler *handler = new IRCClientHandler(newsockfd, commandParser);
-	clients[newsockfd] = handler;
+	IRCClientHandler *handler = new IRCClientHandler(newsockfd, _commandParser);
+	_clients[newsockfd] = handler;
 
 	std::cout << "New client connected: " << inet_ntoa(clientAddr.sin_addr) << std::endl;
 }
 
-void IRCServer::closeClientConnection(pollfd &pfd, std::vector<pollfd> &pollfds, size_t index)
+void IRCServer::closeClientConnection(int clientFd)
 {
-	std::cout << "Client disconnected" << std::endl;
-
-	close(pfd.fd);
-	delete clients[pfd.fd];
-	clients.erase(pfd.fd);
-
-	// Supprimer le pollfd du vector
-	pollfds.erase(pollfds.begin() + index);
+	std::map<int, IRCClientHandler*>::iterator mapIt = _clients.find(clientFd);
+	if (mapIt != _clients.end())
+		_clients.erase(clientFd);
+	for (size_t i = 0; i < _fds.size(); i++)
+	{
+		if (_fds[i].fd == clientFd)
+			_fds.erase(_fds.begin() + i);
+	}
+	close(clientFd);
 }
