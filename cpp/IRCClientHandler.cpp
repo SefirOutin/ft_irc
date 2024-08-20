@@ -3,6 +3,7 @@
 
 IRCClientHandler::IRCClientHandler(int socket, IRCCommandParser &parser) :
   _clientSocket(socket),
+  _commandParser(parser),
   _connected(true)
 { }
   // _commandParser(parser)
