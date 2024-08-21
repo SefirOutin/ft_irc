@@ -1,5 +1,0 @@
-PB:
-  Identification du client ==> probleme avec arg, il est rempli avec "pass" au lieu du mot de passe entré (seulement avec irssi quand toutes les infos sont envoyées en une fois)
-  Exemple :Connexion dun deuxieme client => OK;
-    Test a faire avec same nick => OK, mais supprime le client ensuite et on ne peut donc reessayer une deuxieme fois (message d'erreur: "You have not registred")
-  
