@@ -1,5 +1,0 @@
-
-Test a faire avec same nick => OK, mais supprime le client ensuite et on ne peut donc reessayer une deuxieme fois (message d'erreur: "You have not registred")
-
-on ne peut pas faire heriter IRCServer, sinon quand on appelle le constructeur de clienthandler il faut appeler le constru du serveur
-  
