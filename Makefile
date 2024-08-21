@@ -3,9 +3,9 @@ NAME		=	ircserv
 SRCS_DIR	=	srcs
 OBJS_DIR	=	objs
 
-SRCS		=	cpp/IRCClientHandler.cpp \
+SRCS		=	cpp/IRCClient.cpp \
 				cpp/IRCCmds.cpp \
-				cpp/IRCCommandParser.cpp \
+				cpp/utils.cpp \
 				cpp/IRCServer.cpp \
 				cpp/main.cpp
 

@@ -18,8 +18,8 @@
 #include <sys/time.h>
 #include <sstream>
 #include <algorithm>
-#include "Server.class.hpp"
-#include "Client.class.hpp"
+#include "IRCServer.hpp"
+#include "IRCClient.hpp"
 
 class	Client;
 

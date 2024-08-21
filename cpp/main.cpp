@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 16:09:02 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/20 14:18:16 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/08/13 18:02:35 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "IRCServer.hpp"
+#include "ft_irc.hpp"
 
 int	main(int ac, char **av)
 {
@@ -20,8 +20,8 @@ int	main(int ac, char **av)
 		return (1);
 	}
 	
-	IRCServer	server(atoi(av[1]), av[2]);
-	server.start();
-	server.stop();
+	Server	server(atoi(av[1]), av[2]);
+	server.startServer();
+	server.run();
 	return (0);
 }

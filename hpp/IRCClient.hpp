@@ -1,7 +1,7 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include "Server.class.hpp"
+#include "IRCServer.hpp"
 #include "ft_irc.hpp"
 
 class Client

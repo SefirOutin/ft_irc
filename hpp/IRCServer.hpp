@@ -1,44 +1,33 @@
-#ifndef IRCSERVER_HPP
-#define IRCSERVER_HPP
+#ifndef SERVER_HPP
+#define SERVER_HPP
 
-#include <iostream>
-#include <vector>
-#include <map>
-#include <poll.h>
-#include <cstring>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <stdlib.h>
+#include "IRCClient.hpp"
+#include "ft_irc.hpp"
 
-#include "IRCCommandParser.hpp"
-#include "IRCCommandHandler.hpp"
-#include "IRCClientHandler.hpp"
-class IRCClientHandler;
+class Client;
 
-class IRCServer
+class Server
 {
 public:
-	IRCServer(int port, const std::string &pass);
-	~IRCServer();
-	void start();
-	void stop();
+	Server(int port, const std::string &password);
+	~Server();
 
-protected:
-	std::string _password;
-	void closeClientConnection(pollfd &pfd, std::vector<pollfd> &pollfds, size_t index);
+	int startServer();
+	int run();
 
 private:
-	int serverSocket;
-	int port;
-	bool running;
+	int _sockFd;
 	sockaddr_in _sockAddr;
 	std::vector<struct pollfd> _fds;
-	IRCCommandParser commandParser;
-	std::map<int, IRCClientHandler *> clients;
-	int createServerSocket();
-	void acceptNewClient(std::vector<pollfd> &pollfds);
-	void handleClientMessage(pollfd &pfd, std::vector<pollfd> &pollfds, size_t index);
+	std::map<int, Client> _clients;
+	std::string _password;
+
+	void socketOpt();
+	int acceptConnections();
+	void closeConnection(int clientFd);
+	void receivedData(int clientFd);
+	int getCmd(std::string buff, int clientFd);
+	int handleData(std::string cmd, std::string arg, int clientFd);
 };
 
 #endif
