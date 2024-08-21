@@ -18,16 +18,16 @@
 #include <sys/time.h>
 #include <sstream>
 #include <algorithm>
+
 #include "IRCServer.hpp"
-#include "IRCClient.hpp"
+#include "IRCClientHandler.hpp"
 
-class	Client;
+class	IRCClientHandler;
 
-void	PASS(std::map<int, Client> *clients, std::string arg, std::string pass, int clientFd);
-void	NICK(std::map<int, Client> *clients, std::string arg, int clientFd);
-void	USER(std::map<int, Client> *clients, std::string arg, int clientFd);
+void	PASS(std::map<int, IRCClientHandler> *clients, std::string arg, std::string pass, int clientFd);
+void	NICK(std::map<int, IRCClientHandler> *clients, std::string arg, int clientFd);
+void	USER(std::map<int, IRCClientHandler> *clients, std::string arg, int clientFd);
 
-bool	nickAlreadyInUse(std::map<int, Client> *clients, std::string arg,int clientFd);
 bool	verify_string_format(const std::string &input_string);
 
 #endif

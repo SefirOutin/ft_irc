@@ -1,33 +1,41 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#ifndef IRCSERVER_HPP
+#define IRCSERVER_HPP
 
-#include "IRCClient.hpp"
+#include "IRCClientHandler.hpp"
+#include "IRCCmds.hpp"
 #include "ft_irc.hpp"
 
-class Client;
+class	IRCClientHandler;
+class	IRCCommandHandler;
 
-class Server
+class	IRCServer
 {
-public:
-	Server(int port, const std::string &password);
-	~Server();
+	public:
+		IRCServer(int port, const std::string &password);
+		~IRCServer();
 
-	int startServer();
-	int run();
+		const std::string	getPass() const;
 
-private:
-	int _sockFd;
-	sockaddr_in _sockAddr;
-	std::vector<struct pollfd> _fds;
-	std::map<int, Client> _clients;
-	std::string _password;
+		int startServer();
+		int run();
 
-	void socketOpt();
-	int acceptConnections();
-	void closeConnection(int clientFd);
-	void receivedData(int clientFd);
-	int getCmd(std::string buff, int clientFd);
-	int handleData(std::string cmd, std::string arg, int clientFd);
+		bool	nickAlreadyInUse(std::string arg, int clientFd);
+		void 	parseCommand(const std::string& buffer, int clientFd);
+
+	private:
+		int _sockFd;
+		sockaddr_in _sockAddr;
+		std::vector<struct pollfd> _fds;
+		std::map<int, IRCClientHandler> _clients;
+		std::map<std::string, IRCCommandHandler *> _cmds;
+		std::string _password;
+
+		void socketOpt();
+		int acceptConnections();
+		void closeConnection(int clientFd);
+		void receivedData(int clientFd);
+		int getCmd(std::string buff, int clientFd);
+		int handleData(std::string cmd, std::string arg, int clientFd);
 };
 
 #endif

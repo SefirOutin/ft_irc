@@ -6,7 +6,7 @@
 /*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 18:02:53 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/13 18:02:54 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/21 21:27:44 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,3 @@ bool verify_string_format(const std::string &input_string)
 	return (true);
 }
 
-bool nickAlreadyInUse(std::map<int, Client> *clients, std::string arg, int clientFd)
-{
-	std::map<int, Client>::iterator it;
-
-	for (it = clients->begin(); it != clients->end(); it++)
-	{
-		if (!it->second.getNick().compare(arg) && it->first != clientFd)
-			return (true);
-	}
-	return (false);
-}

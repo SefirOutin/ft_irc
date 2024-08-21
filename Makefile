@@ -3,10 +3,10 @@ NAME		=	ircserv
 SRCS_DIR	=	srcs
 OBJS_DIR	=	objs
 
-SRCS		=	cpp/IRCClient.cpp \
+SRCS		=	cpp/IRCClientHandler.cpp \
+				cpp/IRCServer.cpp \
 				cpp/IRCCmds.cpp \
 				cpp/utils.cpp \
-				cpp/IRCServer.cpp \
 				cpp/main.cpp
 
 OBJS		=	$(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS))

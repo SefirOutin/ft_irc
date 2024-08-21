@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.class.cpp                                   :+:      :+:    :+:   */
+/*   IRCServer.class.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,21 +12,29 @@
 
 #include "IRCServer.hpp"
 
-Server::Server(int port, const std::string &password)
+IRCServer::IRCServer(int port, const std::string &password)
 		: _password(password)
 {
 	_sockAddr.sin_family = AF_INET;
 	_sockAddr.sin_port = htons(port);
 	_sockAddr.sin_addr.s_addr = INADDR_ANY;
+	_cmds["PASS"] = new PassCommand();
+	_cmds["NICK"] = new NickCommand();
+	_cmds["USER"] = new UserCommand();
 }
 
-Server::~Server()
+IRCServer::~IRCServer()
 {
 	for (size_t i = 0; i < _fds.size(); i++)
 		close(_fds[i].fd);
 }
 
-void	Server::socketOpt()
+const std::string	IRCServer::getPass() const
+{
+	return (_password);
+}
+
+void	IRCServer::socketOpt()
 {
 	int on = 1;
 	
@@ -42,7 +50,7 @@ void	Server::socketOpt()
 	}
 }
 
-int Server::startServer()
+int IRCServer::startServer()
 {
 	struct pollfd pollFd;
 
@@ -70,7 +78,7 @@ int Server::startServer()
 	return (0);
 }
 
-int Server::run()
+int IRCServer::run()
 {
 	int poll_count;
 
@@ -96,7 +104,50 @@ int Server::run()
 	return (0);
 }
 
-int Server::acceptConnections()
+bool IRCServer::nickAlreadyInUse(std::string arg, int clientFd)
+{
+	std::map<int, IRCClientHandler>::iterator it;
+
+	for (it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if (!it->second.getNick().compare(arg) && it->first != clientFd)
+			return (true);
+	}
+	return (false);
+}
+// A CHANGER PAR BILEL
+void IRCServer::parseCommand(const std::string& buffer, int clientFd)
+{
+    std::stringstream ss(buffer);
+    std::string command;
+    std::getline(ss, command, ' ');
+
+    std::map<std::string, IRCCommandHandler *>::iterator cmdIt = _cmds.find(command);
+    if (cmdIt != _cmds.end())
+    {
+        std::string arg;
+        std::getline(ss, arg);
+
+        // Check if clientFd exists in _clients map
+        std::map<int, IRCClientHandler>::iterator clientIt = _clients.find(clientFd);
+        if (clientIt != _clients.end())
+        {
+            // Safely access the client handler and pass it to execute
+            cmdIt->second->execute(*this, arg, clientIt->second);
+        }
+        else
+        {
+            std::cerr << "Client not found: " << clientFd << std::endl;
+        }
+    }
+    else
+    {
+        std::cerr << "Unknown command: " << command << std::endl;
+    }
+}
+
+
+int IRCServer::acceptConnections()
 {
 	struct sockaddr_in clientSockAddr;
 	struct pollfd clientPollFd;
@@ -114,13 +165,17 @@ int Server::acceptConnections()
 	clientPollFd.fd = new_connection;
 	clientPollFd.events = POLLIN;
 	_fds.push_back(clientPollFd);
+
+	// _clients[new_connection] = new IRCClientHandler(new_connection);
+	IRCClientHandler	cli(new_connection);
+	_clients.insert(std::pair<int, IRCClientHandler>(new_connection, cli));
 	std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
 	return (0);
 }
 
-void	Server::closeConnection(int clientFd)
+void	IRCServer::closeConnection(int clientFd)
 {
-	std::map<int, Client>::iterator mapIt = _clients.find(clientFd);
+	std::map<int, IRCClientHandler>::iterator mapIt = _clients.find(clientFd);
 	if (mapIt != _clients.end())
 		_clients.erase(clientFd);
 	for (size_t i = 0; i < _fds.size(); i++)
@@ -131,7 +186,7 @@ void	Server::closeConnection(int clientFd)
 	close(clientFd);
 }
 
-void Server::receivedData(int clientFd)
+void IRCServer::receivedData(int clientFd)
 {
 	char buffer[1024];
 	int nbytes;
@@ -150,50 +205,51 @@ void Server::receivedData(int clientFd)
 	if (nbytes > 510)
 		std::cerr << "too many char\n";
 	// std::cout <<buffer << "\n";
-	if (!getCmd(buffer, clientFd))
-		return;
+	// if (!getCmd(buffer, clientFd))
+	// 	return;
+	parseCommand(buffer, clientFd);
 }
-int Server::getCmd(std::string buff, int clientFd)
-{
-	std::string line;
-	std::stringstream buffer(buff);
+// int IRCServer::getCmd(std::string buff, int clientFd)
+// {
+// 	std::string line;
+// 	std::stringstream buffer(buff);
 
-	int nLine = std::count(buff.begin(), buff.end(), '\n');
-	while (nLine--)
-	{
-		if (std::getline(buffer, line))
-		{
-			std::string arg;
-			size_t posLastCr = line.find("\r");
-			size_t posFirstSpace = line.find(" ");
-			std::string cmd = line.substr(0, posFirstSpace);
-			if (posFirstSpace != arg.npos)
-			{
-				arg = line.substr(posFirstSpace + 1, posLastCr);
-				arg.erase(std::remove(arg.begin(), arg.end(), '\r'), arg.end());
-			}
-			// std::cout << cmd << " " << arg << std::endl;
-			handleData(cmd, arg, clientFd);
-		}
-	}
-	return (0);
-}
-int Server::handleData(std::string cmd, std::string arg, int clientFd)
-{
-	if (_clients.find(clientFd) == _clients.end())
-	{
-		Client cli;
-		_clients.insert(std::pair<int, Client>(clientFd, cli));
-	}
-	if (!cmd.compare("PASS"))
-		PASS(&_clients, arg, _password, clientFd);
-	else if (!cmd.compare("NICK"))
-		NICK(&_clients, arg, clientFd);
-	else if (!cmd.compare("USER"))
-		USER(&_clients, arg, clientFd);
-	// else if (!cmd.compare("JOIN"))
-	// JOIN(arg, index);
-	return (0);
-}
+// 	int nLine = std::count(buff.begin(), buff.end(), '\n');
+// 	while (nLine--)
+// 	{
+// 		if (std::getline(buffer, line))
+// 		{
+// 			std::string arg;
+// 			size_t posLastCr = line.find("\r");
+// 			size_t posFirstSpace = line.find(" ");
+// 			std::string cmd = line.substr(0, posFirstSpace);
+// 			if (posFirstSpace != arg.npos)
+// 			{
+// 				arg = line.substr(posFirstSpace + 1, posLastCr);
+// 				arg.erase(std::remove(arg.begin(), arg.end(), '\r'), arg.end());
+// 			}
+// 			// std::cout << cmd << " " << arg << std::endl;
+// 			handleData(cmd, arg, clientFd);
+// 		}
+// 	}
+// 	return (0);
+// }
+// int IRCServer::handleData(std::string cmd, std::string arg, int clientFd)
+// {
+// 	if (_clients.find(clientFd) == _clients.end())
+// 	{
+// 		IRCClientHandler cli;
+// 		_clients.insert(std::pair<int, IRCClientHandler>(clientFd, cli));
+// 	}
+// 	if (!cmd.compare("PASS"))
+// 		PASS(&_clients, arg, _password, clientFd);
+// 	else if (!cmd.compare("NICK"))
+// 		NICK(&_clients, arg, clientFd);
+// 	else if (!cmd.compare("USER"))
+// 		USER(&_clients, arg, clientFd);
+// 	// else if (!cmd.compare("JOIN"))
+// 	// JOIN(arg, index);
+// 	return (0);
+// }
 
 

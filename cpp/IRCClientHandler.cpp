@@ -1,48 +1,54 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   IRCClient.cpp                                      :+:      :+:    :+:   */
+/*   IRCClientHandler.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 18:02:46 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/21 14:15:40 by bmoudach         ###   ########.fr       */
+/*   Updated: 2024/08/21 21:45:40 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "IRCClient.hpp"
+#include "IRCClientHandler.hpp"
 
-Client::Client()
+IRCClientHandler::IRCClientHandler(int fd):
+  _fd(fd)
 {
   _pass = false;
 }
 
-Client::~Client() {}
+IRCClientHandler::~IRCClientHandler() {}
 
-std::string Client::getNick()
+const std::string IRCClientHandler::getNick() const
 {
   return _nick;
 }
 
-bool Client::checkPass()
+bool IRCClientHandler::checkPass()
 {
   return _pass;
 }
 
-std::string Client::getUser()
+const std::string IRCClientHandler::getUser() const
 {
   return _user;
 }
 
-void Client::setNick(std::string nick)
+int IRCClientHandler::getFd() const
+{
+  return _fd;
+}
+
+void IRCClientHandler::setNick(std::string nick)
 {
   _nick = nick;
 }
-void Client::setPass(bool pass)
+void IRCClientHandler::setPass(bool pass)
 {
   _pass = pass;
 }
-void Client::setUser(std::string user)
+void IRCClientHandler::setUser(std::string user)
 {
   _user = user;
 }
