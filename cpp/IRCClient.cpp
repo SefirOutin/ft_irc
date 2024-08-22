@@ -16,7 +16,7 @@
 
 IRCClient::IRCClient(int fd) : _fd(fd)
 {
-  _pass = false;
+  _connected = false;
 }
 
 IRCClient::~IRCClient() {}
@@ -26,9 +26,11 @@ const std::string &IRCClient::getNick() const
   return _nick;
 }
 
-bool IRCClient::checkPass() const
+bool IRCClient::checkPass(const std::string &password) const
 {
-  return _pass;
+  if (password.compare(getPass()))
+    return (false);
+  return (true);
 }
 
 const std::string &IRCClient::getUser() const
@@ -45,10 +47,16 @@ void IRCClient::setNick(std::string nick)
 {
   _nick = nick;
 }
-void IRCClient::setPass(bool pass)
+void IRCClient::setConnected(bool status)
 {
-  _pass = pass;
+  _connected = status;
 }
+
+bool IRCClient::isConnected() const
+{
+  return (_connected);
+}
+
 void IRCClient::setUser(std::string user)
 {
   _user = user;

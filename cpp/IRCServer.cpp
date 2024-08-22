@@ -155,7 +155,7 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient client)
   }
 }
 
-const std::string &IRCServer::getPass()
+const std::string &IRCServer::getPass() const
 {
   return (_password);
 }

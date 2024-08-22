@@ -32,7 +32,7 @@ public:
 	int run();
 
 protected:
-	const std::string &getPass();
+	const std::string &getPass() const;
 	void parseCmds(const std::string &message, IRCClient server);
 
 private:

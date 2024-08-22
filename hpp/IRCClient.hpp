@@ -14,16 +14,17 @@ public:
   const std::string &getUser() const;
   int getFd() const;
 
-  bool checkPass() const;
+  bool checkPass(const std::string &password) const;
   void sendMessage(const std::string &msg) const;
   void receiveMessages();
   void setNick(std::string nick);
   void setUser(std::string user);
-  void setPass(bool status);
+  void setConnected(bool status);
+  bool isConnected() const;
 
 private:
   int _fd;
-  bool _pass;
+  bool _connected;
   std::string _nick, _user;
 };
 

@@ -1,6 +1,6 @@
 #include "IRCCmds.hpp"
 
-void NickCommand::execute(const std::string &params, IRCClient&client)
+void NickCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (params.empty())
 	{
@@ -41,11 +41,11 @@ void NickCommand::execute(const std::string &params, IRCClient&client)
 	}
 }
 
-void PassCommand::execute( const std::string &params, IRCClient &client)
+void PassCommand::execute(const std::string &params, IRCClient &client)
 {
 	std::cout << params << std::endl;
 
-	if (client.checkPass())
+	if (client.isConnected())
 	{
 		std::string buff = ": 462  :You may not reregister !\r\n";
 		send(client.getFd(), buff.c_str(), buff.size(), 0);
@@ -57,19 +57,19 @@ void PassCommand::execute( const std::string &params, IRCClient &client)
 
 		// clients->erase(client.getFd());
 	}
-	else if (params.compare(server.getPass()))
+	else if (!client.checkPass(params))
 	{
 		close(client.getFd());
 		// clients->erase(client.getFd());
 	}
 	else
-		client.setPass(true);
+		client.setConnected(true);
 }
 
-void UserCommand::execute( const std::string &params, IRCClient &client)
+void UserCommand::execute(const std::string &params, IRCClient &client)
 {
 	client.setUser(params);
-	if (client.checkPass() && !client.getNick().empty())
+	if (client.isConnected() && !client.getNick().empty())
 	{
 		client.setUser(params);
 		std::string buff = ": 001 " + client.getNick() + " :Welcome to the IRC server!\r\n";
