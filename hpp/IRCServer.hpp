@@ -20,7 +20,7 @@ class	IRCServer
 		int run();
 
 		bool	nickAlreadyInUse(std::string arg, int clientFd);
-		void 	parseCommand(const std::string& buffer, int clientFd);
+		void 	parseCommand(const std::string& buffer, IRCClientHandler client);
 
 	private:
 		int _sockFd;

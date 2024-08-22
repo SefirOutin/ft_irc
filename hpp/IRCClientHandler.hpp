@@ -10,20 +10,21 @@ public:
 	IRCClientHandler(int fd);
 	~IRCClientHandler();
 
-	const std::string	getNick() const;
-	const std::string	getUser() const;
-	int			getFd() const;
+	const std::string getNick() const;
+	const std::string getUser() const;
+	int getFd() const;
 
 	bool checkPass();
 	void setNick(std::string nick);
 	void setUser(std::string user);
 	void setPass(bool status);
+	void sendMessage(const std::string &msg);
 
 private:
-	int			_fd;
+	int _fd;
 	std::string _nick;
 	std::string _user;
-	bool		_pass;
+	bool _pass;
 };
 
 #endif

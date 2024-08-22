@@ -29,16 +29,16 @@ IRCServer::~IRCServer()
 		close(_fds[i].fd);
 }
 
-const std::string	IRCServer::getPass() const
+const std::string IRCServer::getPass() const
 {
 	return (_password);
 }
 
-void	IRCServer::socketOpt()
+void IRCServer::socketOpt()
 {
 	int on = 1;
-	
-	if (setsockopt(_sockFd, SOL_SOCKET, SO_REUSEADDR, (char *)&on,sizeof(on)) < 0)
+
+	if (setsockopt(_sockFd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on)) < 0)
 	{
 		std::cerr << "setsockopt() failed\n";
 		exit(-1);
@@ -116,36 +116,38 @@ bool IRCServer::nickAlreadyInUse(std::string arg, int clientFd)
 	return (false);
 }
 // A CHANGER PAR BILEL
-void IRCServer::parseCommand(const std::string& buffer, int clientFd)
+void IRCServer::parseCommand(const std::string &buff, IRCClientHandler client)
 {
-    std::stringstream ss(buffer);
-    std::string command;
-    std::getline(ss, command, ' ');
+	std::string line;
+	std::stringstream buffer(buff);
 
-    std::map<std::string, IRCCommandHandler *>::iterator cmdIt = _cmds.find(command);
-    if (cmdIt != _cmds.end())
-    {
-        std::string arg;
-        std::getline(ss, arg);
-
-        // Check if clientFd exists in _clients map
-        std::map<int, IRCClientHandler>::iterator clientIt = _clients.find(clientFd);
-        if (clientIt != _clients.end())
-        {
-            // Safely access the client handler and pass it to execute
-            cmdIt->second->execute(*this, arg, clientIt->second);
-        }
-        else
-        {
-            std::cerr << "Client not found: " << clientFd << std::endl;
-        }
-    }
-    else
-    {
-        std::cerr << "Unknown command: " << command << std::endl;
-    }
+	int nLine = std::count(buff.begin(), buff.end(), '\n');
+	while (nLine--)
+	{
+		if (std::getline(buffer, line))
+		{
+			std::string arg;
+			size_t posLastCr = line.find("\r");
+			size_t posFirstSpace = line.find(" ");
+			std::string cmd = line.substr(0, posFirstSpace);
+			if (posFirstSpace != arg.npos)
+			{
+				arg = line.substr(posFirstSpace + 1, posLastCr);
+				arg.erase(std::remove(arg.begin(), arg.end(), '\r'), arg.end());
+			}
+			std::map<std::string, IRCCommandHandler *>::iterator it = _cmds.find(cmd);
+			if (it != _cmds.end())
+			{
+				it->second->execute(*this, arg, client);
+			}
+			else
+			{
+				client.sendMessage("421 " + cmd + " :Unknown command\r\n");
+			}
+			// std::cout << cmd << " " << arg << std::endl;
+		}
+	}
 }
-
 
 int IRCServer::acceptConnections()
 {
@@ -167,13 +169,13 @@ int IRCServer::acceptConnections()
 	_fds.push_back(clientPollFd);
 
 	// _clients[new_connection] = new IRCClientHandler(new_connection);
-	IRCClientHandler	cli(new_connection);
+	IRCClientHandler cli(new_connection);
 	_clients.insert(std::pair<int, IRCClientHandler>(new_connection, cli));
 	std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
 	return (0);
 }
 
-void	IRCServer::closeConnection(int clientFd)
+void IRCServer::closeConnection(int clientFd)
 {
 	std::map<int, IRCClientHandler>::iterator mapIt = _clients.find(clientFd);
 	if (mapIt != _clients.end())
@@ -207,7 +209,8 @@ void IRCServer::receivedData(int clientFd)
 	// std::cout <<buffer << "\n";
 	// if (!getCmd(buffer, clientFd))
 	// 	return;
-	parseCommand(buffer, clientFd);
+	std::map<int, IRCClientHandler>::iterator clientIt = _clients.find(clientFd);
+	parseCommand(buffer, clientIt->second);
 }
 // int IRCServer::getCmd(std::string buff, int clientFd)
 // {
@@ -251,5 +254,3 @@ void IRCServer::receivedData(int clientFd)
 // 	// JOIN(arg, index);
 // 	return (0);
 // }
-
-

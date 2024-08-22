@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   IRCClientHandler.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 18:02:46 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/21 21:45:40 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/22 12:34:57 by bmoudach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "IRCClientHandler.hpp"
 
-IRCClientHandler::IRCClientHandler(int fd):
-  _fd(fd)
+IRCClientHandler::IRCClientHandler(int fd) : _fd(fd)
 {
   _pass = false;
 }
@@ -51,4 +50,9 @@ void IRCClientHandler::setPass(bool pass)
 void IRCClientHandler::setUser(std::string user)
 {
   _user = user;
+}
+
+void IRCClientHandler::sendMessage(const std::string &msg)
+{
+  send(_fd, msg.c_str(), msg.length(), 0);
 }
