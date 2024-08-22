@@ -84,3 +84,14 @@ void IRCClient::receiveMessages()
     }
   }
 }
+
+bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
+{
+  std::map<int, IRCClient>::const_iterator it;
+  for (it = getClients().begin(); it != getClients().end(); it++)
+  {
+    if (!it->second.getNick().compare(arg) && it->first != clientFd)
+      return (true);
+  }
+  return (false);
+}

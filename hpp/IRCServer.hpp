@@ -34,6 +34,7 @@ public:
 protected:
 	const std::string &getPass() const;
 	void parseCmds(const std::string &message, IRCClient server);
+	const std::map<int, IRCClient> &getClients() const;
 
 private:
 	int _sockFd;

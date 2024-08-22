@@ -159,3 +159,9 @@ const std::string &IRCServer::getPass() const
 {
   return (_password);
 }
+
+const std::map<int, IRCClient> &IRCServer::getClients() const
+{
+  return (_clients);
+}
+

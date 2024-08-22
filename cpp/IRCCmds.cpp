@@ -1,5 +1,16 @@
 #include "IRCCmds.hpp"
 
+bool verify_string_format(const std::string &input_string)
+{
+	for (size_t i = 0; i < input_string.size(); i++)
+	{
+		char c = input_string[i];
+		if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || std::string("-[]\\`^{}").find(c) != std::string::npos))
+			return (false);
+	}
+	return (true);
+}
+
 void NickCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (params.empty())
@@ -8,7 +19,7 @@ void NickCommand::execute(const std::string &params, IRCClient &client)
 		send(client.getFd(), buff.c_str(), buff.size(), 0);
 		// clients->erase(client.getFd());
 	}
-	else if (server.nickAlreadyInUse(params, client.getFd()))
+	else if (client.nickAlreadyInUse(params, client.getFd()))
 	{
 		std::cout << params << std::endl;
 
@@ -17,7 +28,7 @@ void NickCommand::execute(const std::string &params, IRCClient &client)
 		send(client.getFd(), buff.c_str(), buff.size(), 0);
 		// clients->erase(client.getFd());
 	}
-	else if (!client.checkPass())
+	else if (!client.isConnected())
 	{
 		std::string buff = ": 451 * :You have not registered!\r\n";
 		send(client.getFd(), buff.c_str(), buff.size(), 0);

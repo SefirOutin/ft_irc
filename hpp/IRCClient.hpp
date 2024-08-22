@@ -2,7 +2,7 @@
 #define IRCCLIENT_HPP
 
 #include "IRCServer.hpp"
-
+class IRCServer;
 class IRCClient : public IRCServer
 {
 public:
@@ -21,6 +21,7 @@ public:
   void setUser(std::string user);
   void setConnected(bool status);
   bool isConnected() const;
+  bool nickAlreadyInUse(std::string arg, int clientFd);
 
 private:
   int _fd;
