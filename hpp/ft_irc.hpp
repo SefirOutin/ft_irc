@@ -22,11 +22,11 @@
 #include "IRCServer.hpp"
 #include "IRCClientHandler.hpp"
 
-class	IRCClientHandler;
+// class	IRCClientHandler;
 
-void	PASS(std::map<int, IRCClientHandler> *clients, std::string arg, std::string pass, int clientFd);
-void	NICK(std::map<int, IRCClientHandler> *clients, std::string arg, int clientFd);
-void	USER(std::map<int, IRCClientHandler> *clients, std::string arg, int clientFd);
+// void	PASS(std::map<int, IRCClientHandler> *clients, std::string arg, std::string pass, int clientFd);
+// void	NICK(std::map<int, IRCClientHandler> *clients, std::string arg, int clientFd);
+// void	USER(std::map<int, IRCClientHandler> *clients, std::string arg, int clientFd);
 
 bool	verify_string_format(const std::string &input_string);
 

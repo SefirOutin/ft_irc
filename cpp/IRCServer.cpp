@@ -115,8 +115,8 @@ bool IRCServer::nickAlreadyInUse(std::string arg, int clientFd)
 	}
 	return (false);
 }
-// A CHANGER PAR BILEL
-void IRCServer::parseCommand(const std::string &buff, IRCClientHandler client)
+
+void IRCServer::parseCommand(const std::string &buff, int clientFd)
 {
 	std::string line;
 	std::stringstream buffer(buff);
@@ -138,11 +138,11 @@ void IRCServer::parseCommand(const std::string &buff, IRCClientHandler client)
 			std::map<std::string, IRCCommandHandler *>::iterator it = _cmds.find(cmd);
 			if (it != _cmds.end())
 			{
-				it->second->execute(*this, arg, client);
+				it->second->execute(*this, arg, _clients[clientFd]);
 			}
 			else
 			{
-				client.sendMessage("421 " + cmd + " :Unknown command\r\n");
+				_clients[clientFd].sendMessage("421 " + cmd + " :Unknown command\r\n");
 			}
 			// std::cout << cmd << " " << arg << std::endl;
 		}
@@ -163,14 +163,10 @@ int IRCServer::acceptConnections()
 		std::cerr << "accept failed" << "\n";
 		return (1);
 	}
-	// std::cout << "accept fd: " << new_connection << "\n";
 	clientPollFd.fd = new_connection;
 	clientPollFd.events = POLLIN;
 	_fds.push_back(clientPollFd);
-
-	// _clients[new_connection] = new IRCClientHandler(new_connection);
-	IRCClientHandler cli(new_connection);
-	_clients.insert(std::pair<int, IRCClientHandler>(new_connection, cli));
+	_clients[new_connection] = IRCClientHandler(new_connection);
 	std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
 	return (0);
 }
@@ -206,11 +202,9 @@ void IRCServer::receivedData(int clientFd)
 	buffer[nbytes] = '\0';
 	if (nbytes > 510)
 		std::cerr << "too many char\n";
-	// std::cout <<buffer << "\n";
-	// if (!getCmd(buffer, clientFd))
-	// 	return;
-	std::map<int, IRCClientHandler>::iterator clientIt = _clients.find(clientFd);
-	parseCommand(buffer, clientIt->second);
+	// std::cout <<buffer << "\n";=
+	std::cout << _clients[clientFd].getNick() << " " << _clients[clientFd].getUser() << "\n";
+	parseCommand(buffer, clientFd);
 }
 // int IRCServer::getCmd(std::string buff, int clientFd)
 // {
