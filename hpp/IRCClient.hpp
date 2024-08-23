@@ -1,13 +1,12 @@
 #ifndef IRCCLIENT_HPP
 #define IRCCLIENT_HPP
-
 #include "IRCServer.hpp"
 class IRCServer;
-class IRCClient : public IRCServer
+class IRCClient
 {
 public:
-  IRCClient();
-  IRCClient(int fd);
+  IRCClient() {};
+  IRCClient(int fd, IRCServer *server);
   ~IRCClient();
 
   const std::string &getNick() const;
@@ -24,6 +23,7 @@ public:
   bool nickAlreadyInUse(std::string arg, int clientFd);
 
 private:
+  IRCServer *_server;
   int _fd;
   bool _connected;
   std::string _nick, _user;

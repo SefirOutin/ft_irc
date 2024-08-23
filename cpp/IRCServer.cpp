@@ -1,16 +1,6 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   IRCServer.class.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/03 19:34:36 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/21 14:16:52 by bmoudach         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "IRCServer.hpp"
+#include "IRCClient.hpp"
+#include "IRCCmds.hpp"
 
 IRCServer::IRCServer(int port, const std::string &password)
     : _password(password)
@@ -121,7 +111,7 @@ int IRCServer::acceptConnections()
   clientPollFd.events = POLLIN;
   _fds.push_back(clientPollFd);
 
-  IRCClient client(new_connection);
+  IRCClient client(new_connection, this);
   _clients[new_connection] = client;
   std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
   return (0);
@@ -164,4 +154,3 @@ const std::map<int, IRCClient> &IRCServer::getClients() const
 {
   return (_clients);
 }
-

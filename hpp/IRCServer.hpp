@@ -18,10 +18,10 @@
 #include <sstream>
 #include <algorithm>
 #include "IRCClient.hpp"
-#include "IRCCmds.hpp"
+#include "IRCCommandHandler.hpp"
 
-class IRCCommandHandler;
 class IRCClient;
+class IRCCommandHandler;
 class IRCServer
 {
 public:
@@ -30,8 +30,6 @@ public:
 	~IRCServer();
 	int startServer();
 	int run();
-
-protected:
 	const std::string &getPass() const;
 	void parseCmds(const std::string &message, IRCClient server);
 	const std::map<int, IRCClient> &getClients() const;

@@ -1,20 +1,7 @@
+#include "IRCServer.hpp"
 #include "IRCClient.hpp"
 
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   IRCClient.cpp                               :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/13 18:02:46 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/22 13:43:20 by bmoudach         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "IRCClient.hpp"
-
-IRCClient::IRCClient(int fd) : _fd(fd)
+IRCClient::IRCClient(int fd, IRCServer *server) : _server(server), _fd(fd)
 {
   _connected = false;
 }
@@ -28,7 +15,7 @@ const std::string &IRCClient::getNick() const
 
 bool IRCClient::checkPass(const std::string &password) const
 {
-  if (password.compare(getPass()))
+  if (password.compare(_server->getPass()))
     return (false);
   return (true);
 }
@@ -76,7 +63,7 @@ void IRCClient::receiveMessages()
     {
       buffer[bytesReceived] = '\0';
       std::string message(buffer);
-      parseCmds(message, *this);
+      _server->parseCmds(message, *this);
     }
     else
     {
@@ -88,7 +75,7 @@ void IRCClient::receiveMessages()
 bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
 {
   std::map<int, IRCClient>::const_iterator it;
-  for (it = getClients().begin(); it != getClients().end(); it++)
+  for (it = _server->getClients().begin(); it != _server->getClients().end(); it++)
   {
     if (!it->second.getNick().compare(arg) && it->first != clientFd)
       return (true);
