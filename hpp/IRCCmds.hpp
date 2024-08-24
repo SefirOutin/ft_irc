@@ -2,27 +2,24 @@
 #define IRCCMDS_HPP
 
 #include "IRCCommandHandler.hpp"
-#include "IRCClientHandler.hpp"
-#include "IRCServer.hpp"
-
-class IRCServer;
+#include "IRCClient.hpp"
 
 class NickCommand : public IRCCommandHandler
 {
-  	public:
-		void execute(IRCServer  &server, const std::string &params, IRCClientHandler &client);
+public:
+	void execute(const std::string &params, IRCClient &client);
 };
 
 class PassCommand : public IRCCommandHandler
 {
-	public:
-		void execute(IRCServer  &server, const std::string &params, IRCClientHandler &client);
+public:
+	void execute(const std::string &params, IRCClient &client);
 };
 
 class UserCommand : public IRCCommandHandler
 {
-	public:
-		void execute(IRCServer  &server, const std::string &params, IRCClientHandler &client);
+public:
+	void execute(const std::string &params, IRCClient &client);
 };
 
 #endif

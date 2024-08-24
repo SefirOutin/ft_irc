@@ -1,40 +1,50 @@
 #ifndef IRCSERVER_HPP
 #define IRCSERVER_HPP
+#include <iostream>
+#include <map>
+#include <unistd.h>
+#include <string.h>
+#include <string>
+#include <vector>
+#include <poll.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <cstdlib>
+#include <ctime>
+#include <sys/time.h>
+#include <sstream>
+#include <algorithm>
+#include "IRCClient.hpp"
+#include "IRCCommandHandler.hpp"
 
-#include "IRCClientHandler.hpp"
-#include "IRCCmds.hpp"
-#include "ft_irc.hpp"
-
-class	IRCClientHandler;
-class	IRCCommandHandler;
-
-class	IRCServer
+class IRCClient;
+class IRCCommandHandler;
+class IRCServer
 {
-	public:
-		IRCServer(int port, const std::string &password);
-		~IRCServer();
+public:
+	IRCServer() {};
+	IRCServer(int port, const std::string &password);
+	~IRCServer();
+	int startServer();
+	int run();
+	const std::string &getPass() const;
+	void parseCmds(const std::string &message, IRCClient &client);
+	const std::map<int, IRCClient> &getClients() const;
 
-		const std::string	getPass() const;
-
-		int 	startServer();
-		int 	run();
-		bool	nickAlreadyInUse(std::string arg, int clientFd);
-
-	private:
-		int 										_sockFd;
-		std::string									_password;
-		sockaddr_in									_sockAddr;
-		std::vector<struct pollfd>					_fds;
-		std::map<int, IRCClientHandler>				_clients;
-		std::map<std::string, IRCCommandHandler *> _cmds;
-
-		void	socketOpt();
-		int		acceptConnections();
-		void	closeConnection(int clientFd);
-		void	receivedData(int clientFd);
-		void	parseCommand(const std::string& buffer, int clientFd);
-		// int getCmd(std::string buff, int clientFd);
-		// int handleData(std::string cmd, std::string arg, int clientFd);
+private:
+	int _sockFd;
+	sockaddr_in _sockAddr;
+	std::vector<struct pollfd> _fds;
+	std::map<int, IRCClient> _clients;
+	std::map<std::string, IRCCommandHandler *> _cmds;
+	std::string _password;
+	void socketOpt();
+	int acceptConnections();
+	void closeConnection(int clientFd);
+	void receivedData(int clientFd);
 };
 
 #endif

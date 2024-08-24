@@ -2,18 +2,13 @@
 #define IRCCOMMANDHANDLER_HPP
 
 #include <iostream>
-#include "ft_irc.hpp"
-
-class IRCClientHandler;
-class IRCServer;
-
-class IRCCommandHandler 
+#include "IRCClient.hpp"
+class IRCClient;
+class IRCCommandHandler
 {
-	public:
-		virtual ~IRCCommandHandler(){};
-
-		virtual void execute(IRCServer  &server, const std::string &params, IRCClientHandler &client) = 0;
-
+public:
+	virtual ~IRCCommandHandler() {};
+	virtual void execute(const std::string &params, IRCClient &client) = 0;
 };
 
 #endif
