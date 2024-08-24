@@ -117,7 +117,7 @@ int IRCServer::acceptConnections()
   return (0);
 }
 
-void IRCServer::parseCmds(const std::string &buff, IRCClient client)
+void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 {
   std::stringstream buffer(buff);
   std::string line;

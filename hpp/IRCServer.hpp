@@ -31,7 +31,7 @@ public:
 	int startServer();
 	int run();
 	const std::string &getPass() const;
-	void parseCmds(const std::string &message, IRCClient server);
+	void parseCmds(const std::string &message, IRCClient &client);
 	const std::map<int, IRCClient> &getClients() const;
 
 private:
