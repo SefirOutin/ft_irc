@@ -1,7 +1,10 @@
 #ifndef IRCCLIENT_HPP
 #define IRCCLIENT_HPP
+
 #include "IRCServer.hpp"
+
 class IRCServer;
+
 class IRCClient
 {
 public:

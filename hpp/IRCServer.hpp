@@ -1,5 +1,6 @@
 #ifndef IRCSERVER_HPP
 #define IRCSERVER_HPP
+
 #include <iostream>
 #include <map>
 #include <unistd.h>
@@ -22,17 +23,21 @@
 
 class IRCClient;
 class IRCCommandHandler;
+
 class IRCServer
 {
 public:
 	IRCServer() {};
 	IRCServer(int port, const std::string &password);
 	~IRCServer();
+
+	const std::string &getPass() const;
+	const std::map<int, IRCClient> &getClients() const;
+	
 	int startServer();
 	int run();
-	const std::string &getPass() const;
 	void parseCmds(const std::string &message, IRCClient &client);
-	const std::map<int, IRCClient> &getClients() const;
+	void closeConnection(int clientFd);
 
 private:
 	int _sockFd;
@@ -43,7 +48,6 @@ private:
 	std::string _password;
 	void socketOpt();
 	int acceptConnections();
-	void closeConnection(int clientFd);
 	void receivedData(int clientFd);
 };
 

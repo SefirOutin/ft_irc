@@ -145,6 +145,20 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
   }
 }
 
+void	IRCServer::closeConnection(int clientFd)
+{
+	std::map<int, IRCClient>::iterator mapIt = _clients.find(clientFd);
+	if (mapIt != _clients.end())
+		_clients.erase(clientFd);
+	for (size_t i = 0; i < _fds.size(); i++)
+	{
+		if (_fds[i].fd == clientFd)
+			_fds.erase(_fds.begin() + i);
+	}
+	close(clientFd);
+  std::cout << "Connection closed\n";
+}
+
 const std::string &IRCServer::getPass() const
 {
   return (_password);
