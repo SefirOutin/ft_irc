@@ -67,7 +67,7 @@ void IRCClient::receiveMessages()
     }
     else
     {
-      close(_fd);
+      _server->closeConnection(_fd);
     }
   }
 }
