@@ -13,4 +13,5 @@ int	main(int ac, char **av)
 	server.startServer();
 	server.run();
 	return (0);
+	(void) ac;
 }

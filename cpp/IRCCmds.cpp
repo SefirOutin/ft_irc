@@ -14,76 +14,38 @@ bool verify_string_format(const std::string &input_string)
 void NickCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (params.empty())
-	{
-		std::string buff = ": 431 * :No nickname given.\r\n";
-		send(client.getFd(), buff.c_str(), buff.size(), 0);
-		// clients->erase(client.getFd());
-	}
+		client.sendMessage(": 431 * :No nickname given.\r\n");
 	else if (client.nickAlreadyInUse(params, client.getFd()))
-	{
-		std::cout << params << std::endl;
-
-		std::string buff = ": 433 " + params + " :" + params + " is already in use\r\n";
-		std::cout << buff;
-		send(client.getFd(), buff.c_str(), buff.size(), 0);
-		// clients->erase(client.getFd());
-	}
+		client.sendMessage(": 433 " + params + " :" + params + " is already in use\r\n");
 	else if (!client.isConnected())
-	{
-		std::string buff = ": 451 * :You have not registered!\r\n";
-		send(client.getFd(), buff.c_str(), buff.size(), 0);
-		// clients->erase(client.getFd());
-	}
+		client.sendMessage(": 451 * :You have not registered!\r\n");
 	else if (!verify_string_format(params))
-	{
-		std::string buff = ": 432 * :Bad format on nickname\r\n";
-		send(client.getFd(), buff.c_str(), buff.size(), 0);
-		// clients->erase(client.getFd());
-	}
+		client.sendMessage(": 432 * :Bad format on nickname\r\n");
 	else if (params != client.getNick())
 	{
 		if (!client.getNick().empty())
-		{
-			std::string buff = ":" + client.getNick() + " NICK " + params + "\r\n";
-			send(client.getFd(), buff.c_str(), buff.size(), 0);
-		}
+			client.sendMessage(":" + client.getNick() + " NICK " + params + "\r\n");
 		client.setNick(params);
-		std::cout << "ok frere" << std::endl;
 	}
 }
 
 void PassCommand::execute(const std::string &params, IRCClient &client)
 {
-	std::cout << params << std::endl;
-
 	if (client.isConnected())
-	{
-		std::string buff = ": 462  :You may not reregister !\r\n";
-		send(client.getFd(), buff.c_str(), buff.size(), 0);
-	}
+		client.sendMessage(": 462  :You may not reregister !\r\n");
 	else if (params.empty())
-	{
-		std::string buff = ": 461 * :Not enough parameters.\r\n";
-		send(client.getFd(), buff.c_str(), buff.size(), 0);
-
-		// clients->erase(client.getFd());
-	}
+		client.sendMessage(": 461 * :Not enough parameters.\r\n");
 	else if (!client.checkPass(params))
-	{
 		close(client.getFd());
-		// clients->erase(client.getFd());
-	}
 	else
 		client.setConnected(true);
 }
 
 void UserCommand::execute(const std::string &params, IRCClient &client)
 {
-	client.setUser(params);
 	if (client.isConnected() && !client.getNick().empty())
 	{
 		client.setUser(params);
-		std::string buff = ": 001 " + client.getNick() + " :Welcome to the IRC server!\r\n";
-		send(client.getFd(), buff.c_str(), buff.size(), 0);
+		client.sendMessage(": 001 " + client.getNick() + " :Welcome to the IRC server!\r\n");
 	}
 }
