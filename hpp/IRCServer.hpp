@@ -20,6 +20,7 @@
 #include <algorithm>
 #include "IRCClient.hpp"
 #include "IRCCommandHandler.hpp"
+#include "IRCChannel.hpp"
 
 class IRCClient;
 class IRCCommandHandler;
@@ -45,10 +46,11 @@ private:
 	std::vector<struct pollfd> _fds;
 	std::map<int, IRCClient> _clients;
 	std::map<std::string, IRCCommandHandler *> _cmds;
+	//std::map<std::string, IRCChannel>	_channels;
+	
 	std::string _password;
 	void socketOpt();
 	int acceptConnections();
-	void receivedData(int clientFd);
 };
 
 #endif

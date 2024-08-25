@@ -24,11 +24,14 @@ public:
   void setConnected(bool status);
   bool isConnected() const;
   bool nickAlreadyInUse(std::string arg, int clientFd);
+  bool getWelcom();
+  void setWelcom(bool status);
 
 private:
   IRCServer *_server;
   int _fd;
   bool _connected;
+  bool _sendWelcom;
   std::string _nick, _user;
 };
 

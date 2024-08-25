@@ -117,22 +117,21 @@ int IRCServer::acceptConnections()
   return (0);
 }
 
+
 void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 {
+
   std::stringstream buffer(buff);
   std::string line;
-
   while (std::getline(buffer, line))
   {
     if (!line.empty() && line[line.size() - 1] == '\r')
     {
       line.erase(line.size() - 1);
     }
-
     size_t posFirstSpace = line.find(' ');
     std::string cmd = line.substr(0, posFirstSpace);
     std::string arg = (posFirstSpace != std::string::npos) ? line.substr(posFirstSpace + 1) : "";
-
     std::map<std::string, IRCCommandHandler *>::iterator it = _cmds.find(cmd);
     if (it != _cmds.end())
     {
@@ -145,17 +144,17 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
   }
 }
 
-void	IRCServer::closeConnection(int clientFd)
+void IRCServer::closeConnection(int clientFd)
 {
-	std::map<int, IRCClient>::iterator mapIt = _clients.find(clientFd);
-	if (mapIt != _clients.end())
-		_clients.erase(clientFd);
-	for (size_t i = 0; i < _fds.size(); i++)
-	{
-		if (_fds[i].fd == clientFd)
-			_fds.erase(_fds.begin() + i);
-	}
-	close(clientFd);
+  std::map<int, IRCClient>::iterator mapIt = _clients.find(clientFd);
+  if (mapIt != _clients.end())
+    _clients.erase(clientFd);
+  for (size_t i = 0; i < _fds.size(); i++)
+  {
+    if (_fds[i].fd == clientFd)
+      _fds.erase(_fds.begin() + i);
+  }
+  close(clientFd);
   std::cout << "Connection closed\n";
 }
 

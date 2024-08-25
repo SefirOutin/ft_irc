@@ -6,6 +6,7 @@ OBJS_DIR	=	objs
 SRCS		=	cpp/IRCClient.cpp \
 				cpp/IRCServer.cpp \
 				cpp/IRCCmds.cpp \
+				cpp/IRCChannel.cpp \
 				cpp/main.cpp
 
 OBJS		=	$(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS))

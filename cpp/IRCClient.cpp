@@ -4,6 +4,7 @@
 IRCClient::IRCClient(int fd, IRCServer *server) : _server(server), _fd(fd)
 {
   _connected = false;
+  _sendWelcom = false;
 }
 
 IRCClient::~IRCClient() {}
@@ -51,6 +52,7 @@ void IRCClient::setUser(std::string user)
 
 void IRCClient::sendMessage(const std::string &msg) const
 {
+  std::cout << "server ----> client : " << msg << std::endl;
   send(_fd, msg.c_str(), msg.length(), 0);
 }
 
@@ -63,6 +65,7 @@ void IRCClient::receiveMessages()
     {
       buffer[bytesReceived] = '\0';
       std::string message(buffer);
+      std::cout << "client ----> server : " << message << std::endl;
       _server->parseCmds(message, *this);
     }
     else
@@ -70,6 +73,15 @@ void IRCClient::receiveMessages()
       _server->closeConnection(_fd);
     }
   }
+}
+
+bool IRCClient::getWelcom()
+{
+  return _sendWelcom;
+}
+void IRCClient::setWelcom(bool status)
+{
+  _sendWelcom = status;
 }
 
 bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
