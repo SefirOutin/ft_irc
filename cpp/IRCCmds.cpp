@@ -30,12 +30,13 @@ void NickCommand::execute(const std::string &params, IRCClient &client)
 	{
 		if (!client.getNick().empty())
 		{
-			if (!client.getWelcom())
+			if (!client.getWelcom() && !client.getUser().empty())
 			{
 				client.sendMessage(": 001 " + client.getNick() + " :Welcome to the IRC server!\r\n");
 				client.setWelcom(true);
 			}
-			client.sendMessage(":" + client.getNick() + " NICK " + params + "\r\n");
+			if (client.getWelcom())
+				client.sendMessage(":" + client.getNick() + " NICK " + params + "\r\n");
 		}
 		client.setNick(params);
 	}
