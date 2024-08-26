@@ -22,4 +22,22 @@ public:
 	void execute(const std::string &params, IRCClient &client);
 };
 
+class PingCommand : public IRCCommandHandler
+{
+public:
+	void execute(const std::string &params, IRCClient &client);
+};
+
+class CapCommand : public IRCCommandHandler
+{
+public:
+	void execute(const std::string &params, IRCClient &client);
+};
+
+class PrivmsgCommand : public IRCCommandHandler
+{
+public:
+	void execute(const std::string &params, IRCClient &client);
+};
+
 #endif

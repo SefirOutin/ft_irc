@@ -7,8 +7,22 @@ bool verify_string_format(const std::string &input_string)
 		char c = input_string[i];
 		if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || std::string("_-[]\\`^{}").find(c) != std::string::npos))
 			return (false);
+		else if (i >= 9)
+			return (false);
 	}
 	return (true);
+}
+
+bool checkArgUser(const std::string &params)
+{
+	std::istringstream arg(params);
+	std::string word;
+	int i = 0;
+	while (arg >> word)
+		i++;
+	if (i == 4)
+		return (true);
+	return (false);
 }
 
 void NickCommand::execute(const std::string &params, IRCClient &client)
@@ -49,7 +63,7 @@ void PassCommand::execute(const std::string &params, IRCClient &client)
 	else if (params.empty())
 		client.sendMessage(": 461 * :Not enough parameters.\r\n");
 	else if (!client.checkPass(params))
-		close(client.getFd());
+		client.setConnected(false);
 	else
 		client.setConnected(true);
 }
@@ -70,4 +84,26 @@ void UserCommand::execute(const std::string &params, IRCClient &client)
 			client.setWelcom(true);
 		}
 	}
+}
+
+void PingCommand::execute(const std::string &params, IRCClient &client)
+{
+	(void)params;
+	client.sendMessage("PONG\r\n");
+}
+
+void CapCommand::execute(const std::string &params, IRCClient &client)
+{
+	(void)params;
+	(void)client;
+}
+
+void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
+{
+	(void)params;
+	(void)client;
+	// PRIVMSG bilel : ca vas
+	// : bi !~bmoudach @localhost PRIVMSG bilel : ca vas
+	std::string nickOrChan;
+	std::string msgToSend;
 }

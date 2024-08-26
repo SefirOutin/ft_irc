@@ -11,6 +11,9 @@ IRCServer::IRCServer(int port, const std::string &password)
   _cmds["PASS"] = new PassCommand();
   _cmds["NICK"] = new NickCommand();
   _cmds["USER"] = new UserCommand();
+  _cmds["PING"] = new PingCommand();
+  _cmds["CAP"] = new CapCommand();
+  _cmds["PRIVMSG"] = new PrivmsgCommand();
 }
 
 IRCServer::~IRCServer()
@@ -116,7 +119,6 @@ int IRCServer::acceptConnections()
   std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
   return (0);
 }
-
 
 void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 {

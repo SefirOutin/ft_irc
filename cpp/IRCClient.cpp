@@ -21,7 +21,7 @@ bool IRCClient::checkPass(const std::string &password) const
   return (true);
 }
 
-const std::string &IRCClient::getUser() const
+const std::vector<std::string> IRCClient::getUser() const
 {
   return _user;
 }
@@ -45,9 +45,27 @@ bool IRCClient::isConnected() const
   return (_connected);
 }
 
-void IRCClient::setUser(std::string user)
+void IRCClient::setUser(const std::string &user)
 {
-  _user = user;
+  std::istringstream arg(user);
+  _user.resize(4);
+  std::string firstName;
+  std::string lastName;
+  size_t i = 0;
+  while (i < 5)
+  {
+    if (i == 3)
+    {
+      arg >> firstName;
+      arg >> lastName;
+      if (firstName[0] == ':')
+        firstName.erase(0, 1);
+      _user[i] = firstName + " " + lastName;
+    }
+    else
+      arg >> _user[i];
+    ++i;
+  }
 }
 
 void IRCClient::sendMessage(const std::string &msg) const
