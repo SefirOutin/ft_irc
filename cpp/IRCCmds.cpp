@@ -1,5 +1,5 @@
 #include "IRCCmds.hpp"
-
+#include "IRCError.hpp"
 bool verify_string_format(const std::string &input_string)
 {
 	for (size_t i = 0; i < input_string.size(); i++)
@@ -29,14 +29,14 @@ void NickCommand::execute(const std::string &params, IRCClient &client)
 {
 	// std::cout << params << "\n";
 	if (params.empty())
-		client.sendMessage(": 431 * :No nickname given.\r\n");
+		client.sendMessage(ERR_NONICKNAMEGIVEN);
 	else if (!client.isConnected())
-		client.sendMessage(": 451 * :You have not registered!\r\n");
+		client.sendMessage(ERR_NOTREGISTERED);
 	else if (!verify_string_format(params))
-		client.sendMessage(": 432 * :" + params + " Bad format on nickname\r\n");
+		client.sendMessage(ERR_ERRONEUSNICKNAME(params));
 	else if (client.nickAlreadyInUse(params, client.getFd()))
 	{
-		client.sendMessage(": 433 * " + params + " :Nickname is already in use\r\n");
+		client.sendMessage(ERR_NICKNAMEINUSE(params));
 		if (client.getNick().empty())
 			client.setNick(params);
 	}
@@ -59,9 +59,9 @@ void NickCommand::execute(const std::string &params, IRCClient &client)
 void PassCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (client.isConnected())
-		client.sendMessage(": 462  :You may not reregister !\r\n");
+		client.sendMessage(ERR_ALREADYREGISTRED);
 	else if (params.empty())
-		client.sendMessage(": 461 * :Not enough parameters.\r\n");
+		client.sendMessage(ERR_NEEDMOREPARAMS("PASS"));
 	else if (!client.checkPass(params))
 		client.setConnected(false);
 	else
@@ -75,7 +75,7 @@ void UserCommand::execute(const std::string &params, IRCClient &client)
 		client.setUser(params);
 		if (client.nickAlreadyInUse(client.getNick(), client.getFd()))
 		{
-			client.sendMessage(": 433 * " + client.getNick() + " :Nickname is already in use\r\n");
+			client.sendMessage(ERR_NICKNAMEINUSE(client.getNick()));
 			client.setNick(client.getNick());
 		}
 		else
@@ -100,21 +100,11 @@ void CapCommand::execute(const std::string &params, IRCClient &client)
 
 void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 {
-	(void)params;
-	(void)client;
-	std::string split;
-	std::string nickToSend;
-	std::string msgToSend;
+	std::string split, nickToSend, msgToSend;
 	std::istringstream arg(params);
 	for (size_t i = 0; std::getline(arg, split, ':'); i++)
-	{
-		if (i == 0)
-			nickToSend = split.erase(split.length() - 1, split.length());
-		else
-			msgToSend = split;
-	}
-	std::cout << "nick --> " << nickToSend << "<--" << std::endl;
-	std::cout << "msg --> " << msgToSend << "<--" << std::endl;
+		(i == 0) ? nickToSend = split.erase(split.length() - 1, split.length()) : msgToSend = split;
+	
 	client.getClient(nickToSend).sendMessage(":" + client.getNick() + "!~" + client.getUser()[0] + "@" + client.getUser()[2] + " PRIVMSG " + nickToSend + " :" + msgToSend + "\r\n");
 	// PRIVMSG bilel : ca vas
 	// : bi!~bmoudach@localhost PRIVMSG bilel : ca vas
