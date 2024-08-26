@@ -102,8 +102,20 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 {
 	(void)params;
 	(void)client;
-	// PRIVMSG bilel : ca vas
-	// : bi !~bmoudach @localhost PRIVMSG bilel : ca vas
-	std::string nickOrChan;
+	std::string split;
+	std::string nickToSend;
 	std::string msgToSend;
+	std::istringstream arg(params);
+	for (size_t i = 0; std::getline(arg, split, ':'); i++)
+	{
+		if (i == 0)
+			nickToSend = split.erase(split.length() - 1, split.length());
+		else
+			msgToSend = split;
+	}
+	std::cout << "nick --> " << nickToSend << "<--" << std::endl;
+	std::cout << "msg --> " << msgToSend << "<--" << std::endl;
+	client.getClient(nickToSend).sendMessage(":" + client.getNick() + "!~" + client.getUser()[0] + "@" + client.getUser()[2] + " PRIVMSG " + nickToSend + " :" + msgToSend + "\r\n");
+	// PRIVMSG bilel : ca vas
+	// : bi!~bmoudach@localhost PRIVMSG bilel : ca vas
 }

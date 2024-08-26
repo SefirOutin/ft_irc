@@ -101,6 +101,16 @@ void IRCClient::setWelcom(bool status)
 {
   _sendWelcom = status;
 }
+IRCClient IRCClient::getClient(const std::string &nick)
+{
+  std::map<int, IRCClient>::const_iterator it;
+  for (it = _server->getClients().begin(); it != _server->getClients().end(); ++it)
+  {
+    if (it->second.getNick() == nick)
+      return (it->second);
+  }
+  return (IRCClient());
+}
 
 bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
 {
