@@ -1,10 +1,41 @@
-// #include "IRCChannel.hpp"
+#include "IRCChannel.hpp"
 
 
-// IRCChannel::IRCChannel(/* args */)
-// {
-// }
+IRCChannel::IRCChannel(const std::string &name, const IRCClient &clientOp):
+	_name(name)
+{
+	
+	_inviteOnly = false;
+	_userLimit = -1;
+	_nbUser = 0;
+	newConnection(clientOp);
+	newOperator(clientOp);
+}
 
-// IRCChannel::~IRCChannel()
-// {
-// }
+IRCChannel::~IRCChannel()
+{
+}
+
+int	IRCChannel::getNbUser() const
+{
+	return _nbUser;
+}
+
+void	IRCChannel::newConnection(const IRCClient &client)
+{
+	IRCClient	newClient(client);
+	_clients.insert(std::pair<int, IRCClient>(client.getFd(), newClient));
+	_nbUser++;
+}
+
+void	IRCChannel::newOperator(const IRCClient &client)
+{
+	IRCClient	newClient(client);
+	_operators.insert(std::pair<int, IRCClient>(client.getFd(), newClient));
+}
+void	IRCChannel::removeUser(int clientFd)
+{
+	std::map<int, IRCClient>::iterator	it = _clients.find(clientFd);
+	if (it != _clients.end())
+		_clients.erase(clientFd);
+}

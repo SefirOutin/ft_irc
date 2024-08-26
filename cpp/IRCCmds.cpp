@@ -71,3 +71,23 @@ void UserCommand::execute(const std::string &params, IRCClient &client)
 		}
 	}
 }
+void JoinCommand::execute(const std::string &params, IRCClient &client)
+{
+	std::cout << "join called\n";
+	if (params[0] != '#' && params[0] != '&')
+	{
+		//erreur
+		std::cerr << "erreur\n";
+	}
+	std::string name = params.substr(1, params.length() - 1);
+	if (!client.channelNameAlreadyInUse(name))
+	{
+		std::cout << "create channel\n";
+		client.createChannel(name);
+	}
+	else
+	{
+		std::cout << "join channel\n";
+		client.joinChannel(name);
+	}
+}

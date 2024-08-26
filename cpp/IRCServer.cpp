@@ -11,12 +11,35 @@ IRCServer::IRCServer(int port, const std::string &password)
   _cmds["PASS"] = new PassCommand();
   _cmds["NICK"] = new NickCommand();
   _cmds["USER"] = new UserCommand();
+  _cmds["JOIN"] = new JoinCommand();
 }
 
 IRCServer::~IRCServer()
 {
   for (size_t i = 0; i < _fds.size(); i++)
     close(_fds[i].fd);
+}
+
+const std::string &IRCServer::getPass() const
+{
+  return (_password);
+}
+
+const std::map<int, IRCClient> &IRCServer::getClients() const
+{
+  return (_clients);
+}
+
+std::map<std::string, IRCChannel>	&IRCServer::getChannels()
+{
+  return _channels;
+}
+
+void IRCServer::removeChannel(std::string name)
+{
+  std::map<std::string, IRCChannel>::iterator it = _channels.find(name);
+  if (it != _channels.end())
+    _channels.erase(name);
 }
 
 void IRCServer::socketOpt()
@@ -89,6 +112,8 @@ int IRCServer::run()
         }
       }
     }
+    // if (_channels.find("ok") != _channels.end())
+    //   std::cout << _channels.find("ok")->second.getNbUser() << "vbbbbb\n";
   }
   return (0);
 }
@@ -156,14 +181,4 @@ void IRCServer::closeConnection(int clientFd)
   }
   close(clientFd);
   std::cout << "Connection closed\n";
-}
-
-const std::string &IRCServer::getPass() const
-{
-  return (_password);
-}
-
-const std::map<int, IRCClient> &IRCServer::getClients() const
-{
-  return (_clients);
 }

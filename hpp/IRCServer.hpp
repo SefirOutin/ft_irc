@@ -24,6 +24,7 @@
 
 class IRCClient;
 class IRCCommandHandler;
+class IRCChannel;
 
 class IRCServer
 {
@@ -32,13 +33,15 @@ public:
 	IRCServer(int port, const std::string &password);
 	~IRCServer();
 
-	const std::string &getPass() const;
-	const std::map<int, IRCClient> &getClients() const;
+	const	std::string &getPass() const;
+	const	std::map<int, IRCClient> &getClients() const;
+	std::map<std::string, IRCChannel>	&getChannels();
 	
 	int startServer();
 	int run();
 	void parseCmds(const std::string &message, IRCClient &client);
 	void closeConnection(int clientFd);
+	void removeChannel(std::string name);
 
 private:
 	int _sockFd;
@@ -46,7 +49,7 @@ private:
 	std::vector<struct pollfd> _fds;
 	std::map<int, IRCClient> _clients;
 	std::map<std::string, IRCCommandHandler *> _cmds;
-	//std::map<std::string, IRCChannel>	_channels;
+	std::map<std::string, IRCChannel>	_channels;
 	
 	std::string _password;
 	void socketOpt();
