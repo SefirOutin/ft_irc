@@ -38,4 +38,5 @@ void	IRCChannel::removeUser(int clientFd)
 	std::map<int, IRCClient>::iterator	it = _clients.find(clientFd);
 	if (it != _clients.end())
 		_clients.erase(clientFd);
+	_nbUser--;
 }

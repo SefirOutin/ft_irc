@@ -112,8 +112,8 @@ int IRCServer::run()
         }
       }
     }
-    // if (_channels.find("ok") != _channels.end())
-    //   std::cout << _channels.find("ok")->second.getNbUser() << "vbbbbb\n";
+    if (_channels.find("ok") != _channels.end())
+      std::cout << _channels.find("ok")->second.getNbUser() << "vbbbbb\n";
   }
   return (0);
 }
