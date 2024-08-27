@@ -6,10 +6,17 @@ IRCClient::IRCClient(int fd, IRCServer *server) : _server(server), _fd(fd)
   _connected = false;
   _sendWelcom = false;
 }
-IRCClient::IRCClient(const IRCClient &copy)
+
+IRCClient::IRCClient(const IRCClient &other)
 {
-  *this = copy;
+	_server = other._server;
+	_fd = other._fd;
+	_connected = other._connected;
+	_sendWelcom = other._sendWelcom;
+	_nick = other._nick;
+	_user = other._user;
 }
+
 IRCClient::~IRCClient() {}
 
 const std::string &IRCClient::getNick() const
@@ -73,7 +80,7 @@ void IRCClient::setUser(const std::string &user)
 
 void IRCClient::sendMessage(const std::string &msg) const
 {
-  std::cout << "server ----> client : " << msg << std::endl;
+//   std::cout << "server ----> client : " << msg << std::endl;
   send(_fd, msg.c_str(), msg.length(), 0);
 }
 
@@ -86,7 +93,7 @@ void IRCClient::receiveMessages()
     {
       buffer[bytesReceived] = '\0';
       std::string message(buffer);
-      std::cout << "client ----> server : " << message << std::endl;
+    //   std::cout << "client ----> server : " << message << std::endl;
       _server->parseCmds(message, *this);
     }
     else
@@ -124,4 +131,35 @@ bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
       return (true);
   }
   return (false);
+}
+
+bool  IRCClient::channelNameAlreadyInUse(const std::string &name)
+{
+  	std::map<std::string, IRCChannel>::iterator it = _server->getChannels().find(name);
+	if (it == _server->getChannels().end())
+		return (false);
+	return (true);
+}
+
+
+void  IRCClient::createChannel(const std::string &name)
+{
+	IRCChannel	channel(name, *this);
+	_server->getChannels().insert(std::pair<std::string, IRCChannel>(name, channel));
+	// _server->getChannels()[name] = IRCChannel(name, *this);
+}
+
+void	IRCClient::joinChannel(std::string name)
+{
+	std::map<std::string, IRCChannel>::iterator it = _server->getChannels().find(name);
+	// _server->getChannels()[name].newConnection(*this);
+	it->second.newConnection(*this);
+}
+
+void  IRCClient::leaveChannel(std::string name)
+{
+	std::map<std::string, IRCChannel>::iterator it = _server->getChannels().find(name);
+	it->second.removeUser(_fd);
+	if (it->second.getNbUser() == 1)
+		_server->removeChannel(name);
 }

@@ -40,4 +40,11 @@ public:
 	void execute(const std::string &params, IRCClient &client);
 };
 
+class JoinCommand : public IRCCommandHandler
+{
+public:
+	void execute(const std::string &params, IRCClient &client);
+};
+
+
 #endif

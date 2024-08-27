@@ -9,6 +9,7 @@ class IRCClient
 {
 public:
   IRCClient() {};
+  IRCClient(const IRCClient &other);
   IRCClient(int fd, IRCServer *server);
   IRCClient(const IRCClient &copy);
   ~IRCClient();
@@ -29,6 +30,9 @@ public:
   void sendMessage(const std::string &msg) const;
   void receiveMessages();
   bool nickAlreadyInUse(std::string arg, int clientFd);
+  void  leaveChannel(std::string name);
+  void  joinChannel(std::string name);
+  void  createChannel(const std::string &name);
 
 private:
   IRCServer *_server;
