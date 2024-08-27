@@ -107,9 +107,9 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 	for (size_t i = 0; std::getline(arg, split, ':'); i++)
 		(i == 0) ? nickToSend = split.erase(split.length() - 1, split.length()) : msgToSend = split;
 	if (client.nickAlreadyInUse(nickToSend, client.getFd()))
-		client.getClient(nickToSend).sendMessage(":" + client.getNick() + "!~" + client.getUser()[0] + "@" + client.getUser()[2] + " PRIVMSG " + nickToSend + " :" + msgToSend + "\r\n");
-	// PRIVMSG bilel : ca vas
-	// : bi!~bmoudach@localhost PRIVMSG bilel : ca vas
+		client.getClient(nickToSend).sendMessage(client.getClientInfos() + " PRIVMSG " + nickToSend + " :" + msgToSend + "\r\n");
+	// PRIVMSG bilel : ca va
+	// : bi!~bmoudach@localhost PRIVMSG bilel : ca va
 }
 void JoinCommand::execute(const std::string &params, IRCClient &client)
 {
@@ -130,4 +130,11 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 		std::cout << "join channel\n";
 		client.joinChannel(name);
 	}
+	client.sendMessage(client.getClientInfos() + " JOIN " + params + "\r\n");
+}
+
+void PartCommand::execute(const std::string &params, IRCClient &client)
+{
+	if (!client.leaveChannel(params.substr(1, params.length() - 1)))
+		client.sendMessage(client.getClientInfos() + " PART " + params + "\r\n");
 }
