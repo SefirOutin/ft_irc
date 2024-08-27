@@ -100,12 +100,14 @@ void CapCommand::execute(const std::string &params, IRCClient &client)
 
 void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 {
+	if (!client.getWelcom())
+		return;
 	std::string split, nickToSend, msgToSend;
 	std::istringstream arg(params);
 	for (size_t i = 0; std::getline(arg, split, ':'); i++)
 		(i == 0) ? nickToSend = split.erase(split.length() - 1, split.length()) : msgToSend = split;
-	
-	client.getClient(nickToSend).sendMessage(":" + client.getNick() + "!~" + client.getUser()[0] + "@" + client.getUser()[2] + " PRIVMSG " + nickToSend + " :" + msgToSend + "\r\n");
+	if (client.nickAlreadyInUse(nickToSend, client.getFd()))
+		client.getClient(nickToSend).sendMessage(":" + client.getNick() + "!~" + client.getUser()[0] + "@" + client.getUser()[2] + " PRIVMSG " + nickToSend + " :" + msgToSend + "\r\n");
 	// PRIVMSG bilel : ca vas
 	// : bi!~bmoudach@localhost PRIVMSG bilel : ca vas
 }

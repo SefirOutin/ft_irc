@@ -10,6 +10,7 @@ class IRCClient
 public:
   IRCClient() {};
   IRCClient(int fd, IRCServer *server);
+  IRCClient(const IRCClient &copy);
   ~IRCClient();
 
   IRCClient getClient(const std::string &nick);

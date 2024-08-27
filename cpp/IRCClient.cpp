@@ -6,7 +6,10 @@ IRCClient::IRCClient(int fd, IRCServer *server) : _server(server), _fd(fd)
   _connected = false;
   _sendWelcom = false;
 }
-
+IRCClient::IRCClient(const IRCClient &copy)
+{
+  *this = copy;
+}
 IRCClient::~IRCClient() {}
 
 const std::string &IRCClient::getNick() const
