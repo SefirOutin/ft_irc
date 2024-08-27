@@ -15,6 +15,7 @@ IRCServer::IRCServer(int port, const std::string &password)
   _cmds["CAP"] = new CapCommand();
   _cmds["PRIVMSG"] = new PrivmsgCommand();
   _cmds["JOIN"] = new JoinCommand();
+  _cmds["PART"] = new PartCommand();
 }
 
 IRCServer::~IRCServer()
@@ -111,7 +112,7 @@ int IRCServer::run()
         }
         else
         {
-          _clients[_fds[i].fd].receiveMessages();
+          _clients.find(_fds[i].fd)->second.receiveMessages();
         }
       }
     }
@@ -139,8 +140,9 @@ int IRCServer::acceptConnections()
   clientPollFd.events = POLLIN;
   _fds.push_back(clientPollFd);
 
-  IRCClient client(new_connection, this);
-  _clients[new_connection] = client;
+  // IRCClient client(new_connection, this);
+  // _clients[new_connection] = client;
+  _clients.insert(std::pair<int, IRCClient>(new_connection, IRCClient(new_connection, this)));
   std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
   return (0);
 }

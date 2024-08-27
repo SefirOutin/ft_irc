@@ -46,5 +46,10 @@ public:
 	void execute(const std::string &params, IRCClient &client);
 };
 
+class PartCommand : public IRCCommandHandler
+{
+public:
+	void execute(const std::string &params, IRCClient &client);
+};
 
 #endif

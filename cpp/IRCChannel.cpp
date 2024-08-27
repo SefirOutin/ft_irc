@@ -40,3 +40,12 @@ void	IRCChannel::removeUser(int clientFd)
 		_clients.erase(clientFd);
 	_nbUser--;
 }
+
+void	IRCChannel::sendToChannel(const std::string &message)
+{
+	std::map<int, IRCClient>::iterator	it;
+	for (it = _clients.begin(); it != _clients.end(); it++)
+	{
+		it->second.sendMessage(message);
+	}
+}

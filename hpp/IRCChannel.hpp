@@ -18,6 +18,7 @@ class IRCChannel
 		void	newConnection(const IRCClient &client);
 		void	newOperator(const IRCClient &client);
 		void	removeUser(int clientFd);
+		void	sendToChannel(const std::string &message);
 	private:
 		std::string					_name;
 		std::map<int, IRCClient>	_clients;
