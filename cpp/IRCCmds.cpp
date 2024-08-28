@@ -115,7 +115,7 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 		{
 			std::map<int, IRCClient *> clientInChan = client.getListClientChannel(nickOrChanToSend);
 			std::map<int, IRCClient *>::iterator it = clientInChan.begin();
-			while (it != client.getListClientChannel(nickOrChanToSend).end())
+			while (it != clientInChan.end())
 			{
 				if (it->second->getNick() != client.getNick())
 					it->second->sendMessage(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n");
