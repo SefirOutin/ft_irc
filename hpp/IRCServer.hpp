@@ -22,17 +22,18 @@
 #include "IRCCommandHandler.hpp"
 #include "IRCChannel.hpp"
 
-class IRCClient;
-class IRCCommandHandler;
-class IRCChannel;
+class	IRCClient;
+class	IRCCommandHandler;
+class	IRCChannel;
 
-class IRCServer
+class	IRCServer
 {
-public:
-	IRCServer() {};
-	IRCServer(int port, const std::string &password);
-	~IRCServer();
+	public:
+		// IRCServer() {};
+		IRCServer(int port, const std::string &password);
+		~IRCServer();
 
+<<<<<<< Updated upstream
 	const	std::string &getPass() const;
 	const	std::map<int, IRCClient> &getClients() const;
 	const std::map<std::string, IRCChannel>	&getChannels() const;
@@ -42,18 +43,34 @@ public:
 	void parseCmds(const std::string &message, IRCClient &client);
 	void closeConnection(int clientFd);
 	void removeChannel(std::string name);
+=======
+		const std::string 						&getPass() const;
+		const std::map<int, IRCClient>			&getClients() const;
+		const std::map<std::string, IRCChannel>	&getChannels() const;
+		// void	setChannels(const std::string &name);
+		
+		int 	startServer();
+		int 	run();
+		void	parseCmds(const std::string &message, IRCClient &client);
+		void	closeConnection(int clientFd);
+		
+		void	newChannel(const std::string &name, IRCClient &Op);
+		void	removeChannel(std::string name);
+		void	newConnectionToChannel(const std::string &name, IRCClient &client);
+		void	removeClientFromChannel(const std::string &name, IRCClient &client);
+>>>>>>> Stashed changes
 
-private:
-	int _sockFd;
-	sockaddr_in _sockAddr;
-	std::vector<struct pollfd> _fds;
-	std::map<int, IRCClient> _clients;
-	std::map<std::string, IRCCommandHandler *> _cmds;
-	std::map<std::string, IRCChannel>	_channels;
-	
-	std::string _password;
-	void socketOpt();
-	int acceptConnections();
+	private:
+		int											_sockFd;
+		std::string									_password;
+		sockaddr_in									_sockAddr;
+		std::vector<struct pollfd>					_fds;
+		std::map<int, IRCClient>					_clients;
+		std::map<std::string, IRCCommandHandler *>	_cmds;
+		std::map<std::string, IRCChannel>			_channels;
+		
+		void	socketOpt();
+		int		acceptConnections();
 };
 
 #endif

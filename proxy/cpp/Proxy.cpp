@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   proxy.cpp                                          :+:      :+:    :+:   */
+/*   Proxy.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 16:10:24 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/27 17:24:13 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/28 16:38:21 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,19 +160,19 @@ int Proxy::connectToServer()
     if (inet_pton(AF_INET, _destIp, &_serverSockAddr.sin_addr) <= 0)
 	{
 		std::cerr << "Adresse IP invalide" << std::endl;
-		return EXIT_FAILURE;
+		return (EXIT_FAILURE);
 	}
 	_serverSockFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSockFd < 0)
 	{
 		std::cerr << "Erreur lors de la création de la socket" << std::endl;
-		return EXIT_FAILURE;
+		return (EXIT_FAILURE);
 	}
 	if (connect(_serverSockFd, (struct sockaddr *)&_serverSockAddr, sizeof(_serverSockAddr)) < 0)
 	{
 		std::cerr << "Erreur lors de la connexion au serveur" << std::endl;
 		close(_serverSockFd);
-		return EXIT_FAILURE;
+		return (EXIT_FAILURE);
 	}
 	std::cout << "Connected to server\n";
 	serverPollFd.fd = _serverSockFd;

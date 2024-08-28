@@ -1,5 +1,6 @@
 #include "IRCCmds.hpp"
 #include "IRCError.hpp"
+
 bool verify_string_format(const std::string &input_string)
 {
 	for (size_t i = 0; i < input_string.size(); i++)
@@ -129,28 +130,30 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 }
 void JoinCommand::execute(const std::string &params, IRCClient &client)
 {
-	std::cout << "join called\n";
+	std::string name = params.substr(1, params.length() - 1);
+	// std::cout << "join called\n";
 	if (params[0] != '#' && params[0] != '&')
 	{
+<<<<<<< Updated upstream
 		// erreur
 		std::cerr << "erreur\n";
+=======
+		client.sendMessage(":??? 403 " + client.getNick() + " " + params + " :No such channel\r\n");
+		return ;
+>>>>>>> Stashed changes
 	}
-	std::string name = params.substr(1, params.length() - 1);
 	if (!client.channelNameAlreadyInUse(name))
-	{
-		std::cout << "create channel\n";
 		client.createChannel(name);
-	}
 	else
-	{
-		std::cout << "join channel\n";
 		client.joinChannel(name);
-	}
 	client.sendMessage(client.getClientInfos() + " JOIN " + params + "\r\n");
 }
 
 void PartCommand::execute(const std::string &params, IRCClient &client)
 {
-	if (!client.leaveChannel(params.substr(1, params.length() - 1)))
+	std::string name = params.substr(1, params.length() - 1);
+	if (!client.leaveChannel(name))
 		client.sendMessage(client.getClientInfos() + " PART " + params + "\r\n");
+	else
+		client.sendMessage(":??? 403 " + client.getNick() + " " + name + " :No such channel\r\n");
 }

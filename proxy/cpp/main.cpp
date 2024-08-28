@@ -6,7 +6,7 @@
 /*   By: soutin <soutin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 14:23:05 by soutin            #+#    #+#             */
-/*   Updated: 2024/08/27 17:24:23 by soutin           ###   ########.fr       */
+/*   Updated: 2024/08/28 16:39:01 by soutin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 int main(int argc, char **argv)
 {
 	if (argc != 4)
-		return 0;
+		return (0);
 	Proxy proxy(atoi(argv[1]), argv[2], atoi(argv[3]));
 	proxy.startProxy();
 	proxy.run();

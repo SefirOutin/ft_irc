@@ -3,6 +3,10 @@
 IRCChannel::IRCChannel(const std::string &name, const IRCClient &clientOp) : _name(name)
 {
 
+IRCChannel::IRCChannel(const std::string &name, IRCClient &clientOp):
+	_name(name)
+{
+	
 	_inviteOnly = false;
 	_userLimit = -1;
 	_nbUser = 0;
@@ -16,35 +20,37 @@ IRCChannel::~IRCChannel()
 
 int IRCChannel::getNbUser() const
 {
-	return _nbUser;
+	return (_nbUser);
 }
 
-void IRCChannel::newConnection(const IRCClient &client)
+void	IRCChannel::newConnection(IRCClient &client)
 {
-	IRCClient newClient(client);
-	_clients.insert(std::pair<int, IRCClient>(client.getFd(), newClient));
+	_clients.insert(std::pair<int, IRCClient *>(client.getFd(), &client));
 	_nbUser++;
 }
 
-void IRCChannel::newOperator(const IRCClient &client)
+void	IRCChannel::newOperator(IRCClient &client)
 {
-	IRCClient newClient(client);
-	_operators.insert(std::pair<int, IRCClient>(client.getFd(), newClient));
+	_operators.insert(std::pair<int, IRCClient *>(client.getFd(), &client));
 }
 void IRCChannel::removeUser(int clientFd)
 {
-	std::map<int, IRCClient>::iterator it = _clients.find(clientFd);
+	std::map<int, IRCClient *>::iterator	it = _clients.find(clientFd);
 	if (it != _clients.end())
+	{
 		_clients.erase(clientFd);
-	_nbUser--;
+		_nbUser--;
+
+	}
 }
 
-void IRCChannel::sendToChannel(const std::string &message)
+void	IRCChannel::sendToChannel(const std::string &message, int senderFd)
 {
-	std::map<int, IRCClient>::iterator it;
+	std::map<int, IRCClient *>::iterator	it;
 	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
-		it->second.sendMessage(message);
+		if (it->first != senderFd)
+			it->second->sendMessage(message);
 	}
 }
 const std::map<int, IRCClient> IRCChannel::getListClientChannel() const

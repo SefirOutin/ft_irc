@@ -3,12 +3,15 @@
 
 #include <iostream>
 #include "IRCClient.hpp"
-class IRCClient;
-class IRCCommandHandler
+
+class	IRCClient;
+
+class	IRCCommandHandler
 {
-public:
-	virtual ~IRCCommandHandler() {};
-	virtual void execute(const std::string &params, IRCClient &client) = 0;
+	public:
+		virtual ~IRCCommandHandler() {};
+		
+		virtual void execute(const std::string &params, IRCClient &client) = 0;
 };
 
 #endif

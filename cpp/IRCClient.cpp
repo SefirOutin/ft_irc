@@ -29,6 +29,7 @@ IRCClient &IRCClient::operator=(const IRCClient &other)
 
 const std::string &IRCClient::getNick() const
 {
+<<<<<<< Updated upstream
   return _nick;
 }
 
@@ -52,20 +53,19 @@ int IRCClient::getFd() const
 std::string IRCClient::getClientInfos()
 {
   return (":" + _nick + "!~" + _user[0] + "@" + _user[2]);
+=======
+  return (_nick);
+>>>>>>> Stashed changes
 }
 
 void IRCClient::setNick(std::string nick)
 {
   _nick = nick;
 }
-void IRCClient::setConnected(bool status)
-{
-  _connected = status;
-}
 
-bool IRCClient::isConnected() const
+const std::vector<std::string> IRCClient::getUser() const
 {
-  return (_connected);
+  return (_user);
 }
 
 void IRCClient::setUser(const std::string &user)
@@ -89,6 +89,53 @@ void IRCClient::setUser(const std::string &user)
       arg >> _user[i];
     ++i;
   }
+}
+
+bool IRCClient::getWelcom()
+{
+  return (_sendWelcom);
+}
+void IRCClient::setWelcom(bool status)
+{
+  _sendWelcom = status;
+}
+void IRCClient::setConnected(bool status)
+{
+  _connected = status;
+}
+
+bool IRCClient::isConnected() const
+{
+  return (_connected);
+}
+
+int IRCClient::getFd() const
+{
+  return (_fd);
+}
+
+bool IRCClient::checkPass(const std::string &password) const
+{
+  if (password.compare(_server->getPass()))
+    return (false);
+  return (true);
+}
+
+std::string	IRCClient::getClientInfos()
+{
+	return (":" + _nick + "!~" + _user[0] + "@" + _user[2]);
+}
+
+IRCClient IRCClient::getClient(const std::string &nick)
+{
+	IRCClient	client(0, NULL);
+  	std::map<int, IRCClient>::const_iterator it;
+  	for (it = _server->getClients().begin(); it != _server->getClients().end(); ++it)
+  	{
+  	  if (it->second.getNick() == nick)
+  	    client = it->second;
+  	}
+  	return (client);
 }
 
 void IRCClient::sendMessage(const std::string &msg) const
@@ -116,6 +163,7 @@ void IRCClient::receiveMessages()
   }
 }
 
+<<<<<<< Updated upstream
 bool IRCClient::getWelcom()
 {
   return _sendWelcom;
@@ -136,6 +184,8 @@ IRCClient IRCClient::getClient(const std::string &nick)
   return (client);
 }
 
+=======
+>>>>>>> Stashed changes
 bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
 {
   std::map<int, IRCClient>::const_iterator it;
@@ -149,28 +199,44 @@ bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
 
 bool IRCClient::channelNameAlreadyInUse(const std::string &name)
 {
+<<<<<<< Updated upstream
   std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
   if (it == _server->getChannels().end())
     return (false);
   return (true);
+=======
+  	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
+	if (it == _server->getChannels().end())
+		return (false);
+	return (true);
+>>>>>>> Stashed changes
 }
 
 void IRCClient::createChannel(const std::string &name)
 {
+<<<<<<< Updated upstream
   IRCChannel channel(name, *this);
   _server->getChannels().insert(std::pair<std::string, IRCChannel>(name, channel));
   // _server->getChannels()[name] = IRCChannel(name, *this);
+=======
+  _server->newChannel(name, *this);
+>>>>>>> Stashed changes
 }
 
 void IRCClient::joinChannel(const std::string &name)
 {
+<<<<<<< Updated upstream
   std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
   // _server->getChannels()[name].newConnection(*this);
   it->second.newConnection(*this);
+=======
+  _server->newConnectionToChannel(name, *this);
+>>>>>>> Stashed changes
 }
 
 int IRCClient::leaveChannel(const std::string &name)
 {
+<<<<<<< Updated upstream
   std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
   if (it == _server->getChannels().end())
   {
@@ -186,4 +252,11 @@ int IRCClient::leaveChannel(const std::string &name)
 const std::map<int, IRCClient> IRCClient::getListClientChannel(const std::string &name) const
 {
   return (_server->getChannels().find(name)->second.getListClientChannel());
+=======
+	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
+	if (it == _server->getChannels().end())
+		return (1);
+  _server->removeClientFromChannel(name, *this);
+	return (0);
+>>>>>>> Stashed changes
 }

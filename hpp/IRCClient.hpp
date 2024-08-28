@@ -13,6 +13,7 @@ public:
 	IRCClient(const IRCClient &other);
 	~IRCClient();
 
+<<<<<<< Updated upstream
 	IRCClient &operator=(const IRCClient &other);
 
 	IRCClient getClient(const std::string &nick);
@@ -29,6 +30,31 @@ public:
 	void setUser(const std::string &user);
 	void setConnected(bool status);
 	void setWelcom(bool status);
+=======
+		IRCClient	&operator=(const IRCClient &other);
+
+		const std::string				&getNick() const;
+		void						 	setNick(std::string nick);
+		const std::vector<std::string>	getUser() const;
+		void 							setUser(const std::string &user);
+		bool							getWelcom();
+		void 							setWelcom(bool status);
+		int								getFd() const;
+		bool							isConnected() const;
+		void 							setConnected(bool status);
+		bool							checkPass(const std::string &password) const;
+		IRCClient						getClient(const std::string &nick);
+		std::string						getClientInfos();
+
+
+		void	sendMessage(const std::string &msg) const;
+		void	receiveMessages();
+		bool	nickAlreadyInUse(std::string arg, int clientFd);
+		int		leaveChannel(const std::string &name);
+		void	joinChannel(const std::string &name);
+		void	createChannel(const std::string &name);
+		bool	channelNameAlreadyInUse(const std::string &name);
+>>>>>>> Stashed changes
 
 	bool checkPass(const std::string &password) const;
 	void sendMessage(const std::string &msg) const;
