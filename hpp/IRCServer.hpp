@@ -35,7 +35,7 @@ public:
 
 	const	std::string &getPass() const;
 	const	std::map<int, IRCClient> &getClients() const;
-	std::map<std::string, IRCChannel>	&getChannels();
+	const std::map<std::string, IRCChannel>	&getChannels() const;
 	
 	int startServer();
 	int run();
