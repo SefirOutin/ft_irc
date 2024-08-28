@@ -34,7 +34,7 @@ const std::map<int, IRCClient> &IRCServer::getClients() const
   return (_clients);
 }
 
-std::map<std::string, IRCChannel>	&IRCServer::getChannels()
+std::map<std::string, IRCChannel> &IRCServer::getChannels()
 {
   return _channels;
 }
@@ -116,8 +116,8 @@ int IRCServer::run()
         }
       }
     }
-    if (_channels.find("ok") != _channels.end())
-      std::cout << _channels.find("ok")->second.getNbUser() << "vbbbbb\n";
+    // if (_channels.find("ok") != _channels.end())
+    // std::cout << _channels.find("ok")->second.getNbUser() << "vbbbbb\n";
   }
   return (0);
 }
