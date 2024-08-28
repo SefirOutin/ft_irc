@@ -33,17 +33,6 @@ class	IRCServer
 		IRCServer(int port, const std::string &password);
 		~IRCServer();
 
-<<<<<<< Updated upstream
-	const	std::string &getPass() const;
-	const	std::map<int, IRCClient> &getClients() const;
-	const std::map<std::string, IRCChannel>	&getChannels() const;
-	
-	int startServer();
-	int run();
-	void parseCmds(const std::string &message, IRCClient &client);
-	void closeConnection(int clientFd);
-	void removeChannel(std::string name);
-=======
 		const std::string 						&getPass() const;
 		const std::map<int, IRCClient>			&getClients() const;
 		const std::map<std::string, IRCChannel>	&getChannels() const;
@@ -58,7 +47,6 @@ class	IRCServer
 		void	removeChannel(std::string name);
 		void	newConnectionToChannel(const std::string &name, IRCClient &client);
 		void	removeClientFromChannel(const std::string &name, IRCClient &client);
->>>>>>> Stashed changes
 
 	private:
 		int											_sockFd;

@@ -1,7 +1,5 @@
 #include "IRCChannel.hpp"
 
-IRCChannel::IRCChannel(const std::string &name, const IRCClient &clientOp) : _name(name)
-{
 
 IRCChannel::IRCChannel(const std::string &name, IRCClient &clientOp):
 	_name(name)
@@ -18,7 +16,7 @@ IRCChannel::~IRCChannel()
 {
 }
 
-int IRCChannel::getNbUser() const
+int	IRCChannel::getNbUser() const
 {
 	return (_nbUser);
 }
@@ -33,7 +31,7 @@ void	IRCChannel::newOperator(IRCClient &client)
 {
 	_operators.insert(std::pair<int, IRCClient *>(client.getFd(), &client));
 }
-void IRCChannel::removeUser(int clientFd)
+void	IRCChannel::removeUser(int clientFd)
 {
 	std::map<int, IRCClient *>::iterator	it = _clients.find(clientFd);
 	if (it != _clients.end())
@@ -52,8 +50,4 @@ void	IRCChannel::sendToChannel(const std::string &message, int senderFd)
 		if (it->first != senderFd)
 			it->second->sendMessage(message);
 	}
-}
-const std::map<int, IRCClient> IRCChannel::getListClientChannel() const
-{
-	return (_clients);
 }

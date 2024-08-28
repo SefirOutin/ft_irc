@@ -34,11 +34,7 @@ const std::map<int, IRCClient> &IRCServer::getClients() const
  	 return (_clients);
 }
 
-<<<<<<< Updated upstream
-const std::map<std::string, IRCChannel> &IRCServer::getChannels() const
-=======
 const std::map<std::string, IRCChannel>	&IRCServer::getChannels() const
->>>>>>> Stashed changes
 {
   	return (_channels);
 }
@@ -98,33 +94,6 @@ int IRCServer::run()
 {
 	int poll_count;
 
-<<<<<<< Updated upstream
-  while (1)
-  {
-    poll_count = poll(_fds.data(), _fds.size(), -1);
-    if (poll_count < 0)
-    {
-      std::cerr << "poll error\n";
-      return (1);
-    }
-    for (size_t i = 0; i < _fds.size(); ++i)
-    {
-      if (_fds[i].revents & POLLIN)
-      {
-        if (_fds[i].fd == _sockFd)
-        {
-          acceptConnections();
-        }
-        else
-        {
-          _clients.find(_fds[i].fd)->second.receiveMessages();
-        }
-      }
-    }
-    // if (_channels.find("ok") != _channels.end())
-    // std::cout << _channels.find("ok")->second.getNbUser() << "vbbbbb\n";
-  }
-=======
 	while (1)
 	{
 		poll_count = poll(_fds.data(), _fds.size(), -1);
@@ -151,7 +120,6 @@ int IRCServer::run()
 		std::cout << "nbUser in #ok: " << _channels.find("ok")->second.getNbUser() << "\n";
 		std::cout << "nbChannels: " << _channels.size() << "\n";
 	}
->>>>>>> Stashed changes
   return (0);
 }
 

@@ -103,28 +103,12 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (!client.getWelcom())
 		return;
-	std::string split, nickOrChanToSend, msgToSend;
+	std::string split, nickToSend, msgToSend;
 	std::istringstream arg(params);
 	for (size_t i = 0; std::getline(arg, split, ':'); i++)
-		(i == 0) ? nickOrChanToSend = split.erase(split.length() - 1, split.length()) : msgToSend = split;
-	if (nickOrChanToSend[0] == '#')
-	{
-		std::string name(nickOrChanToSend);
-		nickOrChanToSend.erase(0, 1);
-		if (client.channelNameAlreadyInUse(nickOrChanToSend))
-		{
-			std::map<int, IRCClient> clientInChan = client.getListClientChannel(nickOrChanToSend);
-			std::map<int, IRCClient>::iterator it = clientInChan.begin();
-			while (it != client.getListClientChannel(nickOrChanToSend).end())
-			{
-				if (it->second.getNick() != client.getNick())
-					it->second.sendMessage(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n");
-				it++;
-			}
-		}
-	}
-	else if (client.nickAlreadyInUse(nickOrChanToSend, client.getFd()))
-		client.getClient(nickOrChanToSend).sendMessage(client.getClientInfos() + " PRIVMSG " + nickOrChanToSend + " :" + msgToSend + "\r\n");
+		(i == 0) ? nickToSend = split.erase(split.length() - 1, split.length()) : msgToSend = split;
+	if (client.nickAlreadyInUse(nickToSend, client.getFd()))
+		client.getClient(nickToSend).sendMessage(client.getClientInfos() + " PRIVMSG " + nickToSend + " :" + msgToSend + "\r\n");
 	// PRIVMSG bilel : ca va
 	// : bi!~bmoudach@localhost PRIVMSG bilel : ca va
 }
@@ -134,13 +118,8 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 	// std::cout << "join called\n";
 	if (params[0] != '#' && params[0] != '&')
 	{
-<<<<<<< Updated upstream
-		// erreur
-		std::cerr << "erreur\n";
-=======
 		client.sendMessage(":??? 403 " + client.getNick() + " " + params + " :No such channel\r\n");
 		return ;
->>>>>>> Stashed changes
 	}
 	if (!client.channelNameAlreadyInUse(name))
 		client.createChannel(name);
