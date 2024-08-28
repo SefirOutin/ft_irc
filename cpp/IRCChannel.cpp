@@ -21,6 +21,11 @@ int	IRCChannel::getNbUser() const
 	return (_nbUser);
 }
 
+const std::map<int, IRCClient *> IRCChannel::getListClientChannel() const
+{
+	return (_clients);
+}
+
 void	IRCChannel::newConnection(IRCClient &client)
 {
 	_clients.insert(std::pair<int, IRCClient *>(client.getFd(), &client));

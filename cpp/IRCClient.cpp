@@ -113,6 +113,11 @@ IRCClient IRCClient::getClient(const std::string &nick)
   	return (client);
 }
 
+const std::map<int, IRCClient *> IRCClient::getListClientChannel(const std::string &name) const
+{
+  return (_server->getChannels().find(name)->second.getListClientChannel());
+}
+
 void IRCClient::sendMessage(const std::string &msg) const
 {
 //   std::cout << "server ----> client : " << msg << std::endl;
