@@ -34,7 +34,7 @@ const std::map<int, IRCClient> &IRCServer::getClients() const
   return (_clients);
 }
 
-std::map<std::string, IRCChannel> &IRCServer::getChannels()
+const std::map<std::string, IRCChannel> &IRCServer::getChannels() const
 {
   return _channels;
 }

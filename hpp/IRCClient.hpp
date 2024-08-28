@@ -18,7 +18,7 @@ public:
 	IRCClient getClient(const std::string &nick);
 	const std::string &getNick() const;
 	const std::vector<std::string> getUser() const;
-	std::map<int, IRCClient> getListClientChannel(const std::string &name);
+	const std::map<int, IRCClient> getListClientChannel(const std::string &name)const ;
 
 	int getFd() const;
 	bool getWelcom();

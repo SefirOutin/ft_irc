@@ -14,7 +14,7 @@ public:
 	~IRCChannel();
 
 	int getNbUser() const;
-	std::map<int, IRCClient> getListClientChannel();
+	const std::map<int, IRCClient> getListClientChannel() const;
 	void newConnection(const IRCClient &client);
 	void newOperator(const IRCClient &client);
 	void removeUser(int clientFd);

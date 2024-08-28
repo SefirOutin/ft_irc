@@ -47,7 +47,7 @@ void IRCChannel::sendToChannel(const std::string &message)
 		it->second.sendMessage(message);
 	}
 }
-std::map<int, IRCClient> IRCChannel::getListClientChannel()
+const std::map<int, IRCClient> IRCChannel::getListClientChannel() const
 {
 	return (_clients);
 }

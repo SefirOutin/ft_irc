@@ -112,11 +112,13 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 		nickOrChanToSend.erase(0, 1);
 		if (client.channelNameAlreadyInUse(nickOrChanToSend))
 		{
-			std::map<int, IRCClient>::const_iterator it;
-			for (it = client.getListClientChannel(nickOrChanToSend).begin(); it != client.getListClientChannel(nickOrChanToSend).end(); it++)
+			std::map<int, IRCClient> clientInChan = client.getListClientChannel(nickOrChanToSend);
+			std::map<int, IRCClient>::iterator it = clientInChan.begin();
+			while (it != client.getListClientChannel(nickOrChanToSend).end())
 			{
 				if (it->second.getNick() != client.getNick())
 					it->second.sendMessage(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n");
+				it++;
 			}
 		}
 	}
