@@ -14,6 +14,7 @@ class IRCChannel
 		~IRCChannel();
 
 		int	getNbUser() const;
+		const std::map<int, IRCClient *> getListClientChannel() const;
 
 		void	newConnection(IRCClient &client);
 		void	newOperator(IRCClient &client);

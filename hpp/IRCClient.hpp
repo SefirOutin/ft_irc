@@ -27,6 +27,8 @@ class IRCClient
 		bool							checkPass(const std::string &password) const;
 		IRCClient						getClient(const std::string &nick);
 		std::string						getClientInfos();
+		const std::map<int, IRCClient*>	getListClientChannel(const std::string &name)const ;
+
 
 
 		void	sendMessage(const std::string &msg) const;
