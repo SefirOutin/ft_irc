@@ -113,14 +113,7 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 		nickOrChanToSend.erase(0, 1);
 		if (client.channelNameAlreadyInUse(nickOrChanToSend))
 		{
-			std::map<int, IRCClient *> clientInChan = client.getListClientChannel(nickOrChanToSend);
-			std::map<int, IRCClient *>::iterator it = clientInChan.begin();
-			while (it != client.getListClientChannel(nickOrChanToSend).end())
-			{
-				if (it->second->getNick() != client.getNick())
-					it->second->sendMessage(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n");
-				it++;
-			}
+			client.sendToChannel(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n", client.getFd(), nickOrChanToSend);
 		}
 	}
 	else if (client.nickAlreadyInUse(nickOrChanToSend, client.getFd()))
@@ -135,7 +128,7 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 	if (params[0] != '#' && params[0] != '&')
 	{
 		client.sendMessage(":??? 403 " + client.getNick() + " " + params + " :No such channel\r\n");
-		return ;
+		return;
 	}
 	if (!client.channelNameAlreadyInUse(name))
 		client.createChannel(name);
