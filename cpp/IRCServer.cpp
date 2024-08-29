@@ -167,9 +167,7 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 		it->second->execute(arg, client);
 		}
 		else
-		{
-		client.sendMessage("421 " + cmd + " :Unknown command\r\n");
-		}
+			client.sendMessage(ERR_UNKNOWNCOMMAND(cmd));
 	}
 }
 

@@ -13,9 +13,11 @@ class IRCChannel
 		IRCChannel(const std::string &name, IRCClient &clientOp);
 		~IRCChannel();
 
-		int	getNbUser() const;
-		const std::map<int, IRCClient *> getListClientChannel() const;
-		bool	getInviteOnly() const;
+		int									getNbUser() const;
+		bool								getInviteOnly() const;
+		int									getUserLimit() const;
+		const std::string					getPassword() const;
+		const std::map<int, IRCClient *>	getListClientChannel() const;
 
 		void	newConnection(IRCClient &client);
 		void	newOperator(IRCClient &client);

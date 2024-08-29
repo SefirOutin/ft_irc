@@ -37,14 +37,16 @@ class IRCClient
 		void	createChannel(const std::string &name);
 		bool	channelNameAlreadyInUse(const std::string &name);
 		bool	channelIsInviteOnly(const std::string &name);
+		bool	channelIsFull(const std::string &name);
+		bool	checkChannelPassword(const std::string &name, const std::string &pass);
 
 	private:
-		IRCServer *_server;
-		int _fd;
-		bool _connected;
-		bool _sendWelcom;
-		std::string _nick;
-		std::vector<std::string> _user;
+		IRCServer					*_server;
+		int							_fd;
+		bool						_connected;
+		bool						_sendWelcom;
+		std::string					_nick;
+		std::vector<std::string>	_user;
 };
 
 #endif

@@ -164,10 +164,29 @@ bool  IRCClient::channelNameAlreadyInUse(const std::string &name)
 
 bool  IRCClient::channelIsInviteOnly(const std::string &name)
 {
-  std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
+  	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
 	if (it->second.getInviteOnly())
-    return (true);
-  return (false);
+    	return (true);
+  	return (false);
+}
+
+bool	IRCClient::channelIsFull(const std::string &name)
+{
+	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
+	if (it->second.getUserLimit() > -1)
+	{
+		if (it->second.getNbUser() == it->second.getUserLimit())
+			return (true);
+	}
+	return (false);
+}
+
+bool	IRCClient::checkChannelPassword(const std::string &name, const std::string &pass)
+{
+	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
+	if (!it->second.getPassword().compare(pass))
+		return (true);
+	return (false);
 }
 
 void  IRCClient::createChannel(const std::string &name)

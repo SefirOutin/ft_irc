@@ -1,5 +1,4 @@
 #include "IRCCmds.hpp"
-#include "IRCError.hpp"
 
 bool verify_string_format(const std::string &input_string)
 {
@@ -146,6 +145,11 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 		if (client.channelIsInviteOnly(name))
 		{
 			client.sendMessage(ERR_INVITEONLYCHANNEL(params));
+			return ;
+		}
+		if (client.channelIsFull(name))
+		{
+			client.sendMessage(ERR_CHANNELISFULL(name));
 			return ;
 		}
 		client.joinChannel(name);

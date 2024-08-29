@@ -26,6 +26,16 @@ bool	IRCChannel::getInviteOnly() const
 	return (_inviteOnly);
 }
 
+int	IRCChannel::getUserLimit() const
+{
+	return (_userLimit);
+}
+
+const std::string	IRCChannel::getPassword() const
+{
+	return (_password);
+}
+
 const std::map<int, IRCClient *> IRCChannel::getListClientChannel() const
 {
 	return (_clients);
