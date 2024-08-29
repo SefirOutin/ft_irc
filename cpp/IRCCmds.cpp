@@ -112,9 +112,7 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 		std::string name(nickOrChanToSend);
 		nickOrChanToSend.erase(0, 1);
 		if (client.channelNameAlreadyInUse(nickOrChanToSend))
-		{
 			client.sendToChannel(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n", client.getFd(), nickOrChanToSend);
-		}
 	}
 	else if (client.nickAlreadyInUse(nickOrChanToSend, client.getFd()))
 		client.getClient(nickOrChanToSend).sendMessage(client.getClientInfos() + " PRIVMSG " + nickOrChanToSend + " :" + msgToSend + "\r\n");
