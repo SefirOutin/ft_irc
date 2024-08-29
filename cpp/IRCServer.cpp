@@ -130,6 +130,8 @@ int IRCServer::acceptConnections()
 	socklen_t addrLen;
 	int new_connection;
 
+	bzero(&clientPollFd, sizeof(pollfd));
+	// bzero(&clientSockAddr, sizeof(sockaddr_in));
 	addrLen = sizeof(clientSockAddr);
 	new_connection = accept(_sockFd, (struct sockaddr *)&clientSockAddr, &addrLen);
 	if (new_connection < 0)

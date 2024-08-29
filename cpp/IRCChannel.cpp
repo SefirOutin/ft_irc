@@ -21,6 +21,11 @@ int	IRCChannel::getNbUser() const
 	return (_nbUser);
 }
 
+bool	IRCChannel::getInviteOnly() const
+{
+	return (_inviteOnly);
+}
+
 const std::map<int, IRCClient *> IRCChannel::getListClientChannel() const
 {
 	return (_clients);

@@ -29,8 +29,6 @@ class IRCClient
 		std::string						getClientInfos();
 		const std::map<int, IRCClient*>	getListClientChannel(const std::string &name)const ;
 
-
-
 		void	sendMessage(const std::string &msg) const;
 		void	receiveMessages();
 		bool	nickAlreadyInUse(std::string arg, int clientFd);
@@ -38,6 +36,7 @@ class IRCClient
 		void	joinChannel(const std::string &name);
 		void	createChannel(const std::string &name);
 		bool	channelNameAlreadyInUse(const std::string &name);
+		bool	channelIsInviteOnly(const std::string &name);
 
 	private:
 		IRCServer *_server;

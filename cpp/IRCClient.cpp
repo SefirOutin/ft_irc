@@ -156,10 +156,18 @@ bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
 
 bool  IRCClient::channelNameAlreadyInUse(const std::string &name)
 {
-  	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
+  std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
 	if (it == _server->getChannels().end())
 		return (false);
 	return (true);
+}
+
+bool  IRCClient::channelIsInviteOnly(const std::string &name)
+{
+  std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
+	if (it->second.getInviteOnly())
+    return (true);
+  return (false);
 }
 
 void  IRCClient::createChannel(const std::string &name)
@@ -174,9 +182,12 @@ void	IRCClient::joinChannel(const std::string &name)
 
 int  IRCClient::leaveChannel(const std::string &name)
 {
-	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
-	if (it == _server->getChannels().end())
+	std::map<std::string, IRCChannel>::const_iterator itChannels= _server->getChannels().find(name);
+	if (itChannels == _server->getChannels().end())
 		return (1);
-  _server->removeClientFromChannel(name, *this);
+	std::map<int, IRCClient *>::const_iterator	itClientList = getListClientChannel(name).find(_fd);
+	if (itClientList == getListClientChannel(name).end())
+		return (2);
+  	_server->removeClientFromChannel(name, *this);
 	return (0);
 }
