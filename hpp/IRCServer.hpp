@@ -21,6 +21,8 @@
 #include "IRCClient.hpp"
 #include "IRCCommandHandler.hpp"
 #include "IRCChannel.hpp"
+#include "IRCCmds.hpp"
+#include "IRCError.hpp"
 
 class	IRCClient;
 class	IRCCommandHandler;
@@ -29,14 +31,12 @@ class	IRCChannel;
 class	IRCServer
 {
 	public:
-		// IRCServer() {};
 		IRCServer(int port, const std::string &password);
 		~IRCServer();
 
 		const std::string 						&getPass() const;
 		const std::map<int, IRCClient>			&getClients() const;
 		const std::map<std::string, IRCChannel>	&getChannels() const;
-		// void	setChannels(const std::string &name);
 		
 		int 	startServer();
 		int 	run();

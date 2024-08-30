@@ -1,6 +1,4 @@
 #include "IRCServer.hpp"
-#include "IRCClient.hpp"
-#include "IRCCmds.hpp"
 
 IRCServer::IRCServer(int port, const std::string &password):
 	_password(password)
@@ -130,6 +128,8 @@ int IRCServer::acceptConnections()
 	socklen_t addrLen;
 	int new_connection;
 
+	bzero(&clientPollFd, sizeof(pollfd));
+	// bzero(&clientSockAddr, sizeof(sockaddr_in));
 	addrLen = sizeof(clientSockAddr);
 	new_connection = accept(_sockFd, (struct sockaddr *)&clientSockAddr, &addrLen);
 	if (new_connection < 0)
@@ -165,9 +165,7 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 		it->second->execute(arg, client);
 		}
 		else
-		{
-		client.sendMessage("421 " + cmd + " :Unknown command\r\n");
-		}
+			client.sendMessage(ERR_UNKNOWNCOMMAND(cmd));
 	}
 }
 

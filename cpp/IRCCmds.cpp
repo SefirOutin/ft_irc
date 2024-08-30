@@ -1,5 +1,4 @@
 #include "IRCCmds.hpp"
-#include "IRCError.hpp"
 
 bool verify_string_format(const std::string &input_string)
 {
@@ -113,13 +112,11 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 		nickOrChanToSend.erase(0, 1);
 		if (client.channelNameAlreadyInUse(nickOrChanToSend))
 		{
-			std::map<int, IRCClient *> clientInChan = client.getListClientChannel(nickOrChanToSend);
-			std::map<int, IRCClient *>::iterator it = clientInChan.begin();
-			while (it != clientInChan.end())
+			std::map<int, IRCClient *>::const_iterator it;
+			for (it = client.getClientListChannel(nickOrChanToSend).begin(); it != client.getClientListChannel(nickOrChanToSend).end(); it++)
 			{
 				if (it->second->getNick() != client.getNick())
 					it->second->sendMessage(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n");
-				it++;
 			}
 		}
 	}
@@ -130,25 +127,54 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 }
 void JoinCommand::execute(const std::string &params, IRCClient &client)
 {
-	std::string name = params.substr(1, params.length() - 1);
-	// std::cout << "join called\n";
-	if (params[0] != '#' && params[0] != '&')
+	if (!params.size())
 	{
-		client.sendMessage(":??? 403 " + client.getNick() + " " + params + " :No such channel\r\n");
+		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick()));
 		return ;
 	}
-	if (!client.channelNameAlreadyInUse(name))
-		client.createChannel(name);
-	else
+	if (params[0] != '#' && params[0] != '&')
+	{
+		client.sendMessage(ERR_NOSUCHCHANNEL(params));
+		return ;
+	}
+	std::string name = params.substr(1, params.length() - 1);
+	if (client.channelNameAlreadyInUse(name))
+	{
+		if (client.channelIsInviteOnly(name))
+		{
+			client.sendMessage(ERR_INVITEONLYCHANNEL(params));
+			return ;
+		}
+		if (client.channelIsFull(name))
+		{
+			client.sendMessage(ERR_CHANNELISFULL(name));
+			return ;
+		}
 		client.joinChannel(name);
+	}
+	else
+		client.createChannel(name);
 	client.sendMessage(client.getClientInfos() + " JOIN " + params + "\r\n");
 }
 
 void PartCommand::execute(const std::string &params, IRCClient &client)
 {
+	if (!params.size())
+	{
+		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick()));
+		return ;
+	}
 	std::string name = params.substr(1, params.length() - 1);
-	if (!client.leaveChannel(name))
-		client.sendMessage(client.getClientInfos() + " PART " + params + "\r\n");
-	else
-		client.sendMessage(":??? 403 " + client.getNick() + " " + name + " :No such channel\r\n");
+	switch(client.leaveChannel(name))
+	{
+		case 0:
+			client.sendMessage(client.getClientInfos() + " PART " + params + "\r\n");
+			break;
+		case 1:
+			client.sendMessage(ERR_NOSUCHCHANNEL(params));
+			break;
+		case 2:
+			client.sendMessage(ERR_NOTONCHANNEL(name));
+			break;
+	}
 }

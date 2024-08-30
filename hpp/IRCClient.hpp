@@ -17,20 +17,20 @@ class IRCClient
 
 		const std::string				&getNick() const;
 		void						 	setNick(std::string nick);
-		const std::vector<std::string>	getUser() const;
+		const std::vector<std::string>	&getUser() const;
 		void 							setUser(const std::string &user);
-		bool							getWelcom();
+		const bool						&getWelcom() const;
 		void 							setWelcom(bool status);
-		int								getFd() const;
-		bool							isConnected() const;
+		const int						&getFd() const;
+		const bool						&isConnected() const;
 		void 							setConnected(bool status);
-		bool							checkPass(const std::string &password) const;
-		IRCClient						getClient(const std::string &nick);
-		std::string						getClientInfos();
-		const std::map<int, IRCClient*>	getListClientChannel(const std::string &name)const ;
+		const IRCClient					&getClient(const std::string &nick) const;
+		std::string						getClientInfos() const;
+		const std::map<int, IRCClient*>	&getClientListChannel(const std::string &name) const;
+		const bool  					&getOp(const std::string &chanName) const;
+		void							setOp(const std::string &chanName, bool op);
 
-
-
+		bool	checkPass(const std::string &password) const;
 		void	sendMessage(const std::string &msg) const;
 		void	receiveMessages();
 		bool	nickAlreadyInUse(std::string arg, int clientFd);
@@ -38,14 +38,18 @@ class IRCClient
 		void	joinChannel(const std::string &name);
 		void	createChannel(const std::string &name);
 		bool	channelNameAlreadyInUse(const std::string &name);
+		bool	channelIsInviteOnly(const std::string &name);
+		bool	channelIsFull(const std::string &name);
+		bool	checkChannelPassword(const std::string &name, const std::string &pass);
 
 	private:
-		IRCServer *_server;
-		int _fd;
-		bool _connected;
-		bool _sendWelcom;
-		std::string _nick;
-		std::vector<std::string> _user;
+		IRCServer					*_server;
+		int							_fd;
+		bool						_connected;
+		bool						_sendWelcom;
+		std::string					_nick;
+		std::vector<std::string>	_user;
+		std::map<std::string, bool>	_op;
 };
 
 #endif
