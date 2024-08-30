@@ -1,11 +1,9 @@
-#include "IRCServer.hpp"
 #include "IRCClient.hpp"
-
 
 IRCClient::IRCClient(int fd, IRCServer *server) : _server(server), _fd(fd)
 {
-  _connected = false;
-  _sendWelcom = false;
+  	_connected = false;
+  	_sendWelcom = false;
 }
 
 IRCClient::IRCClient(const IRCClient &other)
@@ -30,133 +28,144 @@ IRCClient &IRCClient::operator=(const IRCClient &other)
 
 const std::string &IRCClient::getNick() const
 {
-  return (_nick);
+  	return (_nick);
 }
 
 void IRCClient::setNick(std::string nick)
 {
-  _nick = nick;
+  	_nick = nick;
 }
 
-const std::vector<std::string> IRCClient::getUser() const
+const std::vector<std::string> &IRCClient::getUser() const
 {
-  return (_user);
+  	return (_user);
 }
 
 void IRCClient::setUser(const std::string &user)
 {
-  std::istringstream arg(user);
-  _user.resize(4);
-  std::string firstName;
-  std::string lastName;
-  size_t i = 0;
-  while (i < 5)
-  {
-    if (i == 3)
-    {
-      arg >> firstName;
-      arg >> lastName;
-      if (firstName[0] == ':')
-        firstName.erase(0, 1);
-      _user[i] = firstName + " " + lastName;
-    }
-    else
-      arg >> _user[i];
-    ++i;
-  }
+  	std::istringstream arg(user);
+  	_user.resize(4);
+  	std::string firstName;
+  	std::string lastName;
+  	size_t i = 0;
+  	while (i < 5)
+  	{
+  	  	if (i == 3)
+  	  	{
+  	  	  	arg >> firstName;
+  	  	  	arg >> lastName;
+  	  	  	if (firstName[0] == ':')
+  	  	    	firstName.erase(0, 1);
+  	  	  	_user[i] = firstName + " " + lastName;
+  	  	}
+  	  	else
+  	  	  	arg >> _user[i];
+  	  	++i;
+  	}
 }
 
-bool IRCClient::getWelcom()
+const bool &IRCClient::getWelcom() const
 {
-  return (_sendWelcom);
+  	return (_sendWelcom);
 }
 void IRCClient::setWelcom(bool status)
 {
-  _sendWelcom = status;
+  	_sendWelcom = status;
 }
 void IRCClient::setConnected(bool status)
 {
-  _connected = status;
+  	_connected = status;
 }
 
-bool IRCClient::isConnected() const
+const bool &IRCClient::isConnected() const
 {
-  return (_connected);
+  	return (_connected);
 }
 
-int IRCClient::getFd() const
+const int &IRCClient::getFd() const
 {
-  return (_fd);
+  	return (_fd);
 }
 
 bool IRCClient::checkPass(const std::string &password) const
 {
-  if (password.compare(_server->getPass()))
-    return (false);
-  return (true);
+  	if (password.compare(_server->getPass()))
+  	  	return (false);
+  	return (true);
 }
 
-std::string	IRCClient::getClientInfos()
+std::string	IRCClient::getClientInfos() const
 {
 	return (":" + _nick + "!~" + _user[0] + "@" + _user[2]);
 }
 
-IRCClient IRCClient::getClient(const std::string &nick)
+const IRCClient &IRCClient::getClient(const std::string &nick) const
 {
-	IRCClient	client(0, NULL);
   	std::map<int, IRCClient>::const_iterator it;
   	for (it = _server->getClients().begin(); it != _server->getClients().end(); ++it)
   	{
-  	  if (it->second.getNick() == nick)
-  	    client = it->second;
+		if (it->second.getNick() == nick)
+			break;
   	}
-  	return (client);
+  	return (it->second);
 }
 
-const std::map<int, IRCClient *> IRCClient::getListClientChannel(const std::string &name) const
+const std::map<int, IRCClient *> &IRCClient::getClientListChannel(const std::string &name) const
 {
-  return (_server->getChannels().find(name)->second.getListClientChannel());
+	return (_server->getChannels().find(name)->second.getClientListChannel());
+}
+
+const bool  &IRCClient::getOp(const std::string &chanName) const
+{
+  	std::map<std::string, bool>::const_iterator it = _op.find(chanName);
+  	// if (it != _op.end())
+  	 return (it->second);
+}
+
+void	IRCClient::setOp(const std::string &chanName, bool op)
+{
+	_op[chanName] = op;
 }
 
 void IRCClient::sendMessage(const std::string &msg) const
 {
-//   std::cout << "server ----> client : " << msg << std::endl;
-  send(_fd, msg.c_str(), msg.length(), 0);
+	//   std::cout << "server ----> client : " << msg << std::endl;
+  	send(_fd, msg.c_str(), msg.length(), 0);
 }
 
 void IRCClient::receiveMessages()
 {
-  char buffer[512];
-  {
-    int bytesReceived = recv(_fd, buffer, sizeof(buffer) - 1, 0);
-    if (bytesReceived > 0)
-    {
-      buffer[bytesReceived] = '\0';
-      std::string message(buffer);
-    //   std::cout << "client ----> server : " << message << std::endl;
-      _server->parseCmds(message, *this);
-    }
-    else
-    {
-      _server->closeConnection(_fd);
-    }
-  }
+  	char buffer[512];
+  	{
+  	  	int bytesReceived = recv(_fd, buffer, sizeof(buffer) - 1, 0);
+  	  	if (bytesReceived > 0)
+  	  	{
+  	  	  	buffer[bytesReceived] = '\0';
+  	  	  	std::string message(buffer);
+  	  		//   std::cout << "client ----> server : " << message << std::endl;
+  	  	  	_server->parseCmds(message, *this);
+  	  	}
+  	  	else
+  	  	{
+  	  	 	_server->closeConnection(_fd);
+  	  	}
+  	}
 }
 
 bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
 {
-  std::map<int, IRCClient>::const_iterator it;
-  for (it = _server->getClients().begin(); it != _server->getClients().end(); it++)
-  {
-    if (!it->second.getNick().compare(arg) && it->first != clientFd)
-      return (true);
-  }
-  return (false);
+  	std::map<int, IRCClient>::const_iterator it;
+  	for (it = _server->getClients().begin(); it != _server->getClients().end(); it++)
+  	{
+  	  if (!it->second.getNick().compare(arg) && it->first != clientFd)
+  	    return (true);
+  	}
+  	return (false);
 }
 
 bool  IRCClient::channelNameAlreadyInUse(const std::string &name)
 {
-  std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
+  	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
 	if (it == _server->getChannels().end())
 		return (false);
 	return (true);
@@ -191,12 +200,14 @@ bool	IRCClient::checkChannelPassword(const std::string &name, const std::string 
 
 void  IRCClient::createChannel(const std::string &name)
 {
-  _server->newChannel(name, *this);
+  	_server->newChannel(name, *this);
+  	_op.insert(std::pair<std::string, bool>(name, true));
 }
 
 void	IRCClient::joinChannel(const std::string &name)
 {
-  _server->newConnectionToChannel(name, *this);
+	  _server->newConnectionToChannel(name, *this);
+	  _op.insert(std::pair<std::string, bool>(name, false));
 }
 
 int  IRCClient::leaveChannel(const std::string &name)
@@ -204,9 +215,10 @@ int  IRCClient::leaveChannel(const std::string &name)
 	std::map<std::string, IRCChannel>::const_iterator itChannels= _server->getChannels().find(name);
 	if (itChannels == _server->getChannels().end())
 		return (1);
-	std::map<int, IRCClient *>::const_iterator	itClientList = getListClientChannel(name).find(_fd);
-	if (itClientList == getListClientChannel(name).end())
+	std::map<int, IRCClient *>::const_iterator	itClientList = getClientListChannel(name).find(_fd);
+	if (itClientList == getClientListChannel(name).end())
 		return (2);
-  	_server->removeClientFromChannel(name, *this);
+	_server->removeClientFromChannel(name, *this);
+	_op.erase(name);
 	return (0);
 }

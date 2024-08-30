@@ -21,6 +21,7 @@
 #include "IRCClient.hpp"
 #include "IRCCommandHandler.hpp"
 #include "IRCChannel.hpp"
+#include "IRCCmds.hpp"
 #include "IRCError.hpp"
 
 class	IRCClient;

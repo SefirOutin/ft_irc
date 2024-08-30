@@ -9,34 +9,59 @@ IRCChannel::IRCChannel(const std::string &name, IRCClient &clientOp):
 	_userLimit = -1;
 	_nbUser = 0;
 	newConnection(clientOp);
-	newOperator(clientOp);
 }
 
 IRCChannel::~IRCChannel()
 {
 }
 
-int	IRCChannel::getNbUser() const
+const int	&IRCChannel::getNbUser() const
 {
 	return (_nbUser);
 }
 
-bool	IRCChannel::getInviteOnly() const
+const bool	&IRCChannel::getInviteOnly() const
 {
 	return (_inviteOnly);
 }
 
-int	IRCChannel::getUserLimit() const
+void	IRCChannel::setInviteOnly(bool invite)
+{
+	_inviteOnly = invite;
+}
+
+const int	&IRCChannel::getUserLimit() const
 {
 	return (_userLimit);
 }
 
-const std::string	IRCChannel::getPassword() const
+void	IRCChannel::setUserLimit(int limit)
+{
+	_userLimit = limit;
+}
+
+const std::string	&IRCChannel::getPassword() const
 {
 	return (_password);
 }
 
-const std::map<int, IRCClient *> IRCChannel::getListClientChannel() const
+void	IRCChannel::setPassword(const std::string &password)
+{
+	_password = password;
+}
+
+const std::string	&IRCChannel::getTopic() const
+{
+	return (_topic);
+}
+
+void	IRCChannel::setTopic(const std::string &topic)
+{
+	_topic = topic;
+}
+
+
+const std::map<int, IRCClient *> &IRCChannel::getClientListChannel() const
 {
 	return (_clients);
 }
@@ -47,10 +72,6 @@ void	IRCChannel::newConnection(IRCClient &client)
 	_nbUser++;
 }
 
-void	IRCChannel::newOperator(IRCClient &client)
-{
-	_operators.insert(std::pair<int, IRCClient *>(client.getFd(), &client));
-}
 void	IRCChannel::removeUser(int clientFd)
 {
 	std::map<int, IRCClient *>::iterator	it = _clients.find(clientFd);
@@ -58,7 +79,6 @@ void	IRCChannel::removeUser(int clientFd)
 	{
 		_clients.erase(clientFd);
 		_nbUser--;
-
 	}
 }
 
@@ -68,6 +88,6 @@ void	IRCChannel::sendToChannel(const std::string &message, int senderFd)
 	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
 		if (it->first != senderFd)
-			it->second->sendMessage(message);
+			it->second->sendMessage(message + "\r\n");
 	}
 }

@@ -1,6 +1,4 @@
 #include "IRCServer.hpp"
-#include "IRCClient.hpp"
-#include "IRCCmds.hpp"
 
 IRCServer::IRCServer(int port, const std::string &password):
 	_password(password)
