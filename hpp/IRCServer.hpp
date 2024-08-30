@@ -46,7 +46,7 @@ class	IRCServer
 		void	newChannel(const std::string &name, IRCClient &Op);
 		void	removeChannel(std::string name);
 		void	newConnectionToChannel(const std::string &name, IRCClient &client);
-		void	removeClientFromChannel(const std::string &name, IRCClient &client);
+		void	removeClientFromChannel(const std::string &name, int clientFd);
 
 	private:
 		int											_sockFd;

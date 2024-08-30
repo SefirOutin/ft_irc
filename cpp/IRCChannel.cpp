@@ -66,6 +66,19 @@ const std::map<int, IRCClient *> &IRCChannel::getClientListChannel() const
 	return (_clients);
 }
 
+const int	&IRCChannel::getClientFdInChannel(const std::string &nick) const
+{
+	std::map<int, IRCClient *>::const_iterator	it;
+	for (it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if (it->second->getNick() == nick)
+			break;
+	}
+	// if (it == _clients.end())
+	// 	return (-1);
+	return (it->second->getFd());
+}
+
 void	IRCChannel::newConnection(IRCClient &client)
 {
 	_clients.insert(std::pair<int, IRCClient *>(client.getFd(), &client));
@@ -75,11 +88,10 @@ void	IRCChannel::newConnection(IRCClient &client)
 void	IRCChannel::removeUser(int clientFd)
 {
 	std::map<int, IRCClient *>::iterator	it = _clients.find(clientFd);
-	if (it != _clients.end())
-	{
-		_clients.erase(clientFd);
-		_nbUser--;
-	}
+	if (it == _clients.end())
+		return ;
+	_clients.erase(clientFd);
+	_nbUser--;
 }
 
 void	IRCChannel::sendToChannel(const std::string &message, int senderFd)

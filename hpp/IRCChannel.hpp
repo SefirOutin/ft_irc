@@ -23,6 +23,7 @@ class IRCChannel
 		const std::string					&getTopic() const;
 		void								setTopic(const std::string &topic);
 		const std::map<int, IRCClient *>	&getClientListChannel() const;
+		const int							&getClientFdInChannel(const std::string &name) const;
 
 		void	newConnection(IRCClient &client);
 		void	removeUser(int clientFd);

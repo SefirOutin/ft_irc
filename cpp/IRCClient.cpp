@@ -122,9 +122,13 @@ const bool  &IRCClient::getOp(const std::string &chanName) const
   	 return (it->second);
 }
 
-void	IRCClient::setOp(const std::string &chanName, bool op)
+void	IRCClient::setOp(const std::string &chanName, bool op, bool del)
 {
-	_op[chanName] = op;
+	if (del)
+		_op.erase(chanName);
+	else
+		_op[chanName] = op;
+	
 }
 
 void IRCClient::sendMessage(const std::string &msg) const
@@ -163,7 +167,7 @@ bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
   	return (false);
 }
 
-bool  IRCClient::channelNameAlreadyInUse(const std::string &name)
+bool  IRCClient::channelNameInUse(const std::string &name)
 {
   	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
 	if (it == _server->getChannels().end())
@@ -201,13 +205,17 @@ bool	IRCClient::checkChannelPassword(const std::string &name, const std::string 
 void  IRCClient::createChannel(const std::string &name)
 {
   	_server->newChannel(name, *this);
-  	_op.insert(std::pair<std::string, bool>(name, true));
+	_op[name] = true;
+  	// _op.insert(std::pair<std::string, bool>(name, true));
+	std::cout << _op[name] << "\n";
 }
 
 void	IRCClient::joinChannel(const std::string &name)
 {
-	  _server->newConnectionToChannel(name, *this);
-	  _op.insert(std::pair<std::string, bool>(name, false));
+	_server->newConnectionToChannel(name, *this);
+	_op[name] = false;
+	// _op.insert(std::pair<std::string, bool>(name, false));
+	std::cout << _op[name] << "\n";
 }
 
 int  IRCClient::leaveChannel(const std::string &name)
@@ -218,7 +226,11 @@ int  IRCClient::leaveChannel(const std::string &name)
 	std::map<int, IRCClient *>::const_iterator	itClientList = getClientListChannel(name).find(_fd);
 	if (itClientList == getClientListChannel(name).end())
 		return (2);
-	_server->removeClientFromChannel(name, *this);
-	_op.erase(name);
+	_server->removeClientFromChannel(name, _fd);
 	return (0);
+}
+
+void	IRCClient::kickFromChannel(const std::string &chanName, int clientToKick)
+{
+	_server->removeClientFromChannel(chanName, clientToKick);
 }
