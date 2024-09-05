@@ -41,7 +41,7 @@ class IRCClient
 		bool	channelIsInviteOnly(const std::string &name);
 		bool	channelIsFull(const std::string &name);
 		bool	checkChannelPassword(const std::string &name, const std::string &pass);
-		void	kickFromChannel(const std::string &chanName, int clientToKick);
+		int		kickFromChannel(const std::string &chanName, const std::string &nickToKick, const std::string &msg);
 
 	private:
 		IRCServer					*_server;

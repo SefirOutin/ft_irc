@@ -137,7 +137,6 @@ void 	JoinCommand::execute(const std::string &params, IRCClient &client)
 		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), params));
 		return ;
 	}
-	// std::string name = params.substr(1, params.length() - 1);
 	if (client.channelNameInUse(params))
 	{
 		if (client.channelIsInviteOnly(params))
@@ -164,7 +163,6 @@ void	PartCommand::execute(const std::string &params, IRCClient &client)
 		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "PART"));
 		return ;
 	}
-	// std::string name = params.substr(1, params.length() - 1);
 	switch(client.leaveChannel(params))
 	{
 		case 0:
@@ -182,7 +180,7 @@ void	PartCommand::execute(const std::string &params, IRCClient &client)
 void	KickCommand::execute(const std::string &params, IRCClient &client)
 {
 	std::istringstream	sstring(params);
-	std::string			chanName, nick;
+	std::string			chanName, nick, msg;
 
 	sstring >> chanName >> nick;
 	if (sstring.fail())
@@ -190,33 +188,21 @@ void	KickCommand::execute(const std::string &params, IRCClient &client)
 		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "KICK"));
 		return ;
 	}
-	if (!client.getOp(chanName))
+	std::getline(sstring >> std::ws, msg); 
+	switch (client.kickFromChannel(chanName, nick, msg))
 	{
-		std::cout << client.getOp(chanName) << "\n";
-		client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
-		return ;
-	}
-	if (!client.channelNameInUse(chanName))
-	{
-		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
-		return ;
-	}
-	std::map<int, IRCClient *>::const_iterator	it;
-	for (it = client.getClientListChannel(chanName).begin(); it != client.getClientListChannel(chanName).end(); it++)
-	{
-		if (it->second->getNick() == nick)
+		case 1:
+			client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
 			break;
-	}
-	if (it == client.getClientListChannel(chanName).end())
-		client.sendMessage(ERR_NOTONCHANNEL(client.getNick(), chanName));
-	else
-	{
-		std::cout << "--------------------------------\n";
-		it->second->sendMessage(":" + client.getNick() + " KICK " + chanName + " " + it->second->getNick() + "\r\n");
-		client.kickFromChannel(chanName, it->second->getFd());
-	}
+		case 2:
+			client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
+			break;
+		case 3:
+			client.sendMessage(ERR_NOTONCHANNEL(client.getNick(), chanName));
+			break;
+		case 4:
+			client.sendMessage(ERR_USERNOTINCHANNEL(client.getNick(), nick, chanName));
+			break;
 
-	
-	 
-	
+	}
 }

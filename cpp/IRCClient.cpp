@@ -169,8 +169,7 @@ bool IRCClient::nickAlreadyInUse(std::string arg, int clientFd)
 
 bool  IRCClient::channelNameInUse(const std::string &name)
 {
-  	std::map<std::string, IRCChannel>::const_iterator it = _server->getChannels().find(name);
-	if (it == _server->getChannels().end())
+  	if (_server->getChannels().find(name) == _server->getChannels().end())
 		return (false);
 	return (true);
 }
@@ -207,7 +206,7 @@ void  IRCClient::createChannel(const std::string &name)
   	_server->newChannel(name, *this);
 	_op[name] = true;
   	// _op.insert(std::pair<std::string, bool>(name, true));
-	std::cout << _op[name] << "\n";
+	// std::cout << _op[name] << "\n";
 }
 
 void	IRCClient::joinChannel(const std::string &name)
@@ -230,7 +229,25 @@ int  IRCClient::leaveChannel(const std::string &name)
 	return (0);
 }
 
-void	IRCClient::kickFromChannel(const std::string &chanName, int clientToKick)
+int	IRCClient::kickFromChannel(const std::string &chanName, const std::string &nickToKick, const std::string &msg)
 {
-	_server->removeClientFromChannel(chanName, clientToKick);
+	std::map<int, IRCClient *>	list = getClientListChannel(chanName);
+	if (list.find(_fd) == list.end())
+		return (1);
+	if (!_op[chanName])
+		return (2);
+	if (!channelNameInUse(chanName))
+		return (3);
+	std::map<int, IRCClient *>::const_iterator	it;
+	for (it = list.begin(); it != list.end(); it++)
+	{
+		if (it->second->getNick() == nickToKick)
+			break;
+	}
+	if (it == list.end())
+		return (4);
+	_server->removeClientFromChannel(chanName, it->second->getFd());
+	it->second->sendMessage(":" + _nick + " KICK " + chanName + " " + it->second->getNick() + " :" + msg + "\r\n");
+
+	return (0);
 }
