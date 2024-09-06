@@ -154,6 +154,7 @@ void 	JoinCommand::execute(const std::string &params, IRCClient &client)
 	else
 		client.createChannel(params);
 	client.sendMessage(client.getClientInfos() + " JOIN " + params + "\r\n");
+	client.sendNameReply(params);
 }
 
 void	PartCommand::execute(const std::string &params, IRCClient &client)
