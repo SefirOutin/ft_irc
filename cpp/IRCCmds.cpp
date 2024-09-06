@@ -104,7 +104,7 @@ void	PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 		return;
 	else if (params.empty())
 	{
-		client.sendMessage(ERR_NEEDMOREPARAMS("PRIVMSG"));
+		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "PRIVMSG"));
 		return;
 	}
 	std::string split, nickOrChanToSend, msgToSend;
@@ -129,7 +129,7 @@ void	PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 		std::string name(nickOrChanToSend);
 		nickOrChanToSend.erase(0, 1);
 
-		if (client.channelNameAlreadyInUse(nickOrChanToSend))
+		if (client.channelNameInUse(nickOrChanToSend))
 			client.sendToChannel(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n", client.getFd(), nickOrChanToSend);
 	}
 	else if (client.nickAlreadyInUse(nickOrChanToSend, client.getFd()))

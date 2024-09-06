@@ -110,6 +110,17 @@ const IRCClient &IRCClient::getClient(const std::string &nick) const
   return (it->second);
 }
 
+const std::map<int, IRCClient *> &IRCClient::getClientListChannel(const std::string &name) const
+{
+	return (_server->getChannels().find(name)->second.getClientListChannel());
+}
+
+const bool  &IRCClient::getOp(const std::string &chanName) const
+{
+  	std::map<std::string, bool>::const_iterator it = _op.find(chanName);
+  	return (it->second);
+}
+
 void	IRCClient::setOp(const std::string &chanName, bool op, bool del)
 {
 	if (del)
@@ -193,17 +204,17 @@ bool	IRCClient::checkChannelPassword(const std::string &name, const std::string 
 void  IRCClient::createChannel(const std::string &name)
 {
   	_server->newChannel(name, *this);
-	_op[name] = true;
-  	// _op.insert(std::pair<std::string, bool>(name, true));
+	// _op[name] = true;
+  	_op.insert(std::pair<std::string, bool>(name, true));
 	// std::cout << _op[name] << "\n";
 }
 
 void IRCClient::joinChannel(const std::string &name)
 {
 	_server->newConnectionToChannel(name, *this);
-	_op[name] = false;
-	// _op.insert(std::pair<std::string, bool>(name, false));
-	std::cout << _op[name] << "\n";
+	// _op[name] = false;
+	_op.insert(std::pair<std::string, bool>(name, false));
+	// std::cout << _op[name] << "\n";
 }
 
 int IRCClient::leaveChannel(const std::string &name)
