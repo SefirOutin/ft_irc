@@ -117,7 +117,7 @@ int IRCServer::run()
 		}
 		if (_channels.find("ok") != _channels.end())
 			std::cout << "nbUser in #ok: " << _channels.find("ok")->second.getNbUser() << "\n";
-		std::cout << "nbChannels: " << _channels.size() << "\n";
+		// std::cout << "nbChannels: " << _channels.size() << "\n";
 	}
 	return (0);
 }
