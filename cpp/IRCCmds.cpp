@@ -127,7 +127,7 @@ void	PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 	else if (nickOrChanToSend[0] == '#')
 	{
 		std::string name(nickOrChanToSend);
-		nickOrChanToSend.erase(0, 1);
+		// nickOrChanToSend.erase(0, 1);
 
 		if (client.channelNameInUse(nickOrChanToSend))
 			client.sendToChannel(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n", client.getFd(), nickOrChanToSend);
@@ -164,10 +164,14 @@ void 	JoinCommand::execute(const std::string &params, IRCClient &client)
 			client.sendMessage(ERR_CHANNELISFULL(client.getNick(), params));
 			return ;
 		}
+		// std::cout << "11111111111111111111111111111\n";
 		client.joinChannel(params);
 	}
 	else
+	{
+		// std::cout << "52222222222222222222\n";
 		client.createChannel(params);
+	}
 	client.sendMessage(client.getClientInfos() + " JOIN " + params + "\r\n");
 	client.sendNameReply(params);
 }

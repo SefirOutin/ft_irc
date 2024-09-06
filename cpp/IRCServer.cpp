@@ -114,8 +114,8 @@ int IRCServer::run()
 				}
 			}
 		}
-		// if (_channels.find("ok") != _channels.end())
-		// std::cout << "nbUser in #ok: " << _channels.find("ok")->second.getNbUser() << "\n";
+		// if (_channels.find("#ok") != _channels.end())
+		// std::cout << "nbUser in #ok: " << _channels.find("#ok")->second.getNbUser() << "\n";
 
 		// std::cout << "nbChannels: " << _channels.size() << "\n";
 	}
@@ -185,8 +185,8 @@ void IRCServer::closeConnection(int clientFd)
 
 void IRCServer::newChannel(const std::string &name, IRCClient &op)
 {
-	// IRCChannel	channel(name, op);
-	_channels.insert(std::pair<std::string, IRCChannel>(name, IRCChannel(name, op)));
+	IRCChannel	channel(name, op);
+	_channels.insert(std::pair<std::string, IRCChannel>(name, channel));
 	
 }
 
