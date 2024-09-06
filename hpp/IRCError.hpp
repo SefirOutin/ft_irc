@@ -17,5 +17,9 @@
 #define	ERR_BADCHANNELKEY(nick, chanName) + (": 475 " std::string(nick) + std::string(chanName) + " :Cannot join channel (+k)\r\n")
 #define	ERR_NOPRIVILEGES(nick) (": 481 " + std::string(nick) + " :Permission Denied- You're not an IRC operator\r\n")
 #define	ERR_CHANOPRIVSNEEDED(nick, chanName) (": 482 " + std::string(nick) + " " + std::string(chanName) + " :You're not channel operator\r\n")
+#define ERR_NOTEXTTOSEND(nick) (": 412 " + std::string(nick) + " :No text to send\r\n")
+#define ERR_NORECIPIENT(nick, cmd) (": 411 " + std::string(nick) + " :No recipient given (" + std::string(cmd) + ")\r\n")
+#define ERR_NOSUCHNICK(nick, nicktosend) (": 401 " + std::string(nick) + " " + std::string(nicktosend) + " :No such nick/channel\r\n")
+// #define ERR_CANNOTSENDTOCHAN(nick, chanName) (": 404 " + std::string(nick) + " " + std::string(chanName) + " :Cannot send to channel\r\n")
 
 #endif

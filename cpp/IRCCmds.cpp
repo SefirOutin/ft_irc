@@ -102,26 +102,41 @@ void	PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (!client.getWelcom())
 		return;
+	else if (params.empty())
+	{
+		client.sendMessage(ERR_NEEDMOREPARAMS("PRIVMSG"));
+		return;
+	}
 	std::string split, nickOrChanToSend, msgToSend;
 	std::istringstream arg(params);
 	for (size_t i = 0; std::getline(arg, split, ':'); i++)
+	{
+		if (split.empty() && i == 0)
+		{
+			std::cout << "nick or chan : " << split << std::endl;
+			client.sendMessage(ERR_NORECIPIENT(client.getNick(), "PRIVMSG"));
+			return;
+		}
 		(i == 0) ? nickOrChanToSend = split.erase(split.length() - 1, split.length()) : msgToSend = split;
-	if (nickOrChanToSend[0] == '#')
+	}
+	if (msgToSend.empty())
+	{
+		client.sendMessage(ERR_NOTEXTTOSEND(client.getNick()));
+		return;
+	}
+	else if (nickOrChanToSend[0] == '#')
 	{
 		std::string name(nickOrChanToSend);
 		nickOrChanToSend.erase(0, 1);
-		if (client.channelNameInUse(nickOrChanToSend))
-		{
-			std::map<int, IRCClient *>::const_iterator it;
-			for (it = client.getClientListChannel(nickOrChanToSend).begin(); it != client.getClientListChannel(nickOrChanToSend).end(); it++)
-			{
-				if (it->second->getNick() != client.getNick())
-					it->second->sendMessage(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n");
-			}
-		}
+
+		if (client.channelNameAlreadyInUse(nickOrChanToSend))
+			client.sendToChannel(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n", client.getFd(), nickOrChanToSend);
 	}
 	else if (client.nickAlreadyInUse(nickOrChanToSend, client.getFd()))
-		client.getClient(nickOrChanToSend).sendMessage(client.getClientInfos() + " PRIVMSG " + nickOrChanToSend + " :" + msgToSend + "\r\n");
+		client.getClient(nickOrChanToSend)
+				.sendMessage(client.getClientInfos() + " PRIVMSG " + nickOrChanToSend + " :" + msgToSend + "\r\n");
+	else
+		client.sendMessage(ERR_NOSUCHNICK(client.getNick(), nickOrChanToSend));
 	// PRIVMSG bilel : ca va
 	// : bi!~bmoudach@localhost PRIVMSG bilel : ca va
 }

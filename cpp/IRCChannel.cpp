@@ -1,10 +1,8 @@
 #include "IRCChannel.hpp"
 
-
-IRCChannel::IRCChannel(const std::string &name, IRCClient &clientOp):
-	_name(name)
+IRCChannel::IRCChannel(const std::string &name, IRCClient &clientOp) : _name(name)
 {
-	
+
 	_inviteOnly = false;
 	_userLimit = -1;
 	_nbUser = 0;
@@ -94,9 +92,9 @@ void	IRCChannel::removeUser(int clientFd)
 	_nbUser--;
 }
 
-void	IRCChannel::sendToChannel(const std::string &message, int senderFd)
+void IRCChannel::sendToChannel(const std::string &message, int senderFd)
 {
-	std::map<int, IRCClient *>::iterator	it;
+	std::map<int, IRCClient *>::iterator it;
 	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
 		if (it->first != senderFd)

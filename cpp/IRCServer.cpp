@@ -1,7 +1,6 @@
 #include "IRCServer.hpp"
 
-IRCServer::IRCServer(int port, const std::string &password):
-	_password(password)
+IRCServer::IRCServer(int port, const std::string &password) : _password(password)
 {
 	_sockAddr.sin_family = AF_INET;
 	_sockAddr.sin_port = htons(port);
@@ -25,17 +24,17 @@ IRCServer::~IRCServer()
 
 const std::string &IRCServer::getPass() const
 {
- 	 return (_password);
+	return (_password);
 }
 
 const std::map<int, IRCClient> &IRCServer::getClients() const
 {
- 	 return (_clients);
+	return (_clients);
 }
 
-const std::map<std::string, IRCChannel>	&IRCServer::getChannels() const
+const std::map<std::string, IRCChannel> &IRCServer::getChannels() const
 {
-  	return (_channels);
+	return (_channels);
 }
 
 void IRCServer::removeChannel(std::string name)
@@ -117,9 +116,10 @@ int IRCServer::run()
 		}
 		// if (_channels.find("ok") != _channels.end())
 		// std::cout << "nbUser in #ok: " << _channels.find("ok")->second.getNbUser() << "\n";
+
 		// std::cout << "nbChannels: " << _channels.size() << "\n";
 	}
-  return (0);
+	return (0);
 }
 
 int IRCServer::acceptConnections()
@@ -154,7 +154,7 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 	{
 		if (!line.empty() && line[line.size() - 1] == '\r')
 		{
-		line.erase(line.size() - 1);
+			line.erase(line.size() - 1);
 		}
 		size_t posFirstSpace = line.find(' ');
 		std::string cmd = line.substr(0, posFirstSpace);
@@ -162,7 +162,7 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 		std::map<std::string, IRCCommandHandler *>::iterator it = _cmds.find(cmd);
 		if (it != _cmds.end())
 		{
-		it->second->execute(arg, client);
+			it->second->execute(arg, client);
 		}
 		else
 			client.sendMessage(ERR_UNKNOWNCOMMAND(cmd));
@@ -171,26 +171,26 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 
 void IRCServer::closeConnection(int clientFd)
 {
-  std::map<int, IRCClient>::iterator mapIt = _clients.find(clientFd);
-  if (mapIt != _clients.end())
-    _clients.erase(clientFd);
-  for (size_t i = 0; i < _fds.size(); i++)
-  {
-    if (_fds[i].fd == clientFd)
-      _fds.erase(_fds.begin() + i);
-  }
-  close(clientFd);
-  std::cout << "Connection closed\n";
+	std::map<int, IRCClient>::iterator mapIt = _clients.find(clientFd);
+	if (mapIt != _clients.end())
+		_clients.erase(clientFd);
+	for (size_t i = 0; i < _fds.size(); i++)
+	{
+		if (_fds[i].fd == clientFd)
+			_fds.erase(_fds.begin() + i);
+	}
+	close(clientFd);
+	std::cout << "Connection closed\n";
 }
 
-void	IRCServer::newChannel(const std::string &name, IRCClient &op)
+void IRCServer::newChannel(const std::string &name, IRCClient &op)
 {
 	// IRCChannel	channel(name, op);
 	_channels.insert(std::pair<std::string, IRCChannel>(name, IRCChannel(name, op)));
 	
 }
 
-void	IRCServer::newConnectionToChannel(const std::string &name, IRCClient &client)
+void IRCServer::newConnectionToChannel(const std::string &name, IRCClient &client)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(name);
 	it->second.newConnection(client);
@@ -204,4 +204,10 @@ void	IRCServer::removeClientFromChannel(const std::string &name, const int clien
 		removeChannel(name);
 	std::map<int, IRCClient>::iterator	itClient = _clients.find(clientFd);
 	itClient->second.setOp(name, true, true);
+}
+
+void IRCServer::sendToChannel(const std::string &message, int senderFd, const std::string &chanName)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	it->second.sendToChannel(message, senderFd);
 }
