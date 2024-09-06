@@ -105,9 +105,9 @@ const IRCClient &IRCClient::getClient(const std::string &nick) const
   for (it = _server->getClients().begin(); it != _server->getClients().end(); ++it)
   {
     if (it->second.getNick() == nick)
-      client = it->second;
+      break;
   }
-  return (client);
+  return (it->second);
 }
 
 void	IRCClient::setOp(const std::string &chanName, bool op)
