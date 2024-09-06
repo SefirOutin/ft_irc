@@ -21,6 +21,8 @@
 #include "IRCClient.hpp"
 #include "IRCCommandHandler.hpp"
 #include "IRCChannel.hpp"
+#include "IRCCmds.hpp"
+#include "IRCError.hpp"
 
 class IRCClient;
 class IRCCommandHandler;
@@ -28,15 +30,24 @@ class IRCChannel;
 
 class IRCServer
 {
-public:
-	// IRCServer() {};
-	IRCServer(int port, const std::string &password);
-	~IRCServer();
 
-	const std::string &getPass() const;
-	const std::map<int, IRCClient> &getClients() const;
-	const std::map<std::string, IRCChannel> &getChannels() const;
-	// void	setChannels(const std::string &name);
+	public:
+		IRCServer(int port, const std::string &password);
+		~IRCServer();
+
+		const std::string 						&getPass() const;
+		const std::map<int, IRCClient>			&getClients() const;
+		const std::map<std::string, IRCChannel>	&getChannels() const;
+		
+		int 	startServer();
+		int 	run();
+		void	parseCmds(const std::string &message, IRCClient &client);
+		void	closeConnection(int clientFd);
+		
+		void	newChannel(const std::string &name, IRCClient &Op);
+		void	removeChannel(std::string name);
+		void	newConnectionToChannel(const std::string &name, IRCClient &client);
+		void	removeClientFromChannel(const std::string &name, IRCClient &client);
 
 	int startServer();
 	int run();
