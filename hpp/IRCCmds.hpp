@@ -52,4 +52,10 @@ class PartCommand : public IRCCommandHandler
 		void execute(const std::string &params, IRCClient &client);
 };
 
+class KickCommand : public IRCCommandHandler
+{
+	public:
+		void execute(const std::string &params, IRCClient &client);
+};
+
 #endif

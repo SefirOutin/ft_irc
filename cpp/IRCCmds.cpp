@@ -1,6 +1,6 @@
 #include "IRCCmds.hpp"
 
-bool verify_string_format(const std::string &input_string)
+bool	verify_string_format(const std::string &input_string)
 {
 	for (size_t i = 0; i < input_string.size(); i++)
 	{
@@ -13,7 +13,7 @@ bool verify_string_format(const std::string &input_string)
 	return (true);
 }
 
-bool checkArgUser(const std::string &params)
+bool	checkArgUser(const std::string &params)
 {
 	std::istringstream arg(params);
 	std::string word;
@@ -25,7 +25,7 @@ bool checkArgUser(const std::string &params)
 	return (false);
 }
 
-void NickCommand::execute(const std::string &params, IRCClient &client)
+void	NickCommand::execute(const std::string &params, IRCClient &client)
 {
 	// std::cout << params << "\n";
 	if (params.empty())
@@ -56,19 +56,19 @@ void NickCommand::execute(const std::string &params, IRCClient &client)
 	}
 }
 
-void PassCommand::execute(const std::string &params, IRCClient &client)
+void	PassCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (client.isConnected())
 		client.sendMessage(ERR_ALREADYREGISTRED);
 	else if (params.empty())
-		client.sendMessage(ERR_NEEDMOREPARAMS("PASS"));
+		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "PASS"));
 	else if (!client.checkPass(params))
 		client.setConnected(false);
 	else
 		client.setConnected(true);
 }
 
-void UserCommand::execute(const std::string &params, IRCClient &client)
+void	UserCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (client.isConnected() && !client.getNick().empty())
 	{
@@ -92,13 +92,13 @@ void PingCommand::execute(const std::string &params, IRCClient &client)
 	client.sendMessage("PONG\r\n");
 }
 
-void CapCommand::execute(const std::string &params, IRCClient &client)
+void	CapCommand::execute(const std::string &params, IRCClient &client)
 {
 	(void)params;
 	(void)client;
 }
 
-void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
+void	PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (!client.getWelcom())
 		return;
@@ -128,9 +128,9 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 	{
 		std::string name(nickOrChanToSend);
 		nickOrChanToSend.erase(0, 1);
+
 		if (client.channelNameAlreadyInUse(nickOrChanToSend))
 			client.sendToChannel(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n", client.getFd(), nickOrChanToSend);
-
 	}
 	else if (client.nickAlreadyInUse(nickOrChanToSend, client.getFd()))
 		client.getClient(nickOrChanToSend)
@@ -140,56 +140,85 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 	// PRIVMSG bilel : ca va
 	// : bi!~bmoudach@localhost PRIVMSG bilel : ca va
 }
-void JoinCommand::execute(const std::string &params, IRCClient &client)
+void 	JoinCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (!params.size())
 	{
-		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick()));
+		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "JOIN"));
 		return ;
 	}
 	if (params[0] != '#' && params[0] != '&')
 	{
-		client.sendMessage(ERR_NOSUCHCHANNEL(params));
+		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), params));
 		return ;
 	}
-	std::string name = params.substr(1, params.length() - 1);
-	if (client.channelNameAlreadyInUse(name))
+	if (client.channelNameInUse(params))
 	{
-		if (client.channelIsInviteOnly(name))
+		if (client.channelIsInviteOnly(params))
 		{
-			client.sendMessage(ERR_INVITEONLYCHANNEL(params));
+			client.sendMessage(ERR_INVITEONLYCHANNEL(client.getNick(), params));
 			return ;
 		}
-		if (client.channelIsFull(name))
+		if (client.channelIsFull(params))
 		{
-			client.sendMessage(ERR_CHANNELISFULL(name));
+			client.sendMessage(ERR_CHANNELISFULL(client.getNick(), params));
 			return ;
 		}
-		client.joinChannel(name);
+		client.joinChannel(params);
 	}
 	else
-		client.createChannel(name);
+		client.createChannel(params);
 	client.sendMessage(client.getClientInfos() + " JOIN " + params + "\r\n");
+	client.sendNameReply(params);
 }
 
-void PartCommand::execute(const std::string &params, IRCClient &client)
+void	PartCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (!params.size())
 	{
-		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick()));
+		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "PART"));
 		return ;
 	}
-	std::string name = params.substr(1, params.length() - 1);
-	switch(client.leaveChannel(name))
+	switch(client.leaveChannel(params))
 	{
 		case 0:
 			client.sendMessage(client.getClientInfos() + " PART " + params + "\r\n");
 			break;
 		case 1:
-			client.sendMessage(ERR_NOSUCHCHANNEL(params));
+			client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), params));
 			break;
 		case 2:
-			client.sendMessage(ERR_NOTONCHANNEL(name));
+			client.sendMessage(ERR_NOTONCHANNEL(client.getNick(), params));
 			break;
+	}
+}
+
+void	KickCommand::execute(const std::string &params, IRCClient &client)
+{
+	std::istringstream	sstring(params);
+	std::string			chanName, nick, msg;
+
+	sstring >> chanName >> nick;
+	if (sstring.fail())
+	{
+		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "KICK"));
+		return ;
+	}
+	std::getline(sstring >> std::ws, msg); 
+	switch (client.kickFromChannel(chanName, nick, msg))
+	{
+		case 1:
+			client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
+			break;
+		case 2:
+			client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
+			break;
+		case 3:
+			client.sendMessage(ERR_NOTONCHANNEL(client.getNick(), chanName));
+			break;
+		case 4:
+			client.sendMessage(ERR_USERNOTINCHANNEL(client.getNick(), nick, chanName));
+			break;
+
 	}
 }

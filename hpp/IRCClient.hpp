@@ -28,19 +28,21 @@ class IRCClient
 		std::string						getClientInfos() const;
 		const std::map<int, IRCClient*>	&getClientListChannel(const std::string &name) const;
 		const bool  					&getOp(const std::string &chanName) const;
-		void							setOp(const std::string &chanName, bool op);
+		void							setOp(const std::string &chanName, bool op, bool del);
 
 		bool	checkPass(const std::string &password) const;
 		void	sendMessage(const std::string &msg) const;
 		void	receiveMessages();
 		bool	nickAlreadyInUse(std::string arg, int clientFd);
-		int		leaveChannel(const std::string &name);
 		void	joinChannel(const std::string &name);
 		void	createChannel(const std::string &name);
-		bool	channelNameAlreadyInUse(const std::string &name);
+		int		leaveChannel(const std::string &name);
+		bool	channelNameInUse(const std::string &name);
 		bool	channelIsInviteOnly(const std::string &name);
 		bool	channelIsFull(const std::string &name);
 		bool	checkChannelPassword(const std::string &name, const std::string &pass);
+		int		kickFromChannel(const std::string &chanName, const std::string &nickToKick, const std::string &msg);
+		void	sendNameReply(const std::string &chanName);
     void sendToChannel(const std::string &message, int senderFd, const std::string &chanName);
   
 	private:

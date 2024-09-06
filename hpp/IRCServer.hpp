@@ -33,7 +33,7 @@ class IRCServer
   public:
 	IRCServer(int port, const std::string &password);
 	~IRCServer();
-
+  
 	const std::string &getPass() const;
 	const std::map<int, IRCClient> &getClients() const;
 	const std::map<std::string, IRCChannel> &getChannels() const;
@@ -46,7 +46,7 @@ class IRCServer
 	void newChannel(const std::string &name, IRCClient &Op);
 	void removeChannel(std::string name);
 	void newConnectionToChannel(const std::string &name, IRCClient &client);
-	void removeClientFromChannel(const std::string &name, IRCClient &client);
+	void	removeClientFromChannel(const std::string &name, int clientFd);
 	void sendToChannel(const std::string &message, int senderFd,
 			const std::string &chanName);
 

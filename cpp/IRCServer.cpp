@@ -13,6 +13,7 @@ IRCServer::IRCServer(int port, const std::string &password) : _password(password
 	_cmds["PRIVMSG"] = new PrivmsgCommand();
 	_cmds["JOIN"] = new JoinCommand();
 	_cmds["PART"] = new PartCommand();
+	_cmds["KICK"] = new KickCommand();
 }
 
 IRCServer::~IRCServer()
@@ -113,8 +114,9 @@ int IRCServer::run()
 				}
 			}
 		}
-		if (_channels.find("ok") != _channels.end())
-			std::cout << "nbUser in #ok: " << _channels.find("ok")->second.getNbUser() << "\n";
+		// if (_channels.find("ok") != _channels.end())
+		// std::cout << "nbUser in #ok: " << _channels.find("ok")->second.getNbUser() << "\n";
+
 		// std::cout << "nbChannels: " << _channels.size() << "\n";
 	}
 	return (0);
@@ -128,7 +130,6 @@ int IRCServer::acceptConnections()
 	int new_connection;
 
 	bzero(&clientPollFd, sizeof(pollfd));
-	// bzero(&clientSockAddr, sizeof(sockaddr_in));
 	addrLen = sizeof(clientSockAddr);
 	new_connection = accept(_sockFd, (struct sockaddr *)&clientSockAddr, &addrLen);
 	if (new_connection < 0)
@@ -184,8 +185,9 @@ void IRCServer::closeConnection(int clientFd)
 
 void IRCServer::newChannel(const std::string &name, IRCClient &op)
 {
-	IRCChannel channel(name, op);
-	_channels.insert(std::pair<std::string, IRCChannel>(name, channel));
+	// IRCChannel	channel(name, op);
+	_channels.insert(std::pair<std::string, IRCChannel>(name, IRCChannel(name, op)));
+	
 }
 
 void IRCServer::newConnectionToChannel(const std::string &name, IRCClient &client)
@@ -194,12 +196,14 @@ void IRCServer::newConnectionToChannel(const std::string &name, IRCClient &clien
 	it->second.newConnection(client);
 }
 
-void IRCServer::removeClientFromChannel(const std::string &name, IRCClient &client)
+void	IRCServer::removeClientFromChannel(const std::string &name, const int clientFd)
 {
-	std::map<std::string, IRCChannel>::iterator it = _channels.find(name);
-	it->second.removeUser(client.getFd());
+	std::map<std::string, IRCChannel>::iterator	it = _channels.find(name);
+	it->second.removeUser(clientFd);
 	if (!it->second.getNbUser())
 		removeChannel(name);
+	std::map<int, IRCClient>::iterator	itClient = _clients.find(clientFd);
+	itClient->second.setOp(name, true, true);
 }
 
 void IRCServer::sendToChannel(const std::string &message, int senderFd, const std::string &chanName)
