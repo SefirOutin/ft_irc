@@ -29,6 +29,11 @@ IRCClient &IRCClient::operator=(const IRCClient &other)
 	return (*this);
 }
 
+IRCServer *IRCClient::getServer() const
+{
+	return (_server);
+}
+
 const std::string &IRCClient::getNick() const
 {
 	return (_nick);

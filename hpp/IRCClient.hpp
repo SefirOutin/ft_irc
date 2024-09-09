@@ -15,6 +15,7 @@ class IRCClient
 
 		IRCClient	&operator=(const IRCClient &other);
 
+		IRCServer						*getServer() const;
 		const std::string				&getNick() const;
 		void						 	setNick(std::string nick);
 		const std::vector<std::string>	&getUser() const;
@@ -43,7 +44,7 @@ class IRCClient
 		bool	checkChannelPassword(const std::string &name, const std::string &pass);
 		int		kickFromChannel(const std::string &chanName, const std::string &nickToKick, const std::string &msg);
 		void	sendNameReply(const std::string &chanName);
-    void sendToChannel(const std::string &message, int senderFd, const std::string &chanName);
+    	void 	sendToChannel(const std::string &message, int senderFd, const std::string &chanName);
   
 	private:
 		IRCServer					*_server;

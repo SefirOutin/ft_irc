@@ -226,3 +226,67 @@ void	KickCommand::execute(const std::string &params, IRCClient &client)
 
 	}
 }
+
+void	InviteCommand::execute(const std::string &params, IRCClient &client)
+{
+	std::istringstream	sstring(params);
+	std::string			nick, chanName;
+
+	sstring >> nick >> chanName;
+	if (sstring.fail())
+	{
+		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "INVITE"));
+		return ;
+	}
+	if (!client.nickAlreadyInUse(nick, client.getFd()))
+	{
+		client.sendMessage(ERR_NOSUCHNICK(client.getNick(), nick));
+		return ;
+	}
+	if (!client.channelNameInUse(chanName))
+	{
+		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
+		return ;
+	}
+	if (!client.getOp(chanName))
+	{
+		client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
+		return ;
+	}
+	client.getClient(nick).sendMessage(":" + client.getNick() + " INVITE " + nick + " " + chanName + "\r\n");
+}
+
+void TopicCommand::execute(const std::string &params, IRCClient &client)
+{
+    std::istringstream sstring(params);
+    std::string chanName, topic;
+
+    sstring >> chanName;
+    if (sstring.fail())
+    {
+        client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "TOPIC"));
+        return;
+    }
+    IRCServer* server = client.getServer();
+    std::map<std::string, IRCChannel>::const_iterator it = server->getChannels().find(chanName);
+    if (it == server->getChannels().end())
+    {
+        client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
+        return;
+    }
+    const IRCChannel &channel = it->second;
+    std::getline(sstring >> std::ws, topic);
+
+    if (topic.empty())
+    {
+        client.sendMessage(":" + client.getNick() + " TOPIC " + chanName + " " + channel.getTopic() + "\r\n");
+        return;
+    }
+    if (!client.getOp(chanName))
+    {
+        client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
+        return;
+    }
+    server->setTopic(chanName, topic);
+    client.sendMessage(":" + client.getNick() + " TOPIC " + chanName + " " + topic + "\r\n");
+}
