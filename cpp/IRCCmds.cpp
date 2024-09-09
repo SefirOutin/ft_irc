@@ -267,7 +267,7 @@ void TopicCommand::execute(const std::string &params, IRCClient &client)
         client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "TOPIC"));
         return;
     }
-    IRCServer* server = client.getServer();
+    const IRCServer* server = client.getServer();
     std::map<std::string, IRCChannel>::const_iterator it = server->getChannels().find(chanName);
     if (it == server->getChannels().end())
     {
@@ -287,6 +287,6 @@ void TopicCommand::execute(const std::string &params, IRCClient &client)
         client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
         return;
     }
-    server->setTopic(chanName, topic);
+    client.setTopic(chanName, topic);
     client.sendMessage(":" + client.getNick() + " TOPIC " + chanName + " " + topic + "\r\n");
 }

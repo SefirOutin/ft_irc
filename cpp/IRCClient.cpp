@@ -29,7 +29,7 @@ IRCClient &IRCClient::operator=(const IRCClient &other)
 	return (*this);
 }
 
-IRCServer *IRCClient::getServer() const
+const IRCServer *IRCClient::getServer() const
 {
 	return (_server);
 }
@@ -294,4 +294,9 @@ void IRCClient::sendToChannel(const std::string &message, int senderFd,
 		const std::string &chanName)
 {
 	_server->sendToChannel(message, senderFd, chanName);
+}
+
+void IRCClient::setTopic(const std::string &chanName, const std::string &topic)
+{
+	_server->setTopic(chanName, topic);
 }

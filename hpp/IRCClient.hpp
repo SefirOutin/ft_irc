@@ -15,7 +15,7 @@ class IRCClient
 
 		IRCClient	&operator=(const IRCClient &other);
 
-		IRCServer						*getServer() const;
+		const IRCServer					*getServer() const;
 		const std::string				&getNick() const;
 		void						 	setNick(std::string nick);
 		const std::vector<std::string>	&getUser() const;
@@ -45,7 +45,9 @@ class IRCClient
 		int		kickFromChannel(const std::string &chanName, const std::string &nickToKick, const std::string &msg);
 		void	sendNameReply(const std::string &chanName);
     	void 	sendToChannel(const std::string &message, int senderFd, const std::string &chanName);
-  
+		void	setTopic(const std::string &chanName, const std::string &topic);
+
+
 	private:
 		IRCServer					*_server;
 		int							_fd;
