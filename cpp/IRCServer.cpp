@@ -14,6 +14,8 @@ IRCServer::IRCServer(int port, const std::string &password) : _password(password
 	_cmds["JOIN"] = new JoinCommand();
 	_cmds["PART"] = new PartCommand();
 	_cmds["KICK"] = new KickCommand();
+	_cmds["INVITE"] = new InviteCommand();
+	_cmds["TOPIC"] = new TopicCommand();
 }
 
 IRCServer::~IRCServer()
@@ -210,4 +212,18 @@ void IRCServer::sendToChannel(const std::string &message, int senderFd, const st
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
 	it->second.sendToChannel(message, senderFd);
+}
+
+void IRCServer::setTopic(const std::string &chanName, const std::string &topic)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	it->second.setTopic(topic);
+}
+
+IRCChannel* IRCServer::findChannel(const std::string& chanName)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	if (it != this->getChannels().end())
+		return &it->second;
+	return NULL;
 }

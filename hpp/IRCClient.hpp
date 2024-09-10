@@ -4,6 +4,7 @@
 #include "IRCServer.hpp"
 
 class IRCServer;
+class IRCChannel;
 
 class IRCClient
 {
@@ -43,8 +44,10 @@ class IRCClient
 		bool	checkChannelPassword(const std::string &name, const std::string &pass);
 		int		kickFromChannel(const std::string &chanName, const std::string &nickToKick, const std::string &msg);
 		void	sendNameReply(const std::string &chanName);
-    void sendToChannel(const std::string &message, int senderFd, const std::string &chanName);
-  
+    	void 	sendToChannel(const std::string &message, int senderFd, const std::string &chanName);
+		void	setTopic(const std::string &chanName, const std::string &topic);
+		IRCChannel* findChannel(const std::string &chanName);
+
 	private:
 		IRCServer					*_server;
 		int							_fd;

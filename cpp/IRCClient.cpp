@@ -290,3 +290,13 @@ void IRCClient::sendToChannel(const std::string &message, int senderFd,
 {
 	_server->sendToChannel(message, senderFd, chanName);
 }
+
+void IRCClient::setTopic(const std::string &chanName, const std::string &topic)
+{
+	_server->setTopic(chanName, topic);
+}
+
+IRCChannel *IRCClient::findChannel(const std::string &chanName)
+{
+	return _server->findChannel(chanName);
+}

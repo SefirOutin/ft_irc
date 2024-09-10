@@ -50,6 +50,9 @@ class IRCServer
 	void sendToChannel(const std::string &message, int senderFd,
 			const std::string &chanName);
 
+	void	setTopic(const std::string &chanName, const std::string &topic);
+	IRCChannel* findChannel(const std::string& chanName);
+
   private:
 	int _sockFd;
 	std::string _password;
