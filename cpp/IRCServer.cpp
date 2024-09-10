@@ -219,3 +219,11 @@ void IRCServer::setTopic(const std::string &chanName, const std::string &topic)
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
 	it->second.setTopic(topic);
 }
+
+IRCChannel* IRCServer::findChannel(const std::string& chanName)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	if (it != this->getChannels().end())
+		return &it->second;
+	return NULL;
+}

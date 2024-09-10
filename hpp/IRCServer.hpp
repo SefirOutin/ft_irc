@@ -51,6 +51,7 @@ class IRCServer
 			const std::string &chanName);
 
 	void	setTopic(const std::string &chanName, const std::string &topic);
+	IRCChannel* findChannel(const std::string& chanName);
 
   private:
 	int _sockFd;

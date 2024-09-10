@@ -4,6 +4,7 @@
 #include "IRCServer.hpp"
 
 class IRCServer;
+class IRCChannel;
 
 class IRCClient
 {
@@ -15,7 +16,6 @@ class IRCClient
 
 		IRCClient	&operator=(const IRCClient &other);
 
-		const IRCServer					*getServer() const;
 		const std::string				&getNick() const;
 		void						 	setNick(std::string nick);
 		const std::vector<std::string>	&getUser() const;
@@ -46,7 +46,7 @@ class IRCClient
 		void	sendNameReply(const std::string &chanName);
     	void 	sendToChannel(const std::string &message, int senderFd, const std::string &chanName);
 		void	setTopic(const std::string &chanName, const std::string &topic);
-
+		IRCChannel* findChannel(const std::string &chanName);
 
 	private:
 		IRCServer					*_server;

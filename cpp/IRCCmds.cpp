@@ -267,19 +267,17 @@ void TopicCommand::execute(const std::string &params, IRCClient &client)
         client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "TOPIC"));
         return;
     }
-    const IRCServer* server = client.getServer();
-    std::map<std::string, IRCChannel>::const_iterator it = server->getChannels().find(chanName);
-    if (it == server->getChannels().end())
-    {
-        client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
-        return;
-    }
-    const IRCChannel &channel = it->second;
+	IRCChannel* channel = client.findChannel(chanName);
+	if (!channel)
+	{
+		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
+		return;
+	}
     std::getline(sstring >> std::ws, topic);
 
     if (topic.empty())
     {
-        client.sendMessage(":" + client.getNick() + " TOPIC " + chanName + " " + channel.getTopic() + "\r\n");
+        client.sendMessage(":" + client.getNick() + " TOPIC " + chanName + " " + channel->getTopic() + "\r\n");
         return;
     }
     if (!client.getOp(chanName))
