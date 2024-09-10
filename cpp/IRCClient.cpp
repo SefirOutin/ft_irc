@@ -269,15 +269,12 @@ void IRCClient::sendNameReply(const std::string &chanName)
 {
 	std::string reply;
 	std::map<int, IRCClient *> list = getClientListChannel(chanName);
-	reply = ":353 " + _nick + " = " + chanName + " :";
+	reply = ": 353 " + _nick + " = " + chanName + " :";
 	std::map<int, IRCClient *>::const_iterator it;
 	for (it = list.begin(); it != list.end(); it++)
 	{
-		// std::cout << "nick: " + it->second->getNick() + "\n";
 		if (it->second->getOp(chanName))
 			reply += "@";
-		else
-			reply += "+";
 		reply += it->second->getNick() + " ";
 	}
 	reply += "\r\n";
