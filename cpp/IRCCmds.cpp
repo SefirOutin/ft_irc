@@ -226,10 +226,10 @@ void KickCommand::execute(const std::string &params, IRCClient &client)
 	switch (client.kickFromChannel(chanName, nick, msg))
 	{
 	case 1:
-		client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
+		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
 		break ;
 	case 2:
-		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
+		client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
 		break ;
 	case 3:
 		client.sendMessage(ERR_NOTONCHANNEL(client.getNick(), chanName));
