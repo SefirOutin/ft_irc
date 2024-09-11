@@ -9,7 +9,6 @@ class IRCChannel;
 class IRCClient
 {
 	public:
-		// IRCClient() {};
 		IRCClient(int fd, IRCServer *server);
 		IRCClient(const IRCClient &other);
 		~IRCClient();
@@ -39,7 +38,6 @@ class IRCClient
 		void	createChannel(const std::string &name);
 		int		leaveChannel(const std::string &name);
 		bool	channelNameInUse(const std::string &name);
-		bool	channelIsInviteOnly(const std::string &name);
 		bool	channelIsFull(const std::string &name);
 		bool	checkChannelPassword(const std::string &name, const std::string &pass);
 		int		kickFromChannel(const std::string &chanName, const std::string &nickToKick, const std::string &msg);
@@ -47,6 +45,12 @@ class IRCClient
     	void 	sendToChannel(const std::string &message, int senderFd, const std::string &chanName);
 		void	setTopic(const std::string &chanName, const std::string &topic);
 		IRCChannel* findChannel(const std::string &chanName);
+		void		setMode(const std::string &chanName, const std::string &mode);
+		bool		inMode(const std::string &chanName, const std::string &mode);
+		void		whiteList(const std::string &nick, const std::string &chanName);
+		bool		isWhiteListed(const std::string &nick, const std::string &chanName);
+		void		changeOpe(const std::string &chanName, const std::string &nick, bool op);
+		void		setKey(const std::string &chanName, const std::string &key);
 
 	private:
 		IRCServer					*_server;

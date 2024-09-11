@@ -16,6 +16,7 @@ IRCServer::IRCServer(int port, const std::string &password) : _password(password
 	_cmds["KICK"] = new KickCommand();
 	_cmds["INVITE"] = new InviteCommand();
 	_cmds["TOPIC"] = new TopicCommand();
+	_cmds["MODE"] = new ModeCommand();
 }
 
 IRCServer::~IRCServer()
@@ -226,4 +227,40 @@ IRCChannel* IRCServer::findChannel(const std::string& chanName)
 	if (it != this->getChannels().end())
 		return &it->second;
 	return NULL;
+}
+
+void IRCServer::setMode(const std::string &chanName, const std::string &mode)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	it->second.setMode(mode);
+}
+
+bool IRCServer::inMode(const std::string &chanName, const std::string &mode)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	return it->second.inMode(mode);
+}
+
+void IRCServer::whiteList(const std::string &nick, const std::string &chanName)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	it->second.whiteList(nick);
+}
+
+bool IRCServer::isWhiteListed(const std::string &nick, const std::string &chanName)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	return it->second.isWhiteListed(nick);
+}
+
+void	IRCServer::changeOpe(const std::string &chanName, const std::string &nick, bool op)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	it->second.changeOpe(nick, op);
+}
+
+void	IRCServer::setKey(const std::string &chanName, const std::string &key)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	it->second.setKey(key);
 }
