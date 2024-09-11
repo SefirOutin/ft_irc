@@ -156,7 +156,6 @@ void IRCClient::receiveMessages()
 			if (buffer[bytesReceived - 1] == '\n')
 			{
 				cumul += message;
-				std::cout << "client ----> server : " << cumul << std::endl;
 				_server->parseCmds(cumul, *this);
 				break;
 			}
