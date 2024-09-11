@@ -1,23 +1,16 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: bmoudach <bmoudach@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/24 14:23:05 by soutin            #+#    #+#             */
-/*   Updated: 2024/07/25 13:44:50 by bmoudach         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include "IRCServer.hpp"
 
-#include "irc.hpp"
-#include "Server.hpp"
-
-int main(int argc, char **argv)
+int	main(int ac, char **av)
 {
-	if (argc != 2)
-		return 0;
-	Server serv(atoi(argv[1]));
-	serv.startServer();
-	serv.listensMsg();
+	if (ac != 3)
+	{
+		std::cout << "Usage: ./ircserv [port] [password]\n";
+		return (1);
+	}
+	
+	IRCServer	server(atoi(av[1]), av[2]);
+	server.startServer();
+	server.run();
+	return (0);
+	(void) ac;
 }
