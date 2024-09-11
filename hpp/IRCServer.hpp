@@ -52,7 +52,13 @@ class IRCServer
 
 	void	setTopic(const std::string &chanName, const std::string &topic);
 	IRCChannel* findChannel(const std::string& chanName);
-
+	void	setMode(const std::string &chanName, const std::string &mode);
+	bool	inMode(const std::string &chanName, const std::string &mode);
+	void	whiteList(const std::string &nick, const std::string &chanName);
+	bool	isWhiteListed(const std::string &nick, const std::string &chanName);
+	void	changeOpe(const std::string &chanName, const std::string &nick, bool op);
+	void	setKey(const std::string &chanName, const std::string &key);
+  
   private:
 	int _sockFd;
 	std::string _password;

@@ -192,22 +192,13 @@ bool IRCClient::channelNameInUse(const std::string &name)
 	return (true);
 }
 
-bool IRCClient::channelIsInviteOnly(const std::string &name)
-{
-	std::map<std::string,
-					 IRCChannel>::const_iterator it = _server->getChannels().find(name);
-	if (it->second.getInviteOnly())
-		return (true);
-	return (false);
-}
-
 bool IRCClient::channelIsFull(const std::string &name)
 {
 	std::map<std::string,
 					 IRCChannel>::const_iterator it = _server->getChannels().find(name);
 	if (it->second.getUserLimit() > -1)
 	{
-		if (it->second.getNbUser() == it->second.getUserLimit())
+		if (it->second.getNbUser() >= it->second.getUserLimit())
 			return (true);
 	}
 	return (false);
@@ -307,4 +298,34 @@ void IRCClient::setTopic(const std::string &chanName, const std::string &topic)
 IRCChannel *IRCClient::findChannel(const std::string &chanName)
 {
 	return _server->findChannel(chanName);
+}
+
+void	IRCClient::setMode(const std::string &chanName, const std::string &mode)
+{
+	_server->setMode(chanName, mode);
+}
+
+bool	IRCClient::inMode(const std::string &chanName, const std::string &mode)
+{
+	return _server->inMode(chanName, mode);
+}
+
+void	IRCClient::whiteList(const std::string &nick, const std::string &chanName)
+{
+	return _server->whiteList(nick, chanName);
+}
+
+bool	IRCClient::isWhiteListed(const std::string &nick, const std::string &chanName)
+{
+	return _server->findChannel(chanName)->isWhiteListed(nick);
+}
+
+void	IRCClient::changeOpe(const std::string &chanName, const std::string &nick, bool op)
+{
+	_server->changeOpe(chanName, nick, op);
+}
+
+void	IRCClient::setKey(const std::string &chanName, const std::string &key)
+{
+	_server->setKey(chanName, key);
 }

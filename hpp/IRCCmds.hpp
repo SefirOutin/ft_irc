@@ -70,4 +70,10 @@ class TopicCommand : public IRCCommandHandler
 		void execute(const std::string &params, IRCClient &client);
 };
 
+class ModeCommand : public IRCCommandHandler
+{
+	public:
+		void execute(const std::string &params, IRCClient &client);
+};
+
 #endif
