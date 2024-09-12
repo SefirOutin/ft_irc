@@ -359,12 +359,13 @@ void ModeCommand::execute(const std::string &params, IRCClient &client)
 					currentModes));
 		return ;
 	}
-	// if (!client.channelNameInUse(chanName))
-	// {
-	// 	std::cout << "channelName : " << chanName << std::endl;
-	// 	client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
-	// 	return ;
-	// }
+
+	if (!client.channelNameInUse(chanName))
+	{
+		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
+		return ;
+	}
+
 	if (!client.getOp(chanName))
 	{
 		client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
@@ -428,6 +429,8 @@ void ModeCommand::execute(const std::string &params, IRCClient &client)
 			}
 		}
 	}
-	client.sendMessage(":" + client.getNick() + " MODE " + chanName + " " + mode
-			+ "\r\n");
+	client.sendToChannel(":"  + client.getNick() + "!" + client.getUser()[0] + " MODE " + chanName + " " + mode
+			+ "\r\n", client.getFd(), chanName);
+	client.sendToChannelMode(":" + client.getNick() + "!" + client.getUser()[0] + " MODE " + chanName + " " + mode
+			+ "\r\n", chanName);
 }

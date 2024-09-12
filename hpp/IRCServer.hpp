@@ -49,6 +49,7 @@ class IRCServer
 	void	removeClientFromChannel(const std::string &name, int clientFd);
 	void sendToChannel(const std::string &message, int senderFd,
 			const std::string &chanName);
+	void sendToChannelMode(const std::string &message, const std::string &chanName);
 
 	void	setTopic(const std::string &chanName, const std::string &topic);
 	IRCChannel* findChannel(const std::string& chanName);

@@ -215,6 +215,12 @@ void IRCServer::sendToChannel(const std::string &message, int senderFd, const st
 	it->second.sendToChannel(message, senderFd);
 }
 
+void IRCServer::sendToChannelMode(const std::string &message, const std::string &chanName)
+{
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
+	it->second.sendToChannelMode(message);
+}
+
 void IRCServer::setTopic(const std::string &chanName, const std::string &topic)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);

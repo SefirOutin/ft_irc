@@ -94,6 +94,14 @@ void IRCChannel::sendToChannel(const std::string &message, int senderFd)
 	}
 }
 
+void IRCChannel::sendToChannelMode(const std::string &message)
+{
+	std::map<int, IRCClient *>::iterator it;
+	for (it = _clients.begin(); it != _clients.end(); it++)
+		it->second->sendMessage(message + "\r\n");
+}
+
+
 void	IRCChannel::setMode(const std::string &mode)
 {
 	if (mode == "+i")

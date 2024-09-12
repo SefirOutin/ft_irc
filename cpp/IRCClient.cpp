@@ -165,9 +165,11 @@ void IRCClient::receiveMessages()
 		{
 			buffer[bytesReceived] = '\0';
 			std::string message(buffer);
+			
 			if (buffer[bytesReceived - 1] == '\n')
 			{
 				cumul += message;
+				// std::cout << "cumul : " << cumul << std::endl;
 				_server->parseCmds(cumul, *this);
 				break;
 			}
@@ -299,6 +301,11 @@ void IRCClient::sendToChannel(const std::string &message, int senderFd,
 															const std::string &chanName)
 {
 	_server->sendToChannel(message, senderFd, chanName);
+}
+
+void IRCClient::sendToChannelMode(const std::string &message, const std::string &chanName)
+{
+	_server->sendToChannelMode(message, chanName);
 }
 
 void IRCClient::setTopic(const std::string &chanName, const std::string &topic)
