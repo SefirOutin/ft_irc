@@ -55,10 +55,7 @@ class IRCClient
 		bool		isWhiteListed(const std::string &nick, const std::string &chanName);
 		void		changeOpe(const std::string &chanName, const std::string &nick, bool op);
 		void		setKey(const std::string &chanName, const std::string &key);
-<<<<<<< Updated upstream
-=======
 		void		closeClientConnection();
->>>>>>> Stashed changes
 
 	private:
 		IRCServer					*_server;
