@@ -76,4 +76,10 @@ class ModeCommand : public IRCCommandHandler
 		void execute(const std::string &params, IRCClient &client);
 };
 
+class QuitCommand : public IRCCommandHandler
+{
+	public:
+		void execute(const std::string &params, IRCClient &client);
+};
+
 #endif

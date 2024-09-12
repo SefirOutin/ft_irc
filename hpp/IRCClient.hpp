@@ -39,6 +39,7 @@ class IRCClient
 		void	joinChannel(const std::string &name);
 		void	createChannel(const std::string &name);
 		int		leaveChannel(const std::string &name);
+		void	leaveAllChannels();
 		bool	channelNameInUse(const std::string &name);
 		bool	channelIsFull(const std::string &name);
 		bool	checkChannelPassword(const std::string &name, const std::string &pass);
@@ -53,6 +54,7 @@ class IRCClient
 		bool		isWhiteListed(const std::string &nick, const std::string &chanName);
 		void		changeOpe(const std::string &chanName, const std::string &nick, bool op);
 		void		setKey(const std::string &chanName, const std::string &key);
+		void		closeClientConnection();
 
 	private:
 		IRCServer					*_server;
