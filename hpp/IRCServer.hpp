@@ -8,6 +8,7 @@
 # include <errno.h>
 # include <iostream>
 # include <map>
+# include <csignal>
 # include <netinet/in.h>
 # include <poll.h>
 # include <sstream>
@@ -58,6 +59,8 @@ class IRCServer
 	bool	isWhiteListed(const std::string &nick, const std::string &chanName);
 	void	changeOpe(const std::string &chanName, const std::string &nick, bool op);
 	void	setKey(const std::string &chanName, const std::string &key);
+
+	static void	signalHandler(int signum);
   
   private:
 	int _sockFd;
@@ -67,7 +70,8 @@ class IRCServer
 	std::map<int, IRCClient> _clients;
 	std::map<std::string, IRCCommandHandler *> _cmds;
 	std::map<std::string, IRCChannel> _channels;
-
+	static volatile sig_atomic_t	_signal;
+	
 	void socketOpt();
 	int acceptConnections();
 };

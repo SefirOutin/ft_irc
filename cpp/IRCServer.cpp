@@ -1,7 +1,10 @@
 #include "IRCServer.hpp"
 
+volatile sig_atomic_t IRCServer::_signal = false;
+
 IRCServer::IRCServer(int port, const std::string &password) : _password(password)
 {
+	_signal = false;
 	_sockAddr.sin_family = AF_INET;
 	_sockAddr.sin_port = htons(port);
 	_sockAddr.sin_addr.s_addr = INADDR_ANY;
@@ -17,12 +20,16 @@ IRCServer::IRCServer(int port, const std::string &password) : _password(password
 	_cmds["INVITE"] = new InviteCommand();
 	_cmds["TOPIC"] = new TopicCommand();
 	_cmds["MODE"] = new ModeCommand();
+
 }
 
 IRCServer::~IRCServer()
 {
 	for (size_t i = 0; i < _fds.size(); i++)
 		close(_fds[i].fd);
+	std::map<std::string, IRCCommandHandler *>::iterator	cmdIt;
+	for (cmdIt = _cmds.begin(); cmdIt != _cmds.end(); cmdIt++)
+		delete cmdIt->second;
 }
 
 const std::string &IRCServer::getPass() const
@@ -87,6 +94,7 @@ int IRCServer::startServer()
 		std::cerr << "listen error\n";
 		exit(-1);
 	}
+	signal(SIGINT, IRCServer::signalHandler);
 	std::cout << "Listens ...\n";
 	return (0);
 }
@@ -95,10 +103,10 @@ int IRCServer::run()
 {
 	int poll_count;
 
-	while (1)
+	while (!_signal)
 	{
 		poll_count = poll(_fds.data(), _fds.size(), -1);
-		if (poll_count < 0)
+		if (poll_count < 0 && !signal)
 		{
 			std::cerr << "poll error\n";
 			return (1);
@@ -108,19 +116,11 @@ int IRCServer::run()
 			if (_fds[i].revents & POLLIN)
 			{
 				if (_fds[i].fd == _sockFd)
-				{
 					acceptConnections();
-				}
 				else
-				{
 					_clients.find(_fds[i].fd)->second.receiveMessages();
-				}
 			}
 		}
-		// if (_channels.find("#ok") != _channels.end())
-		// std::cout << "nbUser in #ok: " << _channels.find("#ok")->second.getNbUser() << "\n";
-
-		// std::cout << "nbChannels: " << _channels.size() << "\n";
 	}
 	return (0);
 }
@@ -164,9 +164,7 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 		std::string arg = (posFirstSpace != std::string::npos) ? line.substr(posFirstSpace + 1) : "";
 		std::map<std::string, IRCCommandHandler *>::iterator it = _cmds.find(cmd);
 		if (it != _cmds.end())
-		{
 			it->second->execute(arg, client);
-		}
 		else
 			client.sendMessage(ERR_UNKNOWNCOMMAND(cmd));
 	}
@@ -263,4 +261,10 @@ void	IRCServer::setKey(const std::string &chanName, const std::string &key)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
 	it->second.setKey(key);
+}
+
+void	IRCServer::signalHandler(int signum)
+{
+	(void)signum;
+	_signal = true;
 }
