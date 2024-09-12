@@ -40,7 +40,6 @@ class IRCClient
 		void	createChannel(const std::string &name);
 		int		leaveChannel(const std::string &name);
 		void	leaveAllChannels();
-		void	leaveAllChannels();
 		bool	channelNameInUse(const std::string &name);
 		bool	channelIsFull(const std::string &name);
 		bool	checkChannelPassword(const std::string &name, const std::string &pass);
