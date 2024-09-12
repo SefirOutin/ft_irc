@@ -245,16 +245,28 @@ void IRCClient::joinChannel(const std::string &name)
 
 int IRCClient::leaveChannel(const std::string &name)
 {
-	std::map<std::string,
-					 IRCChannel>::const_iterator itChannels = _server->getChannels().find(name);
+	std::map<std::string, IRCChannel>::const_iterator itChannels = _server->getChannels().find(name);
 	if (itChannels == _server->getChannels().end())
 		return (1);
-	std::map<int,
-					 IRCClient *>::const_iterator itClientList = getClientListChannel(name).find(_fd);
+	std::map<int, IRCClient *>::const_iterator itClientList = getClientListChannel(name).find(_fd);
 	if (itClientList == getClientListChannel(name).end())
 		return (2);
 	_server->removeClientFromChannel(name, _fd);
 	return (0);
+}
+
+
+void	IRCClient::leaveAllChannels()
+{
+	std::string	name;
+	
+	std::map<std::string, bool>::iterator it = _op.begin();
+	while (it != _op.end())
+	{
+		name = it->first;
+		it++;
+		_server->removeClientFromChannel(name, _fd);
+	}
 }
 
 int IRCClient::kickFromChannel(const std::string &chanName,
@@ -346,4 +358,9 @@ void	IRCClient::changeOpe(const std::string &chanName, const std::string &nick, 
 void	IRCClient::setKey(const std::string &chanName, const std::string &key)
 {
 	_server->setKey(chanName, key);
+}
+
+void	IRCClient::closeClientConnection()
+{
+	_server->closeConnection(_fd);
 }
