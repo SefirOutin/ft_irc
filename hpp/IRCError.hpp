@@ -23,4 +23,6 @@
 #define ERR_UNKNOWNMODE(nick, mode) (": 472 " + std::string(nick) + " " + std::string(mode) + " :is unknown mode\r\n")
 // #define ERR_CANNOTSENDTOCHAN(nick, chanName) (": 404 " + std::string(nick) + " " + std::string(chanName) + " :Cannot send to channel\r\n")
 
+#define RPL_CHANNELMODEIS(nick, channel, modes) "324 " + std::string(nick) + " " + std::string(chanName) + " " + std::string(modes) + "\r\n"
+
 #endif

@@ -5,6 +5,7 @@ IRCClient::IRCClient(int fd, IRCServer *server)
 {
 	_connected = false;
 	_sendWelcom = false;
+	_firstMode = false;
 }
 
 IRCClient::IRCClient(const IRCClient &other)
@@ -15,6 +16,17 @@ IRCClient::IRCClient(const IRCClient &other)
 IRCClient::~IRCClient()
 {
 }
+
+const bool &IRCClient::getFirst() const
+{
+	return (_firstMode);
+}
+
+void IRCClient::setFirst(bool first)
+{
+	_firstMode = first;
+}
+
 
 IRCClient &IRCClient::operator=(const IRCClient &other)
 {

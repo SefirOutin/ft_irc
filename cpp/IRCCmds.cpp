@@ -2,10 +2,14 @@
 
 bool	verify_string_format(const std::string &input_string)
 {
+	char	c;
+
 	for (size_t i = 0; i < input_string.size(); i++)
 	{
-		char c = input_string[i];
-		if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || std::string("_-[]\\`^{}").find(c) != std::string::npos))
+		c = input_string[i];
+		if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0'
+					&& c <= '9')
+				|| std::string("_-[]\\`^{}").find(c) != std::string::npos))
 			return (false);
 		else if (i >= 9)
 			return (false);
@@ -15,9 +19,11 @@ bool	verify_string_format(const std::string &input_string)
 
 bool	checkArgUser(const std::string &params)
 {
+	int	i;
+
 	std::istringstream arg(params);
 	std::string word;
-	int i = 0;
+	i = 0;
 	while (arg >> word)
 		i++;
 	if (i == 4)
@@ -25,7 +31,7 @@ bool	checkArgUser(const std::string &params)
 	return (false);
 }
 
-void	NickCommand::execute(const std::string &params, IRCClient &client)
+void NickCommand::execute(const std::string &params, IRCClient &client)
 {
 	// std::cout << params << "\n";
 	if (params.empty())
@@ -46,18 +52,21 @@ void	NickCommand::execute(const std::string &params, IRCClient &client)
 		{
 			if (!client.getWelcom() && !client.getUser().empty())
 			{
-				client.sendMessage(": 001 " + client.getNick() + " :Welcome to the IRC server!\r\n");
+				client.sendMessage(": 001 " + client.getNick()
+						+ " :Welcome to the IRC server!\r\n");
 				client.setWelcom(true);
 			}
 			if (client.getWelcom())
-				client.sendMessage(":" + client.getNick() + " NICK " + params + "\r\n");
+				client.sendMessage(":" + client.getNick() + " NICK " + params
+						+ "\r\n");
 		}
 		client.setNick(params);
 	}
 }
 
-void	PassCommand::execute(const std::string &params, IRCClient &client)
+void PassCommand::execute(const std::string &params, IRCClient &client)
 {
+	client.setFirst(false);
 	if (client.isConnected())
 		client.sendMessage(ERR_ALREADYREGISTRED);
 	else if (params.empty())
@@ -68,7 +77,7 @@ void	PassCommand::execute(const std::string &params, IRCClient &client)
 		client.setConnected(true);
 }
 
-void	UserCommand::execute(const std::string &params, IRCClient &client)
+void UserCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (client.isConnected() && !client.getNick().empty())
 	{
@@ -80,7 +89,8 @@ void	UserCommand::execute(const std::string &params, IRCClient &client)
 		}
 		else
 		{
-			client.sendMessage(": 001 " + client.getNick() + " :Welcome to the IRC server!\r\n");
+			client.sendMessage(": 001 " + client.getNick()
+					+ " :Welcome to the IRC server!\r\n");
 			client.setWelcom(true);
 		}
 	}
@@ -92,20 +102,20 @@ void PingCommand::execute(const std::string &params, IRCClient &client)
 	client.sendMessage("PONG\r\n");
 }
 
-void	CapCommand::execute(const std::string &params, IRCClient &client)
+void CapCommand::execute(const std::string &params, IRCClient &client)
 {
 	(void)params;
 	(void)client;
 }
 
-void	PrivmsgCommand::execute(const std::string &params, IRCClient &client)
+void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 {
 	if (!client.getWelcom())
-		return;
+		return ;
 	else if (params.empty())
 	{
 		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "PRIVMSG"));
-		return;
+		return ;
 	}
 	std::string split, nickOrChanToSend, msgToSend;
 	std::istringstream arg(params);
@@ -115,26 +125,29 @@ void	PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 		{
 			std::cout << "nick or chan : " << split << std::endl;
 			client.sendMessage(ERR_NORECIPIENT(client.getNick(), "PRIVMSG"));
-			return;
+			return ;
 		}
-		(i == 0) ? nickOrChanToSend = split.erase(split.length() - 1, split.length()) : msgToSend = split;
+		(i == 0) ? nickOrChanToSend = split.erase(split.length() - 1,
+				split.length()) : msgToSend = split;
 	}
 	if (msgToSend.empty())
 	{
 		client.sendMessage(ERR_NOTEXTTOSEND(client.getNick()));
-		return;
+		return ;
 	}
 	else if (nickOrChanToSend[0] == '#')
 	{
 		std::string name(nickOrChanToSend);
 		// nickOrChanToSend.erase(0, 1);
-
 		if (client.channelNameInUse(nickOrChanToSend))
-			client.sendToChannel(client.getClientInfos() + " PRIVMSG " + name + " :" + msgToSend + "\r\n", client.getFd(), nickOrChanToSend);
+			client.sendToChannel(client.getClientInfos() + " PRIVMSG " + name
+					+ " :" + msgToSend + "\r\n", client.getFd(),
+					nickOrChanToSend);
 	}
 	else if (client.nickAlreadyInUse(nickOrChanToSend, client.getFd()))
 		client.getClient(nickOrChanToSend)
-				.sendMessage(client.getClientInfos() + " PRIVMSG " + nickOrChanToSend + " :" + msgToSend + "\r\n");
+			.sendMessage(client.getClientInfos() + " PRIVMSG "
+					+ nickOrChanToSend + " :" + msgToSend + "\r\n");
 	else
 		client.sendMessage(ERR_NOSUCHNICK(client.getNick(), nickOrChanToSend));
 	// PRIVMSG bilel : ca va
@@ -167,7 +180,7 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 			&& !client.isWhiteListed(client.getNick(), chanName))
 		{
 			client.sendMessage(ERR_INVITEONLYCHANNEL(client.getNick(),
-						chanName));
+														chanName));
 			return ;
 		}
 		if (client.inMode(chanName, "k"))
@@ -176,7 +189,7 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 					key) == false)
 			{
 				client.sendMessage(ERR_BADCHANNELKEY(client.getNick(),
-							chanName));
+														chanName));
 				return ;
 			}
 		}
@@ -306,16 +319,52 @@ void TopicCommand::execute(const std::string &params, IRCClient &client)
 			+ topic + "\r\n");
 }
 
+std::string getMode(const std::string &chanName, IRCClient &client)
+{
+	std::string result;
+	if (client.inMode(chanName, "i"))
+		result += "i";
+	if (client.inMode(chanName, "t"))
+		result += "t";
+	if (client.inMode(chanName, "o"))
+		result += "o";
+	if (client.inMode(chanName, "k"))
+		result += "k";
+	if (client.inMode(chanName, "l"))
+		result += "l";
+	if (result.empty())
+		result = "no mode";
+	return (result);
+}
+
 void ModeCommand::execute(const std::string &params, IRCClient &client)
 {
 	std::istringstream sstring(params);
 	std::string chanName, mode;
 	sstring >> chanName >> mode;
-	if (sstring.fail())
+	if (!client.getFirst())
+	{
+		client.setFirst(true);
+		return ;
+	}
+	if (chanName.empty())
 	{
 		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "MODE"));
 		return ;
 	}
+	if (mode.empty())
+	{
+		std::string currentModes = getMode(chanName, client);
+		client.sendMessage(RPL_CHANNELMODEIS(client.getNick(), chanName,
+					currentModes));
+		return ;
+	}
+	// if (!client.channelNameInUse(chanName))
+	// {
+	// 	std::cout << "channelName : " << chanName << std::endl;
+	// 	client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
+	// 	return ;
+	// }
 	if (!client.getOp(chanName))
 	{
 		client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
@@ -338,7 +387,6 @@ void ModeCommand::execute(const std::string &params, IRCClient &client)
 		client.setMode(chanName, mode);
 	else if (mode.find_first_of("kol") != std::string::npos)
 	{
-		client.setMode(chanName, mode);
 		std::string modeParam;
 		sstring >> modeParam;
 		if (mode.find_first_of("k") != std::string::npos)
@@ -346,9 +394,10 @@ void ModeCommand::execute(const std::string &params, IRCClient &client)
 			if (sstring.fail())
 			{
 				client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(),
-							"MODE"));
+														"MODE"));
 				return ;
 			}
+			client.setMode(chanName, mode);
 			if (mode[0] == '+')
 				client.setKey(chanName, modeParam);
 			else
@@ -359,9 +408,10 @@ void ModeCommand::execute(const std::string &params, IRCClient &client)
 			if (sstring.fail())
 			{
 				client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(),
-							"MODE"));
+														"MODE"));
 				return ;
 			}
+			client.setMode(chanName, mode);
 			if (mode[0] == '+')
 				client.changeOpe(chanName, modeParam, true);
 			else
@@ -372,7 +422,10 @@ void ModeCommand::execute(const std::string &params, IRCClient &client)
 			if (mode[0] == '-')
 				client.findChannel(chanName)->setUserLimit(-1);
 			else
+			{
+				client.setMode(chanName, mode);
 				client.findChannel(chanName)->setUserLimit(std::atoi(modeParam.c_str()));
+			}
 		}
 	}
 	client.sendMessage(":" + client.getNick() + " MODE " + chanName + " " + mode
