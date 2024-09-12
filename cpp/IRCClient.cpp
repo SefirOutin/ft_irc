@@ -5,6 +5,7 @@ IRCClient::IRCClient(int fd, IRCServer *server)
 {
 	_connected = false;
 	_sendWelcom = false;
+	_firstMode = false;
 }
 
 IRCClient::IRCClient(const IRCClient &other)
@@ -37,6 +38,16 @@ const std::string &IRCClient::getNick() const
 void IRCClient::setNick(std::string nick)
 {
 	_nick = nick;
+}
+
+const bool &IRCClient::getFirst() const
+{
+	return (_firstMode);
+}
+
+void IRCClient::setFirst(bool first)
+{
+	_firstMode = first;
 }
 
 const std::vector<std::string> &IRCClient::getUser() const
