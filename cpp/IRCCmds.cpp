@@ -306,16 +306,65 @@ void TopicCommand::execute(const std::string &params, IRCClient &client)
 			+ topic + "\r\n");
 }
 
+std::string getMode(const std::string &chanName, IRCClient &client)
+{
+	std::string result;
+	for (size_t i = 0; i < 5; ++i)
+	{
+		if (client.inMode(chanName, "i"))
+			result += "i";
+		else if (client.inMode(chanName, "t"))
+			result += "t";
+		else if (client.inMode(chanName, "o"))
+			result += "o";
+		else if (client.inMode(chanName, "k"))
+			result += "k";
+		else if (client.inMode(chanName, "l"))
+			result += "l";
+	}
+	if (result.empty())
+		result = "no mode";
+	return result;
+}
+
 void ModeCommand::execute(const std::string &params, IRCClient &client)
 {
 	std::istringstream sstring(params);
-	std::string chanName, mode;
-	sstring >> chanName >> mode;
-	if (sstring.fail())
+    std::string chanName, mode;
+    sstring >> chanName;
+
+	if (client.getFirst() == false)
 	{
-		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "MODE"));
+		client.setFirst(true);
+		return;
+	}
+
+    if (chanName.empty())
+    {
+        client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "MODE"));
+        return;
+    }
+
+    sstring >> mode;
+    if (mode.empty())
+    {
+        std::string currentModes = getMode(chanName, client);
+        client.sendMessage(RPL_CHANNELMODEIS(client.getNick(), chanName, currentModes));
+        return;
+    }
+
+	if (!client.channelNameInUse(chanName))
+	{
+		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
 		return ;
 	}
+
+    if (client.leaveChannel(chanName) == 2)
+    {
+        client.sendMessage(ERR_NOTONCHANNEL(client.getNick(), chanName));
+        return;
+    }
+
 	if (!client.getOp(chanName))
 	{
 		client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
