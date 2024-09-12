@@ -1,6 +1,7 @@
 #include "IRCServer.hpp"
 
-IRCServer::IRCServer(int port, const std::string &password) : _password(password)
+IRCServer::IRCServer(int port, const std::string &password)
+	: _password(password)
 {
 	_sockAddr.sin_family = AF_INET;
 	_sockAddr.sin_port = htons(port);
@@ -17,6 +18,7 @@ IRCServer::IRCServer(int port, const std::string &password) : _password(password
 	_cmds["INVITE"] = new InviteCommand();
 	_cmds["TOPIC"] = new TopicCommand();
 	_cmds["MODE"] = new ModeCommand();
+	_cmds["QUIT"] = new QuitCommand();
 }
 
 IRCServer::~IRCServer()
@@ -49,9 +51,11 @@ void IRCServer::removeChannel(std::string name)
 
 void IRCServer::socketOpt()
 {
-	int on = 1;
+	int	on;
 
-	if (setsockopt(_sockFd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on)) < 0)
+	on = 1;
+	if (setsockopt(_sockFd, SOL_SOCKET, SO_REUSEADDR, (char *)&on,
+			sizeof(on)) < 0)
 	{
 		std::cerr << "setsockopt() failed\n";
 		exit(-1);
@@ -65,7 +69,7 @@ void IRCServer::socketOpt()
 
 int IRCServer::startServer()
 {
-	struct pollfd pollFd;
+	struct pollfd	pollFd;
 
 	_sockFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_sockFd < 0)
@@ -93,7 +97,7 @@ int IRCServer::startServer()
 
 int IRCServer::run()
 {
-	int poll_count;
+	int	poll_count;
 
 	while (1)
 	{
@@ -119,7 +123,6 @@ int IRCServer::run()
 		}
 		// if (_channels.find("#ok") != _channels.end())
 		// std::cout << "nbUser in #ok: " << _channels.find("#ok")->second.getNbUser() << "\n";
-
 		// std::cout << "nbChannels: " << _channels.size() << "\n";
 	}
 	return (0);
@@ -127,29 +130,34 @@ int IRCServer::run()
 
 int IRCServer::acceptConnections()
 {
-	struct sockaddr_in clientSockAddr;
-	struct pollfd clientPollFd;
-	socklen_t addrLen;
-	int new_connection;
+	struct sockaddr_in	clientSockAddr;
+	struct pollfd		clientPollFd;
+	socklen_t			addrLen;
+	int					new_connection;
 
 	bzero(&clientPollFd, sizeof(pollfd));
 	addrLen = sizeof(clientSockAddr);
-	new_connection = accept(_sockFd, (struct sockaddr *)&clientSockAddr, &addrLen);
+	new_connection = accept(_sockFd, (struct sockaddr *)&clientSockAddr,
+			&addrLen);
 	if (new_connection < 0)
 	{
-		std::cerr << "accept failed" << "\n";
+		std::cerr << "accept failed"
+					<< "\n";
 		return (1);
 	}
 	clientPollFd.fd = new_connection;
 	clientPollFd.events = POLLIN;
 	_fds.push_back(clientPollFd);
-	_clients.insert(std::pair<int, IRCClient>(new_connection, IRCClient(new_connection, this)));
+	_clients.insert(std::pair<int, IRCClient>(new_connection,
+												IRCClient(new_connection,
+														this)));
 	std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
 	return (0);
 }
 
 void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 {
+	size_t	posFirstSpace;
 
 	std::stringstream buffer(buff);
 	std::string line;
@@ -159,10 +167,12 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 		{
 			line.erase(line.size() - 1);
 		}
-		size_t posFirstSpace = line.find(' ');
+		posFirstSpace = line.find(' ');
 		std::string cmd = line.substr(0, posFirstSpace);
-		std::string arg = (posFirstSpace != std::string::npos) ? line.substr(posFirstSpace + 1) : "";
-		std::map<std::string, IRCCommandHandler *>::iterator it = _cmds.find(cmd);
+		std::string arg = (posFirstSpace != std::string::npos) ? line.substr(posFirstSpace
+				+ 1) : "";
+		std::map<std::string,
+					IRCCommandHandler *>::iterator it = _cmds.find(cmd);
 		if (it != _cmds.end())
 		{
 			it->second->execute(arg, client);
@@ -174,9 +184,12 @@ void IRCServer::parseCmds(const std::string &buff, IRCClient &client)
 
 void IRCServer::closeConnection(int clientFd)
 {
-	std::map<int, IRCClient>::iterator mapIt = _clients.find(clientFd);
-	if (mapIt != _clients.end())
+	std::map<int, IRCClient>::iterator it = _clients.find(clientFd);
+	if (it != _clients.end())
+	{
+		it->second.leaveAllChannels();
 		_clients.erase(clientFd);
+	}
 	for (size_t i = 0; i < _fds.size(); i++)
 	{
 		if (_fds[i].fd == clientFd)
@@ -188,28 +201,29 @@ void IRCServer::closeConnection(int clientFd)
 
 void IRCServer::newChannel(const std::string &name, IRCClient &op)
 {
-	IRCChannel	channel(name, op);
+	IRCChannel channel(name, op);
 	_channels.insert(std::pair<std::string, IRCChannel>(name, channel));
-	
 }
 
-void IRCServer::newConnectionToChannel(const std::string &name, IRCClient &client)
+void IRCServer::newConnectionToChannel(const std::string &name,
+										IRCClient &client)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(name);
 	it->second.newConnection(client);
 }
 
-void	IRCServer::removeClientFromChannel(const std::string &name, const int clientFd)
+void IRCServer::removeClientFromChannel(const std::string &name, const int clientFd)
 {
-	std::map<std::string, IRCChannel>::iterator	it = _channels.find(name);
+	std::map<std::string, IRCChannel>::iterator it = _channels.find(name);
 	it->second.removeUser(clientFd);
 	if (!it->second.getNbUser())
 		removeChannel(name);
-	std::map<int, IRCClient>::iterator	itClient = _clients.find(clientFd);
+	std::map<int, IRCClient>::iterator itClient = _clients.find(clientFd);
 	itClient->second.setOp(name, true, true);
 }
 
-void IRCServer::sendToChannel(const std::string &message, int senderFd, const std::string &chanName)
+void IRCServer::sendToChannel(const std::string &message, int senderFd,
+		const std::string &chanName)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
 	it->second.sendToChannel(message, senderFd);
@@ -221,12 +235,12 @@ void IRCServer::setTopic(const std::string &chanName, const std::string &topic)
 	it->second.setTopic(topic);
 }
 
-IRCChannel* IRCServer::findChannel(const std::string& chanName)
+IRCChannel *IRCServer::findChannel(const std::string &chanName)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
 	if (it != this->getChannels().end())
-		return &it->second;
-	return NULL;
+		return (&it->second);
+	return (NULL);
 }
 
 void IRCServer::setMode(const std::string &chanName, const std::string &mode)
@@ -238,7 +252,7 @@ void IRCServer::setMode(const std::string &chanName, const std::string &mode)
 bool IRCServer::inMode(const std::string &chanName, const std::string &mode)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
-	return it->second.inMode(mode);
+	return (it->second.inMode(mode));
 }
 
 void IRCServer::whiteList(const std::string &nick, const std::string &chanName)
@@ -247,19 +261,21 @@ void IRCServer::whiteList(const std::string &nick, const std::string &chanName)
 	it->second.whiteList(nick);
 }
 
-bool IRCServer::isWhiteListed(const std::string &nick, const std::string &chanName)
+bool IRCServer::isWhiteListed(const std::string &nick,
+								const std::string &chanName)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
-	return it->second.isWhiteListed(nick);
+	return (it->second.isWhiteListed(nick));
 }
 
-void	IRCServer::changeOpe(const std::string &chanName, const std::string &nick, bool op)
+void IRCServer::changeOpe(const std::string &chanName, const std::string &nick,
+		bool op)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
 	it->second.changeOpe(nick, op);
 }
 
-void	IRCServer::setKey(const std::string &chanName, const std::string &key)
+void IRCServer::setKey(const std::string &chanName, const std::string &key)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
 	it->second.setKey(key);

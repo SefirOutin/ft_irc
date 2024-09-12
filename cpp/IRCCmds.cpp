@@ -431,3 +431,9 @@ void ModeCommand::execute(const std::string &params, IRCClient &client)
 	client.sendMessage(":" + client.getNick() + " MODE " + chanName + " " + mode
 			+ "\r\n");
 }
+
+void QuitCommand::execute(const std::string &params, IRCClient &client)
+{
+	(void)params;
+	client.closeClientConnection();
+}
