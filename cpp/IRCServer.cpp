@@ -108,7 +108,7 @@ int IRCServer::run()
 	while (!_signal)
 	{
 		poll_count = poll(_fds.data(), _fds.size(), -1);
-		if (poll_count < 0 && !signal)
+		if (poll_count < 0 && !_signal)
 		{
 			std::cerr << "poll error\n";
 			return (1);
