@@ -38,6 +38,7 @@ class IRCChannel
 		bool	isWhiteListed(const std::string &nick);
 		void	changeOpe(const std::string &nick, bool op);
 		void	setKey(const std::string &key);
+		void	sendToChannelMode(const std::string &message);
 
 	private:
 		std::string					_name;

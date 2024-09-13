@@ -5,6 +5,7 @@ IRCClient::IRCClient(int fd, IRCServer *server)
 {
 	_connected = false;
 	_sendWelcom = false;
+	_firstMode = false;
 }
 
 IRCClient::IRCClient(const IRCClient &other)
@@ -15,6 +16,17 @@ IRCClient::IRCClient(const IRCClient &other)
 IRCClient::~IRCClient()
 {
 }
+
+const bool &IRCClient::getFirst() const
+{
+	return (_firstMode);
+}
+
+void IRCClient::setFirst(bool first)
+{
+	_firstMode = first;
+}
+
 
 IRCClient &IRCClient::operator=(const IRCClient &other)
 {
@@ -153,9 +165,11 @@ void IRCClient::receiveMessages()
 		{
 			buffer[bytesReceived] = '\0';
 			std::string message(buffer);
+			
 			if (buffer[bytesReceived - 1] == '\n')
 			{
 				cumul += message;
+				// std::cout << "cumul : " << cumul << std::endl;
 				_server->parseCmds(cumul, *this);
 				break;
 			}
@@ -231,16 +245,28 @@ void IRCClient::joinChannel(const std::string &name)
 
 int IRCClient::leaveChannel(const std::string &name)
 {
-	std::map<std::string,
-					 IRCChannel>::const_iterator itChannels = _server->getChannels().find(name);
+	std::map<std::string, IRCChannel>::const_iterator itChannels = _server->getChannels().find(name);
 	if (itChannels == _server->getChannels().end())
 		return (1);
-	std::map<int,
-					 IRCClient *>::const_iterator itClientList = getClientListChannel(name).find(_fd);
+	std::map<int, IRCClient *>::const_iterator itClientList = getClientListChannel(name).find(_fd);
 	if (itClientList == getClientListChannel(name).end())
 		return (2);
 	_server->removeClientFromChannel(name, _fd);
 	return (0);
+}
+
+
+void	IRCClient::leaveAllChannels()
+{
+	std::string	name;
+	
+	std::map<std::string, bool>::iterator it = _op.begin();
+	while (it != _op.end())
+	{
+		name = it->first;
+		it++;
+		_server->removeClientFromChannel(name, _fd);
+	}
 }
 
 int IRCClient::kickFromChannel(const std::string &chanName,
@@ -289,6 +315,11 @@ void IRCClient::sendToChannel(const std::string &message, int senderFd,
 	_server->sendToChannel(message, senderFd, chanName);
 }
 
+void IRCClient::sendToChannelMode(const std::string &message, const std::string &chanName)
+{
+	_server->sendToChannelMode(message, chanName);
+}
+
 void IRCClient::setTopic(const std::string &chanName, const std::string &topic)
 {
 	_server->setTopic(chanName, topic);
@@ -327,4 +358,9 @@ void	IRCClient::changeOpe(const std::string &chanName, const std::string &nick, 
 void	IRCClient::setKey(const std::string &chanName, const std::string &key)
 {
 	_server->setKey(chanName, key);
+}
+
+void	IRCClient::closeClientConnection()
+{
+	_server->closeConnection(_fd);
 }

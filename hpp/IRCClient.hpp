@@ -29,6 +29,8 @@ class IRCClient
 		const std::map<int, IRCClient*>	&getClientListChannel(const std::string &name) const;
 		const bool  					&getOp(const std::string &chanName) const;
 		void							setOp(const std::string &chanName, bool op, bool del);
+		void							setFirst(bool first);
+		const bool						&getFirst() const;
 
 		bool	checkPass(const std::string &password) const;
 		void	sendMessage(const std::string &msg) const;
@@ -37,12 +39,14 @@ class IRCClient
 		void	joinChannel(const std::string &name);
 		void	createChannel(const std::string &name);
 		int		leaveChannel(const std::string &name);
+		void	leaveAllChannels();
 		bool	channelNameInUse(const std::string &name);
 		bool	channelIsFull(const std::string &name);
 		bool	checkChannelPassword(const std::string &name, const std::string &pass);
 		int		kickFromChannel(const std::string &chanName, const std::string &nickToKick, const std::string &msg);
 		void	sendNameReply(const std::string &chanName);
     	void 	sendToChannel(const std::string &message, int senderFd, const std::string &chanName);
+		void	sendToChannelMode(const std::string &message, const std::string &chanName);
 		void	setTopic(const std::string &chanName, const std::string &topic);
 		IRCChannel* findChannel(const std::string &chanName);
 		void		setMode(const std::string &chanName, const std::string &mode);
@@ -51,6 +55,7 @@ class IRCClient
 		bool		isWhiteListed(const std::string &nick, const std::string &chanName);
 		void		changeOpe(const std::string &chanName, const std::string &nick, bool op);
 		void		setKey(const std::string &chanName, const std::string &key);
+		void		closeClientConnection();
 
 	private:
 		IRCServer					*_server;
@@ -60,6 +65,7 @@ class IRCClient
 		std::string					_nick;
 		std::vector<std::string>	_user;
 		std::map<std::string, bool>	_op;
+		bool						_firstMode;
 };
 
 #endif
