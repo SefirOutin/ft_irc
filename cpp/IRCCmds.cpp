@@ -317,8 +317,8 @@ void TopicCommand::execute(const std::string &params, IRCClient &client)
 		return ;
 	}
 	client.setTopic(chanName, topic);
-	client.sendMessage(":" + client.getNick() + "!" + client.getUser()[0]
-			+ " TOPIC " + chanName + " " + topic + "\r\n");
+	client.sendToChannelMode(":" + client.getNick() + "!" + client.getUser()[0]
+		+ " TOPIC " + chanName + " " + topic + "\r\n", chanName);
 }
 
 std::string getMode(const std::string &chanName, IRCClient &client)
@@ -502,9 +502,6 @@ void ModeCommand::execute(const std::string &params, IRCClient &client)
 			return ;
 		}
 	}
-	client.sendToChannel(":" + client.getNick() + "!" + client.getUser()[0]
-			+ " MODE " + chanName + " " + mode + "\r\n", client.getFd(),
-			chanName);
 	client.sendToChannelMode(":" + client.getNick() + "!" + client.getUser()[0]
 			+ " MODE " + chanName + " " + mode + "\r\n", chanName);
 }

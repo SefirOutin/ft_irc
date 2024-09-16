@@ -78,6 +78,7 @@ int IRCServer::startServer()
 {
 	struct pollfd	pollFd;
 
+	bzero(&pollFd, sizeof(pollFd));
 	_sockFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_sockFd < 0)
 	{

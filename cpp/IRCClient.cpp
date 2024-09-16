@@ -155,7 +155,7 @@ void IRCClient::sendMessage(const std::string &msg) const
 
 void IRCClient::receiveMessages()
 {
-	char buffer[512];
+	char buffer[1024];
 	int bytesReceived;
 	std::string cumul;
 	while ((bytesReceived = recv(_fd, buffer, sizeof(buffer) - 1, 0)) > 0)
@@ -288,7 +288,7 @@ int IRCClient::kickFromChannel(const std::string &chanName,
 	if (it == list.end())
 		return (4);
 	_server->removeClientFromChannel(chanName, it->second->getFd());
-	it->second->sendMessage(":" + _nick + " KICK " + chanName + " " + it->second->getNick() + " :" + msg + "\r\n");
+	it->second->sendMessage(getClientInfos() + " KICK " + chanName + " " + nickToKick + " " + ((msg.size() == 1)? "": msg) + "\r\n");
 	return (0);
 }
 
