@@ -64,8 +64,6 @@ const int	&IRCChannel::getClientFdInChannel(const std::string &nick) const
 		if (it->second->getNick() == nick)
 			break;
 	}
-	// if (it == _clients.end())
-	// 	return (-1);
 	return (it->second->getFd());
 }
 

@@ -150,7 +150,6 @@ void IRCClient::setOp(const std::string &chanName, bool op, bool del)
 
 void IRCClient::sendMessage(const std::string &msg) const
 {
-	//   std::cout << "server ----> client : " << msg << std::endl;
 	send(_fd, msg.c_str(), msg.length(), 0);
 }
 
@@ -169,14 +168,11 @@ void IRCClient::receiveMessages()
 			if (buffer[bytesReceived - 1] == '\n')
 			{
 				cumul += message;
-				// std::cout << "cumul : " << cumul << std::endl;
 				_server->parseCmds(cumul, *this);
 				break;
 			}
 			else
-			{
 				cumul += message;
-			}
 		}
 		else
 		{
@@ -230,17 +226,13 @@ bool IRCClient::checkChannelPassword(const std::string &name,
 void IRCClient::createChannel(const std::string &name)
 {
 	_server->newChannel(name, *this);
-	// _op[name] = true;
 	_op.insert(std::pair<std::string, bool>(name, true));
-	// std::cout << _op[name] << "\n";
 }
 
 void IRCClient::joinChannel(const std::string &name)
 {
 	_server->newConnectionToChannel(name, *this);
-	// _op[name] = false;
 	_op.insert(std::pair<std::string, bool>(name, false));
-	// std::cout << _op[name] << "\n";
 }
 
 int IRCClient::leaveChannel(const std::string &name)
@@ -255,6 +247,14 @@ int IRCClient::leaveChannel(const std::string &name)
 	return (0);
 }
 
+bool IRCClient::inChannel(const std::string &name)
+{
+	std::map<int, IRCClient *>::const_iterator itClientList = getClientListChannel(name).find(_fd);
+	if (itClientList == getClientListChannel(name).end())
+		return (false);
+	else
+		return (true);
+}
 
 void	IRCClient::leaveAllChannels()
 {

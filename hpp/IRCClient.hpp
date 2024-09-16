@@ -56,6 +56,7 @@ class IRCClient
 		void		changeOpe(const std::string &chanName, const std::string &nick, bool op);
 		void		setKey(const std::string &chanName, const std::string &key);
 		void		closeClientConnection();
+		bool		inChannel(const std::string &name);
 
 	private:
 		IRCServer					*_server;

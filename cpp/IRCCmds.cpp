@@ -33,7 +33,6 @@ bool	checkArgUser(const std::string &params)
 
 void NickCommand::execute(const std::string &params, IRCClient &client)
 {
-	// std::cout << params << "\n";
 	if (params.empty())
 		client.sendMessage(ERR_NONICKNAMEGIVEN);
 	else if (!client.isConnected())
@@ -139,7 +138,6 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 	else if (nickOrChanToSend[0] == '#')
 	{
 		std::string name(nickOrChanToSend);
-		// nickOrChanToSend.erase(0, 1);
 		if (client.channelNameInUse(nickOrChanToSend))
 			client.sendToChannel(client.getClientInfos() + " PRIVMSG " + name
 					+ " :" + msgToSend + "\r\n", client.getFd(),
@@ -151,8 +149,6 @@ void PrivmsgCommand::execute(const std::string &params, IRCClient &client)
 					+ nickOrChanToSend + " :" + msgToSend + "\r\n");
 	else
 		client.sendMessage(ERR_NOSUCHNICK(client.getNick(), nickOrChanToSend));
-	// PRIVMSG bilel : ca va
-	// : bi!~bmoudach@localhost PRIVMSG bilel : ca va
 }
 
 void JoinCommand::execute(const std::string &params, IRCClient &client)
@@ -301,6 +297,11 @@ void TopicCommand::execute(const std::string &params, IRCClient &client)
 	if (!channel)
 	{
 		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
+		return ;
+	}
+	if (!client.inChannel(chanName))
+	{
+		client.sendMessage(ERR_NOTONCHANNEL(client.getNick(), chanName));
 		return ;
 	}
 	std::getline(sstring >> std::ws, topic);

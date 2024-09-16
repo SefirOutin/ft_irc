@@ -63,11 +63,13 @@ void IRCServer::socketOpt()
 			sizeof(on)) < 0)
 	{
 		std::cerr << "setsockopt() failed\n";
+		IRCServer::~IRCServer();
 		exit(-1);
 	}
 	if (ioctl(_sockFd, FIONBIO, (char *)&on) < 0)
 	{
 		std::cerr << "ioctl() failed\n";
+		IRCServer::~IRCServer();
 		exit(-1);
 	}
 }
@@ -80,6 +82,7 @@ int IRCServer::startServer()
 	if (_sockFd < 0)
 	{
 		std::cerr << "socket error\n";
+		IRCServer::~IRCServer();
 		exit(-1);
 	}
 	pollFd.fd = _sockFd;
@@ -89,11 +92,13 @@ int IRCServer::startServer()
 	if (bind(_sockFd, (struct sockaddr *)&_sockAddr, sizeof(_sockAddr)) < 0)
 	{
 		std::cerr << "bind error\n";
+		IRCServer::~IRCServer();
 		exit(-1);
 	}
 	if (listen(_sockFd, SOMAXCONN) < 0)
 	{
 		std::cerr << "listen error\n";
+		IRCServer::~IRCServer();
 		exit(-1);
 	}
 	signal(SIGINT, IRCServer::signalHandler);
