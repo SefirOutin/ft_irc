@@ -191,11 +191,13 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 			}
 		}
 		client.joinChannel(chanName);
+		client.sendToChannel(":" + client.getNick() + "!~" + client.getUser()[1] + "@" + "localhost" + " JOIN " + params, client.getFd(), params);
 	}
 	else
 	{
 		client.createChannel(chanName);
 	}
+	//a verifier mais c'est l'idee taff un peu connard de connaissance
 	client.sendMessage(client.getClientInfos() + " JOIN " + chanName + "\r\n");
 	client.sendNameReply(chanName);
 }
@@ -212,6 +214,8 @@ void PartCommand::execute(const std::string &params, IRCClient &client)
 	case 0:
 		client.sendMessage(client.getClientInfos() + " PART " + params
 				+ "\r\n");
+		//message optionnel a rajouter (raison du leave) -> petit parsing a faire, comme pour kick
+		client.sendToChannel(":" + client.getNick() + "!~" + client.getUser()[1] + "@" + "localhost" + " PART " + params, client.getFd(), params);
 		break ;
 	case 1:
 		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), params));
@@ -318,7 +322,7 @@ void TopicCommand::execute(const std::string &params, IRCClient &client)
 	}
 	client.setTopic(chanName, topic);
 	client.sendToChannelMode(":" + client.getNick() + "!" + client.getUser()[0]
-		+ " TOPIC " + chanName + " " + topic + "\r\n", chanName);
+			+ " TOPIC " + chanName + " " + topic + "\r\n", chanName);
 }
 
 std::string getMode(const std::string &chanName, IRCClient &client)
@@ -498,7 +502,7 @@ void ModeCommand::execute(const std::string &params, IRCClient &client)
 		else
 		{
 			client.sendMessage(ERR_UNKNOWNMODE(client.getNick(),
-						std::string(1, currentMode)));
+												std::string(1, currentMode)));
 			return ;
 		}
 	}
