@@ -4,6 +4,7 @@
 # include <algorithm>
 # include <arpa/inet.h>
 # include <cstdlib>
+# include <cstdio>
 # include <ctime>
 # include <errno.h>
 # include <iostream>
@@ -19,6 +20,7 @@
 # include <sys/time.h>
 # include <unistd.h>
 # include <vector>
+# include <sys/epoll.h>
 # include "IRCChannel.hpp"
 # include "IRCClient.hpp"
 # include "IRCCmds.hpp"
@@ -65,15 +67,16 @@ class IRCServer
   
   private:
 	int _sockFd;
+	int	_epollFd;
 	std::string _password;
 	sockaddr_in _sockAddr;
-	std::vector<struct pollfd> _fds;
+	std::vector<struct epoll_event> _fds;
 	std::map<int, IRCClient> _clients;
 	std::map<std::string, IRCCommandHandler *> _cmds;
 	std::map<std::string, IRCChannel> _channels;
 	static volatile sig_atomic_t	_signal;
 	
-	void socketOpt();
+	int socketOpt();
 	int acceptConnections();
 };
 
