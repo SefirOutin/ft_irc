@@ -196,6 +196,7 @@ void IRCServer::closeConnection(int clientFd)
 		if (_fds[i].data.fd == clientFd)
 			_fds.erase(_fds.begin() + i);
 	}
+	epoll_ctl(_epollFd, EPOLL_CTL_DEL, clientFd, NULL);
 	close(clientFd);
 	std::cout << "Connection closed\n";
 }
