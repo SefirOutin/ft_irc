@@ -171,19 +171,16 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 			client.sendMessage(ERR_CHANNELISFULL(client.getNick(), chanName));
 			return;
 		}
-		if (client.inMode(chanName, "i") && !client.isWhiteListed(client.getNick(), chanName))
+		if (client.inMode(chanName, "i") && !client.isWhiteListed(client.getFd(), chanName))
 		{
-			client.sendMessage(ERR_INVITEONLYCHANNEL(client.getNick(),
-																							 chanName));
+			client.sendMessage(ERR_INVITEONLYCHANNEL(client.getNick(), chanName));
 			return;
 		}
 		if (client.inMode(chanName, "k"))
 		{
-			if (key.empty() || client.checkChannelPassword(chanName,
-																										 key) == false)
+			if (key.empty() || client.checkChannelPassword(chanName, key) == false)
 			{
-				client.sendMessage(ERR_BADCHANNELKEY(client.getNick(),
-																						 chanName));
+				client.sendMessage(ERR_BADCHANNELKEY(client.getNick(), chanName));
 				return;
 			}
 		}
@@ -276,7 +273,8 @@ void InviteCommand::execute(const std::string &params, IRCClient &client)
 		client.sendMessage(ERR_CHANOPRIVSNEEDED(client.getNick(), chanName));
 		return;
 	}
-	client.whiteList(nick, chanName);
+	
+	client.whiteList(client.getClient(nick).getFd() , chanName);
 	client.getClient(nick).sendMessage(":" + client.getNick() + " INVITE " + nick + " " + chanName + "\r\n");
 }
 

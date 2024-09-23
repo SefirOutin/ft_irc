@@ -139,14 +139,14 @@ bool	IRCChannel::inMode(const std::string &mode)
 	return (false);
 }
 
-void	IRCChannel::whiteList(const std::string &nick)
+void	IRCChannel::whiteList(const int &fd)
 {
-	_whiteList.insert(std::pair<std::string, bool>(nick, true));
+	_whiteList.insert(std::pair<int, bool>(fd, true));
 }
 
-bool	IRCChannel::isWhiteListed(const std::string &nick)
+bool	IRCChannel::isWhiteListed(const int &fd)
 {
-	std::map<std::string, bool>::iterator it = _whiteList.find(nick);
+	std::map<int, bool>::iterator it = _whiteList.find(fd);
 	if (it != _whiteList.end())
 		return (true);
 	return (false);
