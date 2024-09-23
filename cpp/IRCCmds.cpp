@@ -196,6 +196,8 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 	{
 		client.createChannel(chanName);
 	}
+	client.sendMessage(":" + client.getNick() + " TOPIC " + chanName + " "
+				+ client.findChannel(chanName)->getTopic() + "\r\n");
 	client.sendMessage(client.getClientInfos() + " JOIN " + chanName + "\r\n");
 	client.sendNameReply(chanName);
 }

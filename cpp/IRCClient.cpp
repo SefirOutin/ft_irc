@@ -288,7 +288,7 @@ int IRCClient::kickFromChannel(const std::string &chanName,
 	if (it == list.end())
 		return (4);
 	_server->removeClientFromChannel(chanName, it->second->getFd());
-	it->second->sendMessage(getClientInfos() + " KICK " + chanName + " " + nickToKick + " " + ((msg.size() == 1)? "": msg) + "\r\n");
+	it->second->sendToChannelMode(getClientInfos() + " KICK " + chanName + " " + nickToKick + " " + ((msg.size() == 1)? "": msg) + "\r\n", chanName);
 	return (0);
 }
 

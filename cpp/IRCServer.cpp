@@ -104,6 +104,7 @@ int IRCServer::startServer()
 	}
 	signal(SIGINT, IRCServer::signalHandler);
 	signal(SIGTERM, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
 	std::cout << "Listens ...\n";
 	return (0);
 }
