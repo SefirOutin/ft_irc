@@ -341,14 +341,14 @@ bool	IRCClient::inMode(const std::string &chanName, const std::string &mode)
 	return _server->inMode(chanName, mode);
 }
 
-void	IRCClient::whiteList(const std::string &nick, const std::string &chanName)
+void	IRCClient::whiteList(const int &fd, const std::string &chanName)
 {
-	return _server->whiteList(nick, chanName);
+	return _server->whiteList(fd, chanName);
 }
 
-bool	IRCClient::isWhiteListed(const std::string &nick, const std::string &chanName)
+bool	IRCClient::isWhiteListed(const int &fd, const std::string &chanName)
 {
-	return _server->findChannel(chanName)->isWhiteListed(nick);
+	return _server->findChannel(chanName)->isWhiteListed(fd);
 }
 
 void	IRCClient::changeOpe(const std::string &chanName, const std::string &nick, bool op)

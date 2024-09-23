@@ -34,8 +34,8 @@ class IRCChannel
 		void	sendToChannel(const std::string &message, int senderFd);
 		void	setMode(const std::string &mode);
 		bool	inMode(const std::string &mode);
-		void	whiteList(const std::string &nick);
-		bool	isWhiteListed(const std::string &nick);
+		void	whiteList(const int &fd);
+		bool	isWhiteListed(const int &fd);
 		void	changeOpe(const std::string &nick, bool op);
 		void	setKey(const std::string &key);
 		void	sendToChannelMode(const std::string &message);
@@ -48,7 +48,7 @@ class IRCChannel
 		int							_userLimit;
 		int							_nbUser;
 		bool						_modes[5];
-		std::map<std::string, bool>	_whiteList;
+		std::map<int, bool>			_whiteList;
 
 };
 
