@@ -264,17 +264,16 @@ bool IRCServer::inMode(const std::string &chanName, const std::string &mode)
 	return (it->second.inMode(mode));
 }
 
-void IRCServer::whiteList(const std::string &nick, const std::string &chanName)
+void IRCServer::whiteList(const int &fd, const std::string &chanName)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
-	it->second.whiteList(nick);
+	it->second.whiteList(fd);
 }
 
-bool IRCServer::isWhiteListed(const std::string &nick,
-								const std::string &chanName)
+bool IRCServer::isWhiteListed(const int &fd, const std::string &chanName)
 {
 	std::map<std::string, IRCChannel>::iterator it = _channels.find(chanName);
-	return (it->second.isWhiteListed(nick));
+	return (it->second.isWhiteListed(fd));
 }
 
 void IRCServer::changeOpe(const std::string &chanName, const std::string &nick,
