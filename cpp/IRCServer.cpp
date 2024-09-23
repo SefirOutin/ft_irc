@@ -27,10 +27,16 @@ IRCServer::IRCServer(int port, const std::string &password)
 IRCServer::~IRCServer()
 {
 	for (size_t i = 0; i < _fds.size(); i++)
-		close(_fds[i].fd);
+	{
+		epoll_ctl(_epollFd, EPOLL_CTL_DEL, _fds[i].data.fd, NULL);
+		close(_fds[i].data.fd);
+	}
+	
 	std::map<std::string, IRCCommandHandler *>::iterator	cmdIt;
 	for (cmdIt = _cmds.begin(); cmdIt != _cmds.end(); cmdIt++)
 		delete cmdIt->second;
+    close(_sockFd);
+    close(_epollFd);
 }
 
 const std::string &IRCServer::getPass() const
@@ -55,53 +61,38 @@ void IRCServer::removeChannel(std::string name)
 		_channels.erase(name);
 }
 
-void IRCServer::socketOpt()
+int IRCServer::socketOpt()
 {
 	int	on = 1;
 
 	if (setsockopt(_sockFd, SOL_SOCKET, SO_REUSEADDR, (char *)&on,
 			sizeof(on)) < 0)
-	{
-		std::cerr << "setsockopt() failed\n";
-		IRCServer::~IRCServer();
-		exit(-1);
-	}
+		return (1);
 	if (ioctl(_sockFd, FIONBIO, (char *)&on) < 0)
-	{
-		std::cerr << "ioctl() failed\n";
-		IRCServer::~IRCServer();
-		exit(-1);
-	}
+		return (1);
+	return (0);
 }
 
 int IRCServer::startServer()
 {
-	struct pollfd	pollFd;
+	struct epoll_event	pollFd;
 
 	bzero(&pollFd, sizeof(pollFd));
 	_sockFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_sockFd < 0)
-	{
-		std::cerr << "socket error\n";
-		IRCServer::~IRCServer();
-		exit(-1);
-	}
-	pollFd.fd = _sockFd;
-	pollFd.events = POLLIN;
-	_fds.push_back(pollFd);
+		return (1);
+	_epollFd = epoll_create1(0);
+	if (_epollFd < 0)
+		return (1);
+	pollFd.data.fd = _sockFd;
+	pollFd.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR;
+	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, _sockFd, &pollFd) < 0)
+		return (1);
 	socketOpt();
 	if (bind(_sockFd, (struct sockaddr *)&_sockAddr, sizeof(_sockAddr)) < 0)
-	{
-		std::cerr << "bind error\n";
-		IRCServer::~IRCServer();
-		exit(-1);
-	}
+		return (1);
 	if (listen(_sockFd, SOMAXCONN) < 0)
-	{
-		std::cerr << "listen error\n";
-		IRCServer::~IRCServer();
-		exit(-1);
-	}
+		return (1);
 	signal(SIGINT, IRCServer::signalHandler);
 	signal(SIGTERM, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
@@ -111,24 +102,29 @@ int IRCServer::startServer()
 
 int IRCServer::run()
 {
-	int	poll_count;
+	int	epoll_count;
+	int	fd;
 
+	_fds.resize(64);
 	while (!_signal)
 	{
-		poll_count = poll(_fds.data(), _fds.size(), -1);
-		if (poll_count < 0 && !_signal)
+		epoll_count = epoll_wait(_epollFd, _fds.data(), _fds.size(), -1);
+		if (epoll_count < 0 && !_signal)
 		{
-			std::cerr << "poll error\n";
+			perror("epoll_wait");
 			return (1);
 		}
-		for (size_t i = 0; i < _fds.size(); ++i)
+		for (int i = 0; i < epoll_count; ++i)
 		{
-			if (_fds[i].revents & POLLIN)
+			fd = _fds[i].data.fd; 
+			if ((_fds[i].events & EPOLLHUP || _fds[i].events & EPOLLERR))
+				closeConnection(fd);
+			if (_fds[i].events & POLLIN)
 			{
-				if (_fds[i].fd == _sockFd)
+				if (fd == _sockFd)
 					acceptConnections();
 				else
-					_clients.find(_fds[i].fd)->second.receiveMessages();
+					_clients.find(fd)->second.receiveMessages();
 			}
 		}
 	}
@@ -138,7 +134,7 @@ int IRCServer::run()
 int IRCServer::acceptConnections()
 {
 	struct sockaddr_in	clientSockAddr;
-	struct pollfd		clientPollFd;
+	struct epoll_event	clientPollFd;
 	socklen_t			addrLen;
 	int					new_connection;
 
@@ -152,9 +148,10 @@ int IRCServer::acceptConnections()
 					<< "\n";
 		return (1);
 	}
-	clientPollFd.fd = new_connection;
-	clientPollFd.events = POLLIN;
-	_fds.push_back(clientPollFd);
+	clientPollFd.data.fd = new_connection;
+	clientPollFd.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR;
+	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, new_connection, &clientPollFd) < 0)
+		return (1);
 	_clients.insert(std::pair<int, IRCClient>(new_connection, IRCClient(new_connection, this)));
 	std::cout << "New client connected: " << inet_ntoa(clientSockAddr.sin_addr) << std::endl;
 	return (0);
@@ -195,7 +192,7 @@ void IRCServer::closeConnection(int clientFd)
 	}
 	for (size_t i = 0; i < _fds.size(); i++)
 	{
-		if (_fds[i].fd == clientFd)
+		if (_fds[i].data.fd == clientFd)
 			_fds.erase(_fds.begin() + i);
 	}
 	close(clientFd);

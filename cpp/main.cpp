@@ -26,7 +26,8 @@ int	main(int ac, char **av)
 
 	int port = std::atoi(port_str.c_str());
 	IRCServer server(port, av[2]);
-	server.startServer();
+	if (server.startServer())
+		return (1);
 	server.run();
 	return (0);
 }
