@@ -188,38 +188,37 @@ void JoinCommand::execute(const std::string &params, IRCClient &client)
 			}
 		}
 		client.joinChannel(chanName);
-		client.sendToChannel(":" + client.getNick() + "!~" + client.getUser()[1] + "@" + "localhost" + " JOIN " + params, client.getFd(), params);
 	}
 	else
 	{
 		client.createChannel(chanName);
 	}
-	// a verifier mais c'est l'idee taff un peu connard de connaissance
-	client.sendMessage(":" + client.getNick() + " TOPIC " + chanName + " "
-				+ client.findChannel(chanName)->getTopic() + "\r\n");
-	client.sendMessage(client.getClientInfos() + " JOIN " + chanName + "\r\n");
+	client.sendToChannelMode(client.getClientInfos() + " JOIN " + chanName, chanName);
 	client.sendNameReply(chanName);
+	if (client.findChannel(chanName)->getTopic().size())
+		client.sendMessage(":" + client.getNick() + " TOPIC " + chanName + " "
+					+ client.findChannel(chanName)->getTopic() + "\r\n");
 }
 
 void PartCommand::execute(const std::string &params, IRCClient &client)
 {
-	if (!params.size())
+	std::istringstream sstring(params);
+	std::string chanName, msg;
+	sstring >> chanName;
+	if (sstring.fail())
 	{
 		client.sendMessage(ERR_NEEDMOREPARAMS(client.getNick(), "PART"));
 		return;
 	}
-	switch (client.leaveChannel(params))
+	std::getline(sstring >> std::ws, msg);
+	// std::cout << msg << "\n";
+	switch (client.leaveChannel(chanName, msg))
 	{
-	case 0:
-		client.sendMessage(client.getClientInfos() + " PART " + params + "\r\n");
-		// message optionnel a rajouter (raison du leave) -> petit parsing a faire, comme pour kick
-		client.sendToChannel(":" + client.getNick() + "!~" + client.getUser()[1] + "@" + "localhost" + " PART " + params, client.getFd(), params);
-		break;
 	case 1:
-		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), params));
+		client.sendMessage(ERR_NOSUCHCHANNEL(client.getNick(), chanName));
 		break;
 	case 2:
-		client.sendMessage(ERR_NOTONCHANNEL(client.getNick(), params));
+		client.sendMessage(ERR_NOTONCHANNEL(client.getNick(), chanName));
 		break;
 	}
 }

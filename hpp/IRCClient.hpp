@@ -38,7 +38,7 @@ class IRCClient
 		bool	nickAlreadyInUse(std::string arg, int clientFd);
 		void	joinChannel(const std::string &name);
 		void	createChannel(const std::string &name);
-		int		leaveChannel(const std::string &name);
+		int		leaveChannel(const std::string &name, const std::string &msg);
 		void	leaveAllChannels();
 		bool	channelNameInUse(const std::string &name);
 		bool	channelIsFull(const std::string &name);

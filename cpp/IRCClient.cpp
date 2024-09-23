@@ -235,7 +235,7 @@ void IRCClient::joinChannel(const std::string &name)
 	_op.insert(std::pair<std::string, bool>(name, false));
 }
 
-int IRCClient::leaveChannel(const std::string &name)
+int IRCClient::leaveChannel(const std::string &name, const std::string &msg)
 {
 	std::map<std::string, IRCChannel>::const_iterator itChannels = _server->getChannels().find(name);
 	if (itChannels == _server->getChannels().end())
@@ -243,6 +243,7 @@ int IRCClient::leaveChannel(const std::string &name)
 	std::map<int, IRCClient *>::const_iterator itClientList = getClientListChannel(name).find(_fd);
 	if (itClientList == getClientListChannel(name).end())
 		return (2);
+	sendToChannelMode(getClientInfos() + " PART " + name + " " + ((msg.size() == 1)? "": msg), name);
 	_server->removeClientFromChannel(name, _fd);
 	return (0);
 }
@@ -288,7 +289,7 @@ int IRCClient::kickFromChannel(const std::string &chanName,
 	if (it == list.end())
 		return (4);
 	_server->removeClientFromChannel(chanName, it->second->getFd());
-	it->second->sendToChannelMode(getClientInfos() + " KICK " + chanName + " " + nickToKick + " " + ((msg.size() == 1)? "": msg) + "\r\n", chanName);
+	it->second->sendToChannelMode(getClientInfos() + " KICK " + chanName + " " + nickToKick + " " + ((msg.size() == 1)? "": msg), chanName);
 	return (0);
 }
 
