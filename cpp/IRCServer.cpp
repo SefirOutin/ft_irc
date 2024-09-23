@@ -88,7 +88,8 @@ int IRCServer::startServer()
 	pollFd.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR;
 	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, _sockFd, &pollFd) < 0)
 		return (1);
-	socketOpt();
+	if (socketOpt() == 1)
+		return (1);
 	if (bind(_sockFd, (struct sockaddr *)&_sockAddr, sizeof(_sockAddr)) < 0)
 		return (1);
 	if (listen(_sockFd, SOMAXCONN) < 0)
